@@ -1,0 +1,73 @@
+'use client'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+
+export default function OnboardingPage() {
+  const [targetScore, setTargetScore] = useState(700)
+  const [examDate, setExamDate] = useState('')
+  const [loading, setLoading] = useState(false)
+  const router = useRouter()
+
+  async function handleSave() {
+    setLoading(true)
+    await fetch('/api/user/onboarding', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ targetScore, examDate: examDate || null }),
+    })
+    router.push('/dashboard')
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4"
+      style={{ background: 'var(--background)' }}>
+      <div className="card p-8 w-full max-w-md">
+        <h1 className="text-2xl font-bold mb-2">Set Your Goal</h1>
+        <p className="mb-8" style={{ color: 'var(--muted)' }}>
+          This helps Claude create your personalized study plan.
+        </p>
+
+        <div className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium mb-2">
+              Target TOEIC Score: <span style={{ color: 'var(--accent)' }}>{targetScore}</span>
+            </label>
+            <input
+              type="range"
+              min={300}
+              max={990}
+              step={5}
+              value={targetScore}
+              onChange={e => setTargetScore(Number(e.target.value))}
+              className="w-full"
+              style={{ accentColor: 'var(--accent)' }}
+            />
+            <div className="flex justify-between text-xs mt-1" style={{ color: 'var(--muted)' }}>
+              <span>300</span><span>600</span><span>990</span>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium mb-2">Exam Date (optional)</label>
+            <input
+              type="date"
+              value={examDate}
+              onChange={e => setExamDate(e.target.value)}
+              className="w-full px-4 py-3 rounded-lg outline-none"
+              style={{ background: '#1e1e2e', border: '1px solid #2e2e3e', color: 'var(--foreground)' }}
+            />
+          </div>
+
+          <button
+            onClick={handleSave}
+            disabled={loading}
+            className="w-full py-3 rounded-lg font-semibold transition-opacity disabled:opacity-50"
+            style={{ background: 'var(--accent)' }}
+          >
+            {loading ? 'Saving...' : 'Start Preparing →'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
