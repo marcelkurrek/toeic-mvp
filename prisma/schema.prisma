@@ -1,0 +1,146 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id             String      @id @default(cuid())
+  supabaseId     String      @unique
+  email          String      @unique
+  name           String?
+  examType       ExamType?
+  examDate       DateTime?
+  diagnosticDone Boolean     @default(false)
+  sessions       Session[]
+  progress       Progress[]
+  levels         UserLevel[]
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+
+// Stores per-section CEFR level after diagnostic and ongoing practice
+model UserLevel {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  section   Section
+  cefr      String   // A1 | A2 | B1 | B2 | C1 | C2
+  score     Float    // raw % accuracy for that section
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, section])
+}
+
+model Question {
+  id          String       @id @default(cuid())
+  section     Section
+  part        Int          // 1-7 for L&R; 1-3 for Writing; 1-5 for Speaking (task group)
+  type        QuestionType
+  content     Json         // text, imageUrl, audioUrl, keywords, schedule etc.
+  options     Json?        // MC options for L&R; null for open-ended
+  answer      String       // correct MC key or model answer for AI-graded tasks
+  explanation String?
+  difficulty  Int          @default(3) // 1-5
+  tags        String[]
+  isDiagnostic Boolean     @default(false)
+  answers     Answer[]
+  createdAt   DateTime     @default(now())
+}
+
+model Session {
+  id             String      @id @default(cuid())
+  userId         String
+  user           User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mode           SessionMode
+  section        Section?
+  parts          Int[]
+  totalQuestions Int
+  score          Int?
+  maxScore       Int?
+  durationSec    Int?
+  completedAt    DateTime?
+  answers        Answer[]
+  createdAt      DateTime    @default(now())
+}
+
+model Answer {
+  id           String   @id @default(cuid())
+  sessionId    String
+  session      Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  questionId   String
+  question     Question @relation(fields: [questionId], references: [id])
+  userAnswer   String   // MC key, typed text, or audio transcript
+  isCorrect    Boolean
+  cefrLevel    String?  // CEFR level for this specific answer (AI-evaluated)
+  aiFeedback   String?  // structured JSON with what_was_good, what_to_improve, tip
+  timeSpentSec Int?
+  createdAt    DateTime @default(now())
+}
+
+model Progress {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  section    Section
+  part       Int
+  type       QuestionType
+  accuracy   Float
+  avgTime    Float
+  sampleSize Int
+  updatedAt  DateTime @updatedAt
+
+  @@unique([userId, section, part, type])
+}
+
+enum ExamType {
+  LISTENING_READING
+  SPEAKING_WRITING
+  FULL_CERTIFICATE
+}
+
+enum Section {
+  LISTENING
+  READING
+  SPEAKING
+  WRITING
+}
+
+enum SessionMode {
+  DIAGNOSTIC
+  FULL_EXAM
+  PART_PRACTICE
+  ADAPTIVE
+}
+
+enum QuestionType {
+  // ── Listening ──────────────────────────────────────
+  PHOTOGRAPH           // Part 1: 4 audio statements about a photo, pick best
+  QUESTION_RESPONSE    // Part 2: hear question + 3 responses, pick best
+  CONVERSATION         // Part 3: conversation + 3 MC questions (may have graphic)
+  TALK                 // Part 4: monologue + 3 MC questions (may have graphic)
+
+  // ── Reading ────────────────────────────────────────
+  INCOMPLETE_SENTENCE  // Part 5: fill-in-the-blank grammar/vocab
+  TEXT_COMPLETION      // Part 6: 4 blanks per text passage
+  SINGLE_PASSAGE       // Part 7: one text, 2-4 questions
+  DOUBLE_PASSAGE       // Part 7: two related texts, 5 questions
+  TRIPLE_PASSAGE       // Part 7: three related texts, 5 questions
+
+  // ── Speaking ───────────────────────────────────────
+  READ_ALOUD           // Q1-2: read text aloud (45s prep, 45s speak)
+  DESCRIBE_PICTURE     // Q3-4: describe image (45s prep, 30s speak)
+  RESPOND_FREE         // Q5-7: respond to question with no reference text
+  RESPOND_INFO         // Q8-10: respond using provided document/schedule
+  EXPRESS_OPINION      // Q11: give structured opinion (45s prep, 60s speak)
+
+  // ── Writing ────────────────────────────────────────
+  WRITE_SENTENCE       // Q1-5: one sentence using 2 given keywords + picture
+  RESPOND_EMAIL        // Q6-7: email response (10 min, ≥2 requests/points)
+  OPINION_ESSAY        // Q8: structured essay (30 min, ≥300 words)
+}

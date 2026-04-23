@@ -1,0 +1,3 @@
+{
+  "postStartCommand": "cd /workspaces/toeic-mvp && npm install -g pm2 --silent && ([ -f .next/BUILD_ID ] || npm run build) && (pm2 describe toeic-mvp > /dev/null 2>&1 && pm2 restart toeic-mvp || pm2 start ecosystem.config.js) && pm2 save"
+}
