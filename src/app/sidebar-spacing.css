@@ -1,0 +1,21 @@
+/* Force sidebar spacing with !important */
+
+aside nav a {
+  padding-top: 24px !important;
+  padding-bottom: 24px !important;
+  margin-bottom: 20px !important;
+  display: flex !important;
+}
+
+aside nav p {
+  padding-top: 80px !important;
+  padding-bottom: 24px !important;
+  margin-top: 40px !important;
+  margin-bottom: 0 !important;
+}
+
+/* First section label gets less top padding */
+aside nav p:first-of-type {
+  padding-top: 0 !important;
+  margin-top: 0 !important;
+}

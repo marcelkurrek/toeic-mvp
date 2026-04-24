@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import './globals.css'
+import './sidebar-spacing.css'
 import { LanguageProvider } from '@/lib/i18n/client'
 import { ThemeProvider } from '@/lib/theme/client'
 
