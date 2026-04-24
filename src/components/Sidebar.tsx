@@ -9,7 +9,7 @@ import ThemeSwitcher from './ThemeSwitcher'
 
 function SectionLabel({ label }: { label: string }) {
   return (
-    <p className="text-xs font-semibold px-3 pt-5 pb-1"
+    <p className="text-xs font-semibold px-3 pt-6 pb-2 mt-2"
       style={{ color: 'var(--muted)', letterSpacing: '0.08em', textTransform: 'uppercase', fontSize: 10 }}>
       {label}
     </p>
@@ -30,7 +30,7 @@ function NavItem({
   return (
     <Link
       href={href}
-      className="flex items-center gap-3 px-3 py-2 rounded-lg transition-all"
+      className="flex items-center gap-3 px-3 py-2 mb-1 rounded-lg transition-all"
       style={{
         background: active ? 'var(--accent-subtle)' : 'transparent',
         color: active ? 'var(--accent)' : 'var(--muted)',
