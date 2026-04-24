@@ -15,9 +15,9 @@ function SectionLabel({ label }: { label: string }) {
         letterSpacing: '0.08em',
         textTransform: 'uppercase',
         fontSize: 10,
-        paddingTop: '32px',
-        paddingBottom: '12px',
-        marginTop: '16px'
+        paddingTop: '48px',
+        paddingBottom: '16px',
+        marginTop: '24px'
       }}>
       {label}
     </p>
@@ -40,9 +40,9 @@ function NavItem({
       href={href}
       className="flex items-center gap-3 px-3 rounded-lg transition-all"
       style={{
-        paddingTop: '12px',
-        paddingBottom: '12px',
-        marginBottom: '8px',
+        paddingTop: '16px',
+        paddingBottom: '16px',
+        marginBottom: '12px',
         background: active ? 'var(--accent-subtle)' : 'transparent',
         color: active ? 'var(--accent)' : 'var(--muted)',
         textDecoration: 'none',
