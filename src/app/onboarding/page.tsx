@@ -12,7 +12,7 @@ export default function OnboardingPage() {
   const [examDate, setExamDate] = useState('')
   const [loading, setLoading]   = useState(false)
   const router   = useRouter()
-  const supabase = createClient()
+  const supabase = await createClient()
   const { t }    = useLang()
   const l        = t.auth.onboarding
 

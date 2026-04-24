@@ -3,11 +3,13 @@ import { translations, type Lang } from './translations'
 
 type T = (typeof translations)[Lang]
 
-export function getServerTranslations(): T {
-  const lang = (cookies().get('lang')?.value ?? 'de') as Lang
+export async function getServerTranslations(): Promise<T> {
+  const cookieStore = await cookies()
+  const lang = cookieStore.get('lang')?.value ?? 'de' as Lang
   return translations[lang === 'en' ? 'en' : 'de']
 }
 
-export function getServerLang(): Lang {
-  return (cookies().get('lang')?.value ?? 'de') as Lang
+export async function getServerLang(): Promise<Lang> {
+  const cookieStore = await cookies()
+  return (cookieStore.get('lang')?.value ?? 'de') as Lang
 }

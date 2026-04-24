@@ -34,8 +34,8 @@ const PART_META = [
 ]
 
 export default async function DashboardPage() {
-  const t = getServerTranslations()
-  const supabase = createClient()
+  const t = await getServerTranslations()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
@@ -329,8 +329,6 @@ export default async function DashboardPage() {
                     cursor: 'pointer',
                     borderColor: 'var(--card-border)',
                   }}
-                    onMouseEnter={e => (e.currentTarget.style.borderColor = color)}
-                    onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--card-border)')}
                   >
                     {/* Icon + badge */}
                     <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>

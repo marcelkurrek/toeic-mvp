@@ -6,8 +6,8 @@ import { ChevronRight } from 'lucide-react'
 import { getServerTranslations } from '@/lib/i18n/server'
 
 export default async function ProgressPage() {
-  const t = getServerTranslations()
-  const supabase = createClient()
+  const t = await getServerTranslations()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 

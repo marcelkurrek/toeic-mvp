@@ -5,7 +5,7 @@ import { Section, QuestionType } from '@prisma/client'
 
 export async function PUT(request: Request, { params }: { params: { id: string } }) {
   try {
-    const supabase = createClient()
+    const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
