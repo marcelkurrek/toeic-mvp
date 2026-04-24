@@ -9,8 +9,16 @@ import ThemeSwitcher from './ThemeSwitcher'
 
 function SectionLabel({ label }: { label: string }) {
   return (
-    <p className="text-xs font-semibold px-3 pt-8 pb-3 mt-4"
-      style={{ color: 'var(--muted)', letterSpacing: '0.08em', textTransform: 'uppercase', fontSize: 10 }}>
+    <p className="text-xs font-semibold px-3"
+      style={{
+        color: 'var(--muted)',
+        letterSpacing: '0.08em',
+        textTransform: 'uppercase',
+        fontSize: 10,
+        paddingTop: '32px',
+        paddingBottom: '12px',
+        marginTop: '16px'
+      }}>
       {label}
     </p>
   )
@@ -30,8 +38,11 @@ function NavItem({
   return (
     <Link
       href={href}
-      className="flex items-center gap-3 px-3 py-3 mb-2 rounded-lg transition-all"
+      className="flex items-center gap-3 px-3 rounded-lg transition-all"
       style={{
+        paddingTop: '12px',
+        paddingBottom: '12px',
+        marginBottom: '8px',
         background: active ? 'var(--accent-subtle)' : 'transparent',
         color: active ? 'var(--accent)' : 'var(--muted)',
         textDecoration: 'none',
