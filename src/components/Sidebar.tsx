@@ -40,9 +40,9 @@ function NavItem({
       href={href}
       className="flex items-center gap-3 px-3 rounded-lg transition-all"
       style={{
-        paddingTop: '8px',
-        paddingBottom: '8px',
-        marginBottom: '4px',
+        paddingTop: '10px',
+        paddingBottom: '10px',
+        marginBottom: '6px',
         background: active ? 'var(--accent-subtle)' : 'transparent',
         color: active ? 'var(--accent)' : 'var(--muted)',
         textDecoration: 'none',

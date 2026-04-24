@@ -104,16 +104,3 @@ body {
 .part-card { transition: border-color 0.2s; }
 .part-card:hover { border-color: var(--part-color) !important; }
 
-/* Sidebar Navigation Spacing */
-aside nav a {
-  padding-top: 12px !important;
-  padding-bottom: 12px !important;
-  margin-bottom: 8px !important;
-  display: block;
-}
-
-aside p {
-  margin-top: 16px !important;
-  padding-top: 32px !important;
-  padding-bottom: 12px !important;
-}
