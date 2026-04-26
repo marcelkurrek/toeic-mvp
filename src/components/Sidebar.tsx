@@ -84,8 +84,8 @@ export default function Sidebar() {
 
       {/* Brand */}
       <div className="flex items-center gap-2 px-3 py-2 mb-2">
-        <div className="w-8 h-8 rounded-lg flex items-center justify-center font-bold text-sm"
-          style={{ background: 'var(--accent)', color: '#0d1b2a' }}>T</div>
+        <div className="w-8 h-8 rounded-xl flex items-center justify-center font-bold text-sm"
+          style={{ background: 'var(--accent)', color: '#ffffff', boxShadow: '0 2px 8px rgba(27,82,245,0.4)' }}>T</div>
         <span className="font-bold text-sm">TOEIC Prep</span>
       </div>
 
