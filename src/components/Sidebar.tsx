@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { LayoutDashboard, BarChart2, LogOut, Info, Zap, Sparkles, FileEdit, BookOpen } from 'lucide-react'
+import { LayoutDashboard, BarChart2, LogOut, Info, Zap, Headphones, BookOpen, Mic, PenLine } from 'lucide-react'
 import { useLang } from '@/lib/i18n/client'
 import LanguageSwitcher from './LanguageSwitcher'
 import ThemeSwitcher from './ThemeSwitcher'
@@ -42,7 +42,7 @@ function NavItem({
       style={{
         paddingTop: '10px',
         paddingBottom: '10px',
-        marginBottom: '6px',
+        marginBottom: '2px',
         background: active ? 'var(--accent-subtle)' : 'transparent',
         color: active ? 'var(--accent)' : 'var(--muted)',
         textDecoration: 'none',
@@ -91,40 +91,18 @@ export default function Sidebar() {
 
       <nav className="flex-1 flex flex-col">
 
-        {/* Dashboard */}
         <NavItem href="/dashboard" label={t.nav.dashboard} icon={LayoutDashboard} exact />
 
-        {/* Practice group */}
         <SectionLabel label={t.nav.sectionPractice} />
 
-        <NavItem
-          href="/diagnostic"
-          label={t.nav.diagnostic}
-          sub={t.nav.diagnosticSub}
-          icon={Zap}
-        />
-        <NavItem
-          href="/practice/part5"
-          label={t.nav.part5}
-          sub={t.nav.part5Sub}
-          icon={Sparkles}
-        />
-        <NavItem
-          href="/practice/part6"
-          label={t.nav.part6}
-          sub={t.nav.part6Sub}
-          icon={FileEdit}
-        />
-        <NavItem
-          href="/practice/part7"
-          label={t.nav.part7}
-          sub={t.nav.part7Sub}
-          icon={BookOpen}
-        />
-        <NavItem href="/progress" label={t.nav.progress} icon={BarChart2} />
+        <NavItem href="/listening" label="Listening" sub="Parts 1–4" icon={Headphones} />
+        <NavItem href="/reading" label="Reading" sub="Parts 5–7" icon={BookOpen} />
+        <NavItem href="/speaking" label="Speaking" sub="Mündlich" icon={Mic} />
+        <NavItem href="/writing" label="Writing" sub="Schriftlich" icon={PenLine} />
 
-        {/* Info group */}
         <SectionLabel label={t.nav.sectionInfo} />
+        <NavItem href="/diagnostic" label={t.nav.diagnostic} sub={t.nav.diagnosticSub} icon={Zap} />
+        <NavItem href="/progress" label={t.nav.progress} icon={BarChart2} />
         <NavItem href="/guide" label={t.nav.guide} icon={Info} />
 
       </nav>
