@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import SkillLandingPage from '@/components/SkillLandingPage'
 
 export default async function ReadingPage() {
-  const supabase = createClient()
+  const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
