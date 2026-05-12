@@ -1130,11 +1130,1081 @@ Elmwood Business District Grant Committee`,
     })
   }
 
+  // ─── LISTENING: Part 2 – Batch 3 (17 more questions) ──────────────────────
+  const part2Batch3 = [
+    {
+      id: 'p2-how-15',
+      content: { question: 'How did you hear about the conference?', responses: ['Through the company newsletter.', 'The conference is in Berlin.', 'It starts on Monday.'] },
+      options: ['A', 'B', 'C'], answer: 'A',
+      explanation: '"How did you hear" asks about the means. "Through the company newsletter" answers correctly.',
+      tags: ['how', 'question-response'],
+    },
+    {
+      id: 'p2-what-16',
+      content: { question: 'What time does the budget workshop start?', responses: ['It covers accounting basics.', 'At half past nine.', 'On the third floor.'] },
+      options: ['A', 'B', 'C'], answer: 'B',
+      explanation: '"What time" asks for a time. "At half past nine" is the correct answer.',
+      tags: ['time', 'question-response'],
+    },
+    {
+      id: 'p2-indirect-17',
+      content: { question: 'Do you know where I can find the project files?', responses: ['The project was very successful.', 'I finished them last week.', 'Check the shared drive in the main folder.'] },
+      options: ['A', 'B', 'C'], answer: 'C',
+      explanation: 'An indirect location question. Directing the person to the shared drive answers it.',
+      tags: ['location', 'indirect'],
+    },
+    {
+      id: 'p2-yn-18',
+      content: { question: 'Is the finance director available for a meeting today?', responses: ["She's out of office until tomorrow.", 'The meeting lasted two hours.', 'Finance reports are due Friday.'] },
+      options: ['A', 'B', 'C'], answer: 'A',
+      explanation: 'A yes/no question about availability. "She\'s out of office until tomorrow" answers it directly.',
+      tags: ['yes-no', 'availability'],
+    },
+    {
+      id: 'p2-or-19',
+      content: { question: 'Would you prefer to meet in the morning or the afternoon?', responses: ['The conference room is large.', 'Either works for me.', 'The meeting was very productive.'] },
+      options: ['A', 'B', 'C'], answer: 'B',
+      explanation: 'An either/or question about preference. "Either works for me" accepts both options.',
+      tags: ['preference', 'or-question'],
+    },
+    {
+      id: 'p2-why-20',
+      content: { question: 'Why was the quarterly report delayed?', responses: ['It was delayed by a week.', 'By the end of the month.', "The data wasn't ready in time."] },
+      options: ['A', 'B', 'C'], answer: 'C',
+      explanation: '"Why" asks for a reason. "The data wasn\'t ready in time" provides the cause.',
+      tags: ['why', 'reason'],
+    },
+    {
+      id: 'p2-neg-21',
+      content: { question: "Didn't you say the client wants the proposal by Thursday?", responses: ['Yes, Thursday at the latest.', 'The client seems satisfied.', "I'll check my schedule."] },
+      options: ['A', 'B', 'C'], answer: 'A',
+      explanation: 'Negative questions confirm expectations. "Yes, Thursday at the latest" confirms.',
+      tags: ['negative', 'confirmation'],
+    },
+    {
+      id: 'p2-how-long-22',
+      content: { question: 'How long will the office renovation take?', responses: ['In the new wing.', 'About three months.', 'It costs a lot.'] },
+      options: ['A', 'B', 'C'], answer: 'B',
+      explanation: '"How long" asks for duration. "About three months" answers with a time period.',
+      tags: ['duration', 'how-long'],
+    },
+    {
+      id: 'p2-which-23',
+      content: { question: 'Which department is handling the new account?', responses: ['The account was just opened.', 'Sales and marketing.', 'A large corporation.'] },
+      options: ['A', 'B', 'C'], answer: 'B',
+      explanation: '"Which department" asks for a department name. "Sales and marketing" identifies it.',
+      tags: ['which', 'department'],
+    },
+    {
+      id: 'p2-statement-24',
+      content: { question: 'I need someone to cover my shift on Friday.', responses: ["I can do it if no one else can.", 'Friday is a busy day.', 'The shift was very long.'] },
+      options: ['A', 'B', 'C'], answer: 'A',
+      explanation: 'A request for coverage. Offering to help is the most natural and direct response.',
+      tags: ['statement', 'offer'],
+    },
+    {
+      id: 'p2-how-much-25',
+      content: { question: 'How much does the premium membership cost?', responses: ['For new members only.', 'Eighty-five dollars per year.', 'The membership card arrived.'] },
+      options: ['A', 'B', 'C'], answer: 'B',
+      explanation: '"How much" asks for a price. "Eighty-five dollars per year" gives the cost.',
+      tags: ['price', 'how-much'],
+    },
+    {
+      id: 'p2-shouldnt-26',
+      content: { question: "Shouldn't we book the venue well in advance?", responses: ['I already called them yesterday.', 'The venue was beautiful.', 'About thirty guests will attend.'] },
+      options: ['A', 'B', 'C'], answer: 'A',
+      explanation: 'A suggestion phrased as a negative question. Having already acted addresses the concern.',
+      tags: ['suggestion', 'negative-question'],
+    },
+    {
+      id: 'p2-who-27',
+      content: { question: 'Who is in charge of the client onboarding process?', responses: ['The human resources team.', 'The client called this morning.', 'The process takes about a week.'] },
+      options: ['A', 'B', 'C'], answer: 'A',
+      explanation: '"Who is in charge" asks for a person or group. "The human resources team" answers it.',
+      tags: ['who', 'responsibility'],
+    },
+    {
+      id: 'p2-directions-28',
+      content: { question: "What's the quickest way to get to the convention center?", responses: ['The event starts at nine.', "It's very close to downtown.", 'Take the express subway from Central Station.'] },
+      options: ['A', 'B', 'C'], answer: 'C',
+      explanation: '"What\'s the quickest way" asks for directions. "Take the express subway" gives specific directions.',
+      tags: ['directions', 'how'],
+    },
+    {
+      id: 'p2-statement-29',
+      content: { question: 'The new employee handbook has some updates about overtime policy.', responses: ["I haven't read it yet.", 'Overtime is rarely necessary.', 'The handbook is on the shelf.'] },
+      options: ['A', 'B', 'C'], answer: 'A',
+      explanation: 'An informational statement. Acknowledging you haven\'t read it yet is the most natural response.',
+      tags: ['statement', 'acknowledgement'],
+    },
+    {
+      id: 'p2-yn-30',
+      content: { question: 'Has the IT team fixed the network connection issue?', responses: ['The IT department is on level four.', "They're still working on it.", 'Network cables are on order.'] },
+      options: ['A', 'B', 'C'], answer: 'B',
+      explanation: 'A yes/no question about completion. "They\'re still working on it" gives a partial status update.',
+      tags: ['yes-no', 'status'],
+    },
+    {
+      id: 'p2-how-often-31',
+      content: { question: 'How often does the team hold performance reviews?', responses: ["It's quite a long process.", 'Twice a year.', 'With the full management team.'] },
+      options: ['A', 'B', 'C'], answer: 'B',
+      explanation: '"How often" asks for frequency. "Twice a year" answers with the frequency.',
+      tags: ['frequency', 'how-often'],
+    },
+  ]
+
+  for (const q of part2Batch3) {
+    await prisma.question.upsert({
+      where: { id: q.id },
+      update: {},
+      create: { ...q, section: 'LISTENING', part: 2, type: 'QUESTION_RESPONSE', difficulty: 2 },
+    })
+  }
+
+  // ─── LISTENING: Part 3 – Batch 3 (4 more conversations × 3 = 12 questions) ─
+  const conv4 = `Woman: Good afternoon, Bayview Hotel, how can I help you?
+Man: Yes, I made a reservation for next weekend under the name Harris. I'd like to upgrade to an ocean view room if possible.
+Woman: Let me check availability… yes, we have one ocean view suite available on Saturday and Sunday. It would be an additional sixty dollars per night.
+Man: That sounds perfect. Please go ahead and make that change. And could you also arrange an airport transfer for Saturday morning?
+Woman: Of course. Just let me know your arrival time and flight number and we'll have a driver waiting for you.`
+
+  const conv5 = `Man: Hi, I need to make a dinner reservation for six people this Friday evening.
+Woman: Of course. What time were you thinking?
+Man: Around seven thirty, if you have availability. It's for a client dinner, so we'd prefer a quieter table if possible.
+Woman: We do have a table available at seven thirty near our private dining area. Could I get your name and a contact number?
+Man: It's under Yamamoto — Y-A-M-A-M-O-T-O. My number is 555-0183.`
+
+  const conv6 = `Woman: Excuse me, Mark. Do you know if we have any printer paper left in stock? The printer on our floor has run out.
+Man: I think there are a few reams in the supply room on the third floor. If not, there's a supply request form on the intranet and we usually get next-day delivery if submitted before noon.
+Woman: Thanks — I'll check up there first.
+Man: Also, if you need more than two reams, you'll need your manager to approve the request. Just a heads-up.`
+
+  const conv7 = `Man: Hi, I was hoping to sign up for the Excel training session next month. Is registration still open?
+Woman: Yes, there are still a few spots available. The session is on March 14th from ten to one in Conference Room B. Would you like me to add you?
+Man: Please. My employee ID is 7421. Is there anything I need to prepare in advance?
+Woman: We'll send you a preparation guide about a week before the session. Just make sure to bring your laptop — the training involves hands-on exercises.`
+
+  const part3Batch3 = [
+    {
+      id: 'p3-conv4-41',
+      content: { transcript: conv4, question: 'What does the man want to do?' },
+      options: ['Cancel his hotel reservation', 'Upgrade to a better room', 'Extend his stay at the hotel', 'Request a group discount'],
+      answer: 'B',
+      explanation: 'The man says "I\'d like to upgrade to an ocean view room if possible."',
+      tags: ['conversation', 'purpose'], isDiagnostic: false,
+    },
+    {
+      id: 'p3-conv4-42',
+      content: { transcript: conv4, question: 'How much extra will the upgrade cost per night?' },
+      options: ['Forty dollars', 'Fifty dollars', 'Sixty dollars', 'Eighty dollars'],
+      answer: 'C',
+      explanation: 'The woman says "It would be an additional sixty dollars per night."',
+      tags: ['conversation', 'price'],
+    },
+    {
+      id: 'p3-conv4-43',
+      content: { transcript: conv4, question: 'What additional service does the man request?' },
+      options: ['A late checkout', 'A room with breakfast included', 'An airport transfer', 'A restaurant reservation'],
+      answer: 'C',
+      explanation: 'The man asks "could you also arrange an airport transfer for Saturday morning?"',
+      tags: ['conversation', 'request'], isDiagnostic: true,
+    },
+    {
+      id: 'p3-conv5-44',
+      content: { transcript: conv5, question: 'Why is the man making this reservation?' },
+      options: ['For a birthday celebration', 'For a client dinner', 'For a team lunch', 'For a job interview'],
+      answer: 'B',
+      explanation: 'The man mentions "It\'s for a client dinner."',
+      tags: ['conversation', 'purpose'],
+    },
+    {
+      id: 'p3-conv5-45',
+      content: { transcript: conv5, question: 'What time is the reservation?' },
+      options: ['Seven o\'clock', 'Seven fifteen', 'Seven thirty', 'Eight o\'clock'],
+      answer: 'C',
+      explanation: 'The man asks for "around seven thirty" and the woman confirms availability at that time.',
+      tags: ['conversation', 'time'],
+    },
+    {
+      id: 'p3-conv5-46',
+      content: { transcript: conv5, question: 'What special request does the man make?' },
+      options: ['A specific menu option', 'A window seat', 'A quieter table', 'A private dining room'],
+      answer: 'C',
+      explanation: 'The man says "we\'d prefer a quieter table if possible."',
+      tags: ['conversation', 'request'], isDiagnostic: true,
+    },
+    {
+      id: 'p3-conv6-47',
+      content: { transcript: conv6, question: 'What problem does the woman mention?' },
+      options: ['Her computer has broken down.', 'The printer on her floor has run out of paper.', 'The supply room is locked.', 'An order was delivered incorrectly.'],
+      answer: 'B',
+      explanation: 'The woman says "the printer on our floor has run out" of paper.',
+      tags: ['conversation', 'problem'],
+    },
+    {
+      id: 'p3-conv6-48',
+      content: { transcript: conv6, question: 'When must the supply request be submitted for next-day delivery?' },
+      options: ['Before nine AM', 'Before ten AM', 'Before noon', 'Before three PM'],
+      answer: 'C',
+      explanation: 'The man says "we usually get next-day delivery if submitted before noon."',
+      tags: ['conversation', 'deadline'],
+    },
+    {
+      id: 'p3-conv6-49',
+      content: { transcript: conv6, question: 'What does the man say about ordering more than two reams?' },
+      options: ['There is no maximum order.', 'Extra stock is always available.', 'Manager approval is needed.', 'It takes two days to arrive.'],
+      answer: 'C',
+      explanation: '"If you need more than two reams, you\'ll need your manager to approve the request."',
+      tags: ['conversation', 'policy'], isDiagnostic: true,
+    },
+    {
+      id: 'p3-conv7-50',
+      content: { transcript: conv7, question: 'What is the man trying to do?' },
+      options: ['Register for a training session', 'Check on a previous registration', 'Schedule a one-on-one meeting', 'Request training materials'],
+      answer: 'A',
+      explanation: '"I was hoping to sign up for the Excel training session next month."',
+      tags: ['conversation', 'purpose'],
+    },
+    {
+      id: 'p3-conv7-51',
+      content: { transcript: conv7, question: 'What information does the man provide?' },
+      options: ['His department name', 'His employee ID number', 'His manager\'s name', 'His preferred training time'],
+      answer: 'B',
+      explanation: '"My employee ID is 7421." — he provides his employee ID.',
+      tags: ['conversation', 'detail'],
+    },
+    {
+      id: 'p3-conv7-52',
+      content: { transcript: conv7, question: 'What does the woman say participants must bring?' },
+      options: ['A printed workbook', 'A USB drive', 'A laptop computer', 'Their employee ID card'],
+      answer: 'C',
+      explanation: '"Just make sure to bring your laptop — the training involves hands-on exercises."',
+      tags: ['conversation', 'requirement'], isDiagnostic: true,
+    },
+  ]
+
+  for (const q of part3Batch3) {
+    await prisma.question.upsert({
+      where: { id: q.id },
+      update: {},
+      create: { ...q, section: 'LISTENING', part: 3, type: 'CONVERSATION', difficulty: 3 },
+    })
+  }
+
+  // ─── LISTENING: Part 4 – Batch 3 (3 more talks × 3 = 9 questions) ──────────
+  const talk4 = `And now a message from our sponsor. Are you looking for a new smartphone but put off by high retail prices? Visit TechMart this weekend for our biggest sale of the year. All smartphones are at least thirty percent off, and selected models are up to fifty percent off. Our expert staff will help you find the right device for your needs and budget. TechMart is located at two forty-five Central Avenue, and we are open Saturday and Sunday from nine AM to nine PM. Flexible financing options are also available. Don't miss this chance — these prices won't last!`
+
+  const talk5 = `Good evening. In local business news, Greenfield Pharmaceuticals has announced plans to expand its downtown research facility. The company will add three new laboratories and hire approximately eighty additional researchers over the next two years. Company spokesperson Linda Chu stated that the expansion reflects growing demand for the company's allergy treatment line. Construction on the new wing is expected to begin this spring and be completed by the end of next year. The city council has expressed strong support for the project, noting its positive impact on local employment.`
+
+  const talk6 = `Hello, this is Sandra Okonkwo from Premier Realty calling for Ms. Torres. I'm getting in touch about the property you inquired about on Maple Drive. I'm sorry to let you know the owners have already accepted another offer. However, a very similar property has just become available in the same neighborhood — it's slightly larger and priced very competitively. I'd love to arrange a viewing at your convenience. Please call me back at five-five-five, zero one four seven, or reply to the email I sent you earlier today. I look forward to hearing from you soon.`
+
+  const part4Batch3 = [
+    {
+      id: 'p4-talk4-80',
+      content: { transcript: talk4, question: 'What is being advertised?' },
+      options: ['A laptop computer sale', 'A smartphone sale', 'A new store opening', 'A telecommunications service'],
+      answer: 'B',
+      explanation: 'The announcement is about a sale on smartphones at TechMart.',
+      tags: ['talk', 'advertisement'],
+    },
+    {
+      id: 'p4-talk4-81',
+      content: { transcript: talk4, question: 'How much discount is available on all smartphones?' },
+      options: ['At least ten percent off', 'At least twenty percent off', 'At least thirty percent off', 'At least fifty percent off'],
+      answer: 'C',
+      explanation: '"All smartphones are at least thirty percent off."',
+      tags: ['talk', 'detail'], isDiagnostic: true,
+    },
+    {
+      id: 'p4-talk4-82',
+      content: { transcript: talk4, question: 'What additional option does TechMart offer customers?' },
+      options: ['Free delivery', 'A trade-in program', 'Flexible financing', 'A one-year warranty'],
+      answer: 'C',
+      explanation: '"Flexible financing options are also available."',
+      tags: ['talk', 'offer'],
+    },
+    {
+      id: 'p4-talk5-83',
+      content: { transcript: talk5, question: 'What is the news report mainly about?' },
+      options: ['A pharmaceutical merger', 'Expansion of a research facility', 'New drug regulations', 'A city council meeting'],
+      answer: 'B',
+      explanation: 'The report describes Greenfield Pharmaceuticals\' plans to expand its research facility.',
+      tags: ['talk', 'main-idea'],
+    },
+    {
+      id: 'p4-talk5-84',
+      content: { transcript: talk5, question: 'How many new researchers will be hired?' },
+      options: ['About forty', 'About sixty', 'About eighty', 'About one hundred'],
+      answer: 'C',
+      explanation: '"The company will...hire approximately eighty additional researchers."',
+      tags: ['talk', 'number'],
+    },
+    {
+      id: 'p4-talk5-85',
+      content: { transcript: talk5, question: 'According to Linda Chu, what has driven the expansion plans?' },
+      options: ['A new government contract', 'Growing demand for the company\'s products', 'A recent merger with another company', 'Advances in laboratory technology'],
+      answer: 'B',
+      explanation: '"The expansion reflects growing demand for the company\'s allergy treatment line."',
+      tags: ['talk', 'reason'], isDiagnostic: true,
+    },
+    {
+      id: 'p4-talk6-86',
+      content: { transcript: talk6, question: 'What is the purpose of this phone message?' },
+      options: ['To confirm an upcoming viewing', 'To report on a property sale', 'To offer an alternative property', 'To request a callback about pricing'],
+      answer: 'C',
+      explanation: 'The agent calls to offer an alternative property since the original one was sold.',
+      tags: ['talk', 'purpose'],
+    },
+    {
+      id: 'p4-talk6-87',
+      content: { transcript: talk6, question: 'What happened to the Maple Drive property?' },
+      options: ['The price was reduced.', 'The owners withdrew the listing.', 'Another buyer made an offer.', 'It is undergoing renovation.'],
+      answer: 'C',
+      explanation: '"The owners have already accepted another offer."',
+      tags: ['talk', 'detail'],
+    },
+    {
+      id: 'p4-talk6-88',
+      content: { transcript: talk6, question: 'How does the agent ask Ms. Torres to respond?' },
+      options: ['By visiting the office in person', 'By calling back or replying to an email', 'By completing an online form', 'By sending a letter of interest'],
+      answer: 'B',
+      explanation: '"Please call me back... or reply to the email I sent you earlier today."',
+      tags: ['talk', 'action'], isDiagnostic: true,
+    },
+  ]
+
+  for (const q of part4Batch3) {
+    await prisma.question.upsert({
+      where: { id: q.id },
+      update: {},
+      create: { ...q, section: 'LISTENING', part: 4, type: 'TALK', difficulty: 3 },
+    })
+  }
+
+  // ─── READING: Part 5 – Batch 2 (20 more questions) ────────────────────────
+  const part5Batch2 = [
+    {
+      id: 'p5-conditional-10',
+      content: { question: 'If the proposal ------- by Friday, the contract will be signed next week.' },
+      options: ['is submitted', 'will be submitted', 'submits', 'submitting'],
+      answer: 'A',
+      explanation: 'First conditional: "If + simple present, will + base verb". "Is submitted" is the correct passive present.',
+      tags: ['conditional', 'tense'],
+    },
+    {
+      id: 'p5-comparative-11',
+      content: { question: 'The new conference hall is far ------- than the original venue.' },
+      options: ['more spacious', 'spacious', 'most spacious', 'the spacious'],
+      answer: 'A',
+      explanation: 'Comparative adjective: "more spacious than" (long adjectives use more/less).',
+      tags: ['comparative', 'adjective'],
+    },
+    {
+      id: 'p5-relative-12',
+      content: { question: 'The consultant ------- was hired last month has already improved our customer service scores.' },
+      options: ['who', 'whose', 'whom', 'which'],
+      answer: 'A',
+      explanation: '"Who" is the correct relative pronoun for a person in subject position.',
+      tags: ['relative-pronoun', 'clause'],
+    },
+    {
+      id: 'p5-passive-13',
+      content: { question: 'All new employees are ------- to attend the orientation session next Monday.' },
+      options: ['required', 'requiring', 'requirement', 'require'],
+      answer: 'A',
+      explanation: '"Be required to" is the passive modal construction meaning obligated.',
+      tags: ['passive', 'adjective'], isDiagnostic: true,
+    },
+    {
+      id: 'p5-preposition-14',
+      content: { question: 'The board of directors will vote ------- the proposed merger at next month\'s meeting.' },
+      options: ['on', 'at', 'to', 'for'],
+      answer: 'A',
+      explanation: '"Vote on" is the correct collocation when deciding about a proposal.',
+      tags: ['preposition', 'collocation'],
+    },
+    {
+      id: 'p5-article-15',
+      content: { question: '------- annual performance review is scheduled to take place in December for all staff members.' },
+      options: ['The', 'A', 'An', 'Each'],
+      answer: 'C',
+      explanation: '"An" is used before words starting with a vowel sound. "Annual" starts with the vowel sound /æ/.',
+      tags: ['article', 'grammar'],
+    },
+    {
+      id: 'p5-vocabulary-16',
+      content: { question: "The marketing team's ------- approach to the campaign attracted attention from several industry publications." },
+      options: ['reluctant', 'innovative', 'delayed', 'temporary'],
+      answer: 'B',
+      explanation: '"Innovative approach" means a creative, new way of doing something — fitting the context of attracting media attention.',
+      tags: ['vocabulary', 'adjective'],
+    },
+    {
+      id: 'p5-prepphrase-17',
+      content: { question: 'The construction project was completed ------- schedule, thanks to the team\'s dedication.' },
+      options: ['ahead of', 'in front of', 'forward of', 'prior at'],
+      answer: 'A',
+      explanation: '"Ahead of schedule" is the fixed phrase meaning earlier than planned.',
+      tags: ['preposition', 'fixed-phrase'],
+    },
+    {
+      id: 'p5-verb-form-18',
+      content: { question: 'The supervisor instructed the staff ------- their uniforms properly at all times.' },
+      options: ['wear', 'wearing', 'to wear', 'wore'],
+      answer: 'C',
+      explanation: '"Instruct someone to do" requires the infinitive: "instructed...to wear".',
+      tags: ['verb-form', 'infinitive'],
+    },
+    {
+      id: 'p5-noun-19',
+      content: { question: 'All participants are asked to complete the ------- form before the event begins.' },
+      options: ['registrant', 'registered', 'registering', 'registration'],
+      answer: 'D',
+      explanation: '"Registration form" — "registration" is the noun modifier for the form.',
+      tags: ['noun', 'word-form'],
+    },
+    {
+      id: 'p5-pronoun-20',
+      content: { question: '------- who wish to participate in the survey can contact the research team directly.' },
+      options: ['Those', 'Them', 'They', 'Their'],
+      answer: 'A',
+      explanation: '"Those who" means "the people who" — a pronoun + relative clause construction.',
+      tags: ['pronoun', 'relative-clause'],
+    },
+    {
+      id: 'p5-modal-21',
+      content: { question: 'Employees ------- submit their expense reports no later than the fifth of each month.' },
+      options: ['will', 'must', 'are', 'were'],
+      answer: 'B',
+      explanation: '"Must submit" expresses a strong obligation or requirement.',
+      tags: ['modal', 'obligation'],
+    },
+    {
+      id: 'p5-tense-22',
+      content: { question: 'The annual shareholder meeting ------- next April at the Grand Meridian Hotel in Singapore.' },
+      options: ['is being held', 'has been held', 'hold', 'had held'],
+      answer: 'A',
+      explanation: 'Present continuous ("is being held") is used for scheduled future events.',
+      tags: ['tense', 'future-scheduled'],
+    },
+    {
+      id: 'p5-noun-23',
+      content: { question: 'Customer ------- is the top priority of all service representatives at our company.' },
+      options: ['satisfy', 'satisfied', 'satisfactory', 'satisfaction'],
+      answer: 'D',
+      explanation: '"Customer satisfaction" — the noun form needed as the subject.',
+      tags: ['noun', 'word-form'], isDiagnostic: true,
+    },
+    {
+      id: 'p5-preposition-24',
+      content: { question: 'The company was established ------- the purpose of providing affordable healthcare solutions.' },
+      options: ['with', 'for', 'by', 'on'],
+      answer: 'B',
+      explanation: '"For the purpose of" is the fixed prepositional phrase meaning "with the aim of".',
+      tags: ['preposition', 'fixed-phrase'],
+    },
+    {
+      id: 'p5-vocabulary-25',
+      content: { question: 'The new food safety regulations require all restaurants to ------- to the highest hygiene standards.' },
+      options: ['adhere', 'apply', 'agree', 'achieve'],
+      answer: 'A',
+      explanation: '"Adhere to" means to follow or comply with rules or standards.',
+      tags: ['vocabulary', 'collocation'],
+    },
+    {
+      id: 'p5-word-form-26',
+      content: { question: 'The ------- of the updated software was announced at the technology conference in Seoul.' },
+      options: ['available', 'avail', 'availability', 'availably'],
+      answer: 'C',
+      explanation: '"Availability" is the noun form needed after the article "The".',
+      tags: ['word-form', 'noun'],
+    },
+    {
+      id: 'p5-conjunction-27',
+      content: { question: 'Please review the attached document ------- sign the agreement by end of business today.' },
+      options: ['and', 'but', 'so', 'yet'],
+      answer: 'A',
+      explanation: '"And" connects two parallel instructions: "review... and sign".',
+      tags: ['conjunction', 'parallel-structure'],
+    },
+    {
+      id: 'p5-superlative-28',
+      content: { question: 'Of all the candidates, Ms. Johansson\'s qualifications are ------- suited to the position.' },
+      options: ['best', 'better', 'good', 'well'],
+      answer: 'A',
+      explanation: '"Best suited" is the superlative form used when comparing among more than two.',
+      tags: ['superlative', 'adjective'],
+    },
+    {
+      id: 'p5-passive-29',
+      content: { question: 'The updated financial report will be ------- to all shareholders by the end of the week.' },
+      options: ['distribute', 'distributing', 'distributed', 'distribution'],
+      answer: 'C',
+      explanation: '"Will be distributed" — past participle in passive future construction.',
+      tags: ['passive', 'verb-form'],
+    },
+  ]
+
+  for (const q of part5Batch2) {
+    await prisma.question.upsert({
+      where: { id: q.id },
+      update: {},
+      create: { ...q, section: 'READING', part: 5, type: 'INCOMPLETE_SENTENCE', difficulty: 3 },
+    })
+  }
+
+  // ─── READING: Part 6 – Passages 2–4 (3 passages × 4 questions = 12) ────────
+  const noticeText = `To: All Staff\nFrom: Facilities Management\nSubject: Office Renovation – Floor 4\n\nPlease be [135] that the fourth floor will undergo renovation work beginning next Monday, March 6. Staff currently working on that floor will be [136] to temporary workstations on Floor 2 during this period.\n\nThe work is expected to take two weeks to complete. We apologize for any [137] this may cause. Please [138] all equipment, personal items, and files from your desk by Friday, March 3.\n\nFor more details, contact facilities@company.com.`
+
+  const newsText = `Willow Creek Times — Business Spotlight\n\nLocal Manufacturer Wins National Award\n\nBrightfield Manufacturing has [139] the National Excellence in Innovation Award for the third consecutive year. Company CEO David Yoon accepted the award at a ceremony held in Chicago last Thursday.\n\nMr. Yoon [140] the achievement to the company's ongoing investment in research and development. "We believe that innovation is not an event but a culture," he stated.\n\nBrightfield, [141] in Willow Creek since 1989, employs over four hundred people in the region. The award is presented annually to manufacturers that [142] outstanding contributions to the industry.`
+
+  const letterText = `Ms. Alana Patel\n237 Birchwood Avenue\nHartford, CT 06101\n\nDear Ms. Patel,\n\nThank you for purchasing your new kitchen appliances from Homeware Plus. We hope you are [143] with your recent purchase.\n\nOur records show that your two-year warranty on the Horizon Pro dishwasher will [144] on September 15. We would like to inform you of our extended warranty plans, which are [145] at a reduced rate to existing customers.\n\nTo learn more, please visit our website or call our customer care line at 1-800-555-0130. Our [146] representatives are available Monday to Friday between eight AM and six PM.\n\nBest regards,\nHomeware Plus Customer Relations`
+
+  const part6Batch2 = [
+    // Memo about renovation (135–138)
+    {
+      id: 'p6-memo1-135',
+      content: { passage: noticeText, question: 'Choose the best phrase for blank [135]: "Please be ------- that the fourth floor will undergo renovation..."' },
+      options: ['aware', 'awake', 'alert for', 'announced'],
+      answer: 'A',
+      explanation: '"Please be aware that" is a standard formal phrase meaning "please note that."',
+      isDiagnostic: true,
+    },
+    {
+      id: 'p6-memo1-136',
+      content: { passage: noticeText, question: 'Choose the best word for blank [136]: "Staff...will be ------- to temporary workstations."' },
+      options: ['moved', 'requested', 'placed', 'relocated'],
+      answer: 'D',
+      explanation: '"Relocated to" means moved to a new location — the most precise word for moving to a different area.',
+    },
+    {
+      id: 'p6-memo1-137',
+      content: { passage: noticeText, question: 'Choose the best word for blank [137]: "We apologize for any ------- this may cause."' },
+      options: ['inconvenience', 'obstacle', 'delay', 'damage'],
+      answer: 'A',
+      explanation: '"Inconvenience" is the standard formal word used when apologizing for disruption.',
+    },
+    {
+      id: 'p6-memo1-138',
+      content: { passage: noticeText, question: 'Choose the best sentence to follow blank [138]: "Please ------- all equipment, personal items, and files from your desk by Friday, March 3."' },
+      options: ['deliver', 'remove', 'arrange', 'distribute'],
+      answer: 'B',
+      explanation: '"Remove...from your desk" means to take items away from the desk in preparation for work.',
+    },
+    // News article (139–142)
+    {
+      id: 'p6-news1-139',
+      content: { passage: newsText, question: 'Choose the best verb for blank [139]: "Brightfield Manufacturing has ------- the National Excellence in Innovation Award."' },
+      options: ['received', 'deserved', 'accepted', 'created'],
+      answer: 'A',
+      explanation: '"Received an award" is the natural collocation. (Accept is close but "received" is more natural here.)',
+      isDiagnostic: false,
+    },
+    {
+      id: 'p6-news1-140',
+      content: { passage: newsText, question: 'Choose the best word for blank [140]: "Mr. Yoon ------- the achievement to the company\'s investment in R&D."' },
+      options: ['credited', 'applied', 'linked', 'directed'],
+      answer: 'A',
+      explanation: '"Attributed/credited the achievement to" means giving credit to something as the cause.',
+    },
+    {
+      id: 'p6-news1-141',
+      content: { passage: newsText, question: 'Choose the best phrase for blank [141]: "Brightfield, ------- in Willow Creek since 1989, employs over four hundred people."' },
+      options: ['establishing', 'established', 'to be established', 'have established'],
+      answer: 'B',
+      explanation: '"Established in Willow Creek" is a reduced relative clause (which was established).',
+    },
+    {
+      id: 'p6-news1-142',
+      content: { passage: newsText, question: 'Choose the best sentence for blank [142]: "The award is presented annually to manufacturers that -------."' },
+      options: [
+        'have shown outstanding contributions to the industry',
+        'are producing new goods this quarter',
+        'submit applications before the annual deadline',
+        'have expanded to international markets recently',
+      ],
+      answer: 'A',
+      explanation: '"That have shown outstanding contributions" logically completes the sentence about an excellence award.',
+    },
+    // Customer letter (143–146)
+    {
+      id: 'p6-letter1-143',
+      content: { passage: letterText, question: 'Choose the best word for blank [143]: "We hope you are ------- with your recent purchase."' },
+      options: ['satisfied', 'satisfy', 'satisfaction', 'satisfying'],
+      answer: 'A',
+      explanation: '"Satisfied with" is an adjective phrase meaning pleased with.',
+      isDiagnostic: true,
+    },
+    {
+      id: 'p6-letter1-144',
+      content: { passage: letterText, question: 'Choose the best word for blank [144]: "your two-year warranty...will ------- on September 15."' },
+      options: ['expire', 'expiry', 'expiration', 'expired'],
+      answer: 'A',
+      explanation: '"Warranty will expire" — "expire" is the verb meaning to come to an end.',
+    },
+    {
+      id: 'p6-letter1-145',
+      content: { passage: letterText, question: 'Choose the best phrase for blank [145]: "extended warranty plans, which are ------- at a reduced rate to existing customers."' },
+      options: ['available', 'availed', 'accessible to', 'opened'],
+      answer: 'A',
+      explanation: '"Are available at a reduced rate" — "available" describes something that can be accessed or bought.',
+    },
+    {
+      id: 'p6-letter1-146',
+      content: { passage: letterText, question: 'Choose the best word for blank [146]: "Our ------- representatives are available Monday to Friday."' },
+      options: ['dedicated', 'obligated', 'assigned to', 'volunteered'],
+      answer: 'A',
+      explanation: '"Dedicated representatives" means committed, specialist staff — standard formal language in customer service letters.',
+    },
+  ]
+
+  for (const q of part6Batch2) {
+    await prisma.question.upsert({
+      where: { id: q.id },
+      update: {},
+      create: { ...q, section: 'READING', part: 6, type: 'TEXT_COMPLETION', difficulty: 3, tags: ['text-completion'] },
+    })
+  }
+
+  // ─── READING: Part 7 – Single Passages Batch 2 (5 passages) ─────────────────
+  const memoText = `INTERNAL MEMO\nTo: All Staff\nFrom: Human Resources\nDate: October 3\nRe: New Remote Work Policy\n\nEffective November 1, the company will introduce a revised remote work policy allowing eligible employees to work from home up to three days per week.\n\nTo be eligible, employees must have completed at least six months of service and received a satisfactory performance review in the most recent cycle. Requests must be submitted to your line manager by October 20 for approval.\n\nAll remote employees are expected to be available during core hours (9 AM to 3 PM) and must use company-approved communication tools. Please note that remote work arrangements may be reviewed or adjusted based on business needs.\n\nFor questions, contact HR at hr@company.com.`
+
+  const seminarText = `PROFESSIONAL DEVELOPMENT SEMINAR\n\nMastering Business Communication\nDate: Saturday, November 18\nVenue: Crown Business Center, Suite 400\nTime: 9:00 AM – 4:00 PM\n\nAre you looking to sharpen your communication skills in the workplace? Join us for a full-day interactive workshop led by Dr. Emma Collins, a leading expert in corporate communication.\n\nTopics covered:\n• Writing clear and professional emails\n• Delivering effective presentations\n• Managing difficult conversations\n• Cross-cultural communication skills\n\nRegistration fee: $120 per person (includes lunch and course materials)\nEarly bird discount: Register before November 1 for $95\n\nSpaces are limited to 30 participants. To register, visit www.crownbizcenter.com/seminars or call (617) 555-0233.`
+
+  const complaintText = `From: Marcus Webb\nTo: support@greenleafhotel.com\nSubject: Complaint About Recent Stay\nDate: July 12\n\nDear Guest Services,\n\nI am writing regarding my stay at your hotel from July 8 to July 10. While the facility itself was impressive and the staff were friendly, I was disappointed by several maintenance issues.\n\nThe air conditioning unit in my room was extremely loud, making it difficult to sleep. Additionally, the shower pressure was very low throughout my stay, and one of the wardrobe doors could not be closed properly. I raised these issues with the front desk on my second morning, but unfortunately no action was taken before my checkout.\n\nI travel frequently for business and have recommended your property to colleagues in the past. I do hope these issues will be addressed, and I would appreciate some form of compensation for the inconvenience. Please let me know how you intend to resolve this matter.\n\nSincerely,\nMarcus Webb`
+
+  const noticeClosureText = `NOTICE OF TEMPORARY ROAD CLOSURE\n\nPlease be advised that Bay Street, between Oak Avenue and Lakeview Drive, will be closed to all vehicle traffic from Monday, August 7 through Friday, August 11.\n\nThis closure is necessary to allow utility crews to repair underground water pipes. Pedestrian access will remain available throughout the closure period.\n\nDrivers are advised to use the following detour:\nNorthbound traffic: Use Pine Street via Oak Avenue\nSouthbound traffic: Use Cedar Road via Lakeview Drive\n\nWe apologize for any inconvenience and thank you for your patience. For enquiries, contact the City Public Works Department at (416) 555-0192 during business hours.`
+
+  const scheduleText = `RIVERSIDE COMMUNITY CENTER\nSummer Fitness Schedule — July and August\n\nYoga (Room A):\nMonday, Wednesday, Friday — 7:00 AM and 6:00 PM\n\nSwimming (Outdoor Pool):\nTuesday, Thursday, Saturday — 8:00 AM to 12:00 PM\n\nCycling Class (Studio B):\nMonday, Wednesday — 12:00 PM and 5:30 PM\nSaturday — 10:00 AM\n\nPersonal Training:\nAvailable by appointment — contact the front desk to schedule\n\nNote: The outdoor pool will be CLOSED for maintenance July 15–16. All swimming classes will be moved to the indoor pool during this period.\n\nMembership required for all classes. Drop-in guests may attend at a fee of $10 per session. For more information, call (905) 555-0141.`
+
+  const part7Batch2 = [
+    // Memo (remote work)
+    {
+      id: 'p7-memo1-154',
+      content: { passage: memoText, question: 'What is the main purpose of this memo?' },
+      options: ['To announce changes to working hours', 'To introduce a new remote work policy', 'To remind staff of a performance review deadline', 'To request approval for a new IT system'],
+      answer: 'B',
+      explanation: 'The memo introduces a "revised remote work policy" effective November 1.',
+      tags: ['memo', 'main-purpose'], isDiagnostic: true,
+    },
+    {
+      id: 'p7-memo1-155',
+      content: { passage: memoText, question: 'What must employees do by October 20?' },
+      options: ['Complete a performance review', 'Contact the HR department', 'Submit a remote work request to their manager', 'Complete at least six months of service'],
+      answer: 'C',
+      explanation: '"Requests must be submitted to your line manager by October 20 for approval."',
+      tags: ['memo', 'deadline'],
+    },
+    {
+      id: 'p7-memo1-156',
+      content: { passage: memoText, question: 'What is NOT mentioned as an eligibility requirement?' },
+      options: ['Six months of service', 'A satisfactory performance review', 'Manager recommendation', 'Using approved communication tools'],
+      answer: 'C',
+      explanation: 'The memo lists service time and performance review, but manager recommendation is not an eligibility criterion.',
+      tags: ['memo', 'not-stated'],
+    },
+    // Seminar advertisement
+    {
+      id: 'p7-seminar1-157',
+      content: { passage: seminarText, question: 'What is the seminar about?' },
+      options: ['Financial management', 'Business communication', 'Project management', 'Leadership development'],
+      answer: 'B',
+      explanation: 'The seminar is titled "Mastering Business Communication" and covers communication skills.',
+      tags: ['advertisement', 'main-topic'],
+    },
+    {
+      id: 'p7-seminar1-158',
+      content: { passage: seminarText, question: 'What is included in the registration fee?' },
+      options: ['Accommodation and breakfast', 'Lunch and course materials', 'A workbook and free parking', 'Coffee breaks and a certificate'],
+      answer: 'B',
+      explanation: '"Registration fee: $120 per person (includes lunch and course materials)"',
+      tags: ['advertisement', 'detail'], isDiagnostic: true,
+    },
+    {
+      id: 'p7-seminar1-159',
+      content: { passage: seminarText, question: 'How much will a participant pay if they register on November 5?' },
+      options: ['$95', '$100', '$110', '$120'],
+      answer: 'D',
+      explanation: 'The early bird discount ($95) is only for those who register before November 1. November 5 is after, so the full price of $120 applies.',
+      tags: ['advertisement', 'inference'],
+    },
+    // Complaint email
+    {
+      id: 'p7-complaint1-160',
+      content: { passage: complaintText, question: 'Why is Marcus Webb writing this email?' },
+      options: ['To cancel a hotel reservation', 'To complain about his recent stay', 'To request a refund for a service', 'To inquire about hotel facilities'],
+      answer: 'B',
+      explanation: 'The subject line and opening clearly state this is a complaint about his recent stay.',
+      tags: ['email', 'purpose'],
+    },
+    {
+      id: 'p7-complaint1-161',
+      content: { passage: complaintText, question: 'What does Marcus say about the hotel staff?' },
+      options: ['They were unresponsive to his needs.', 'They were friendly.', 'They overcharged him.', 'They ignored his maintenance requests.'],
+      answer: 'B',
+      explanation: '"the staff were friendly" — Marcus explicitly compliments the staff.',
+      tags: ['email', 'detail'], isDiagnostic: true,
+    },
+    // Road closure notice
+    {
+      id: 'p7-road1-162',
+      content: { passage: noticeClosureText, question: 'Why is Bay Street being closed?' },
+      options: ['For annual road resurfacing', 'To repair underground water pipes', 'For a planned public event', 'For construction of a new building'],
+      answer: 'B',
+      explanation: '"This closure is necessary to allow utility crews to repair underground water pipes."',
+      tags: ['notice', 'reason'],
+    },
+    {
+      id: 'p7-road1-163',
+      content: { passage: noticeClosureText, question: 'What does the notice say about pedestrians?' },
+      options: ['They must use the same detour as vehicles.', 'They will have access throughout the closure.', 'They should use Pine Street.', 'They will be affected starting August 11.'],
+      answer: 'B',
+      explanation: '"Pedestrian access will remain available throughout the closure period."',
+      tags: ['notice', 'detail'],
+    },
+    // Fitness schedule
+    {
+      id: 'p7-schedule1-164',
+      content: { passage: scheduleText, question: 'What is available by appointment only?' },
+      options: ['Yoga classes', 'Swimming sessions', 'Personal training', 'Cycling classes'],
+      answer: 'C',
+      explanation: '"Personal Training: Available by appointment — contact the front desk to schedule"',
+      tags: ['schedule', 'detail'],
+    },
+    {
+      id: 'p7-schedule1-165',
+      content: { passage: scheduleText, question: 'What will happen to swimming classes on July 15?' },
+      options: ['They will be cancelled entirely.', 'They will be held at the indoor pool.', 'They will start one hour later than usual.', 'They will be available to drop-in guests only.'],
+      answer: 'B',
+      explanation: '"All swimming classes will be moved to the indoor pool" during the July 15–16 closure.',
+      tags: ['schedule', 'inference'], isDiagnostic: true,
+    },
+    {
+      id: 'p7-schedule1-166',
+      content: { passage: scheduleText, question: 'How much does a non-member pay per session?' },
+      options: ['$5', '$8', '$10', '$12'],
+      answer: 'C',
+      explanation: '"Drop-in guests may attend at a fee of $10 per session."',
+      tags: ['schedule', 'detail'],
+    },
+  ]
+
+  for (const q of part7Batch2) {
+    await prisma.question.upsert({
+      where: { id: q.id },
+      update: {},
+      create: { ...q, section: 'READING', part: 7, type: 'SINGLE_PASSAGE', difficulty: 3 },
+    })
+  }
+
+  // ─── SPEAKING – Additional Tasks ──────────────────────────────────────────
+  const speakingExtra = [
+    {
+      id: 'sp-read-aloud-2',
+      content: {
+        text: "Good morning, and thank you for calling Meridian Insurance. Our phone lines are currently experiencing higher than usual call volumes. Your estimated wait time is approximately eight minutes. If you prefer not to wait, you are welcome to visit our website at meridianinsurance.com, where you can access your policy, submit claims, and speak with a live chat representative. Thank you for your patience, and we appreciate your business.",
+        prepSeconds: 45,
+        speakSeconds: 45,
+      },
+      options: null, answer: '',
+      explanation: 'Pay attention to numbers ("eight minutes") and the company URL — pronounce clearly. Maintain a professional, neutral tone.',
+      tags: ['read-aloud', 'pronunciation'],
+      isDiagnostic: false,
+    },
+    {
+      id: 'sp-describe-picture-2',
+      content: {
+        imageUrl: 'https://images.pexels.com/photos/1267338/pexels-photo-1267338.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+        prompt: 'Describe the picture in as much detail as you can.',
+        prepSeconds: 45,
+        speakSeconds: 30,
+        hints: ['location', 'people', 'objects', 'actions'],
+      },
+      options: null, answer: '',
+      explanation: 'Structure: location → what you see → actions. E.g., "This picture appears to be taken in a warehouse/factory. In the foreground, there are... Several workers are..."',
+      tags: ['describe-picture', 'workplace'],
+      isDiagnostic: false,
+    },
+    {
+      id: 'sp-respond-free-2',
+      content: {
+        scenario: 'Imagine that a research institute is conducting a survey about daily commuting habits. You have agreed to participate in a telephone interview.',
+        questions: [
+          { id: 'q5', text: 'How do you usually get to work or school?', prepSeconds: 3, speakSeconds: 15 },
+          { id: 'q6', text: 'How long does your commute typically take?', prepSeconds: 3, speakSeconds: 15 },
+          { id: 'q7', text: 'What do you usually do during your commute?', prepSeconds: 3, speakSeconds: 30 },
+        ],
+      },
+      options: null, answer: '',
+      explanation: 'Q5: Name the transport. Q6: Give time (e.g., "about 40 minutes"). Q7: Expand — reading, listening to podcasts, planning the day.',
+      tags: ['respond-questions', 'daily-life'],
+      isDiagnostic: false,
+    },
+    {
+      id: 'sp-respond-free-3',
+      content: {
+        scenario: 'A market research company is studying consumer dining habits. You have agreed to participate in a phone interview.',
+        questions: [
+          { id: 'q5', text: 'How often do you eat at restaurants?', prepSeconds: 3, speakSeconds: 15 },
+          { id: 'q6', text: 'What type of cuisine do you prefer when eating out?', prepSeconds: 3, speakSeconds: 15 },
+          { id: 'q7', text: 'What factors are most important to you when choosing a restaurant?', prepSeconds: 3, speakSeconds: 30 },
+        ],
+      },
+      options: null, answer: '',
+      explanation: 'Q5: Frequency (e.g., "once or twice a week"). Q6: Name the cuisine. Q7: Elaborate — food quality, price, location, atmosphere, service.',
+      tags: ['respond-questions', 'lifestyle'],
+      isDiagnostic: false,
+    },
+    {
+      id: 'sp-respond-info-1',
+      content: {
+        scenario: 'You will use the schedule below to answer some questions. Imagine that your colleague is calling to ask about the upcoming staff training program.',
+        document: {
+          title: 'Staff Development Training Schedule — October',
+          type: 'table',
+          headers: ['Date', 'Topic', 'Trainer', 'Location', 'Duration'],
+          rows: [
+            ['October 7 (Mon)', 'Excel Advanced Functions', 'James Kwan', 'Room 3B', '3 hours'],
+            ['October 12 (Sat)', 'Customer Service Excellence', 'Priya Mehta', 'Conference Hall A', 'Full day'],
+            ['October 18 (Fri)', 'Data Privacy & Compliance', 'Legal Dept.', 'Online (Zoom)', '2 hours'],
+            ['October 24 (Thu)', 'Effective Presentation Skills', 'Sandra Cole', 'Room 3B', '4 hours'],
+          ],
+        },
+        questions: [
+          { id: 'q8', text: 'What date is the Customer Service Excellence training scheduled?', prepSeconds: 3, speakSeconds: 15 },
+          { id: 'q9', text: 'Where will the Data Privacy and Compliance session be held?', prepSeconds: 3, speakSeconds: 15 },
+          { id: 'q10', text: "I'm interested in improving my presentation skills. Could you give me all the details about that session?", prepSeconds: 3, speakSeconds: 30 },
+        ],
+      },
+      options: null, answer: '',
+      explanation: 'Q8: October 12, Saturday. Q9: Online via Zoom. Q10: Give all details — October 24 (Thursday), Effective Presentation Skills, led by Sandra Cole, Room 3B, 4 hours.',
+      tags: ['respond-info', 'schedule'],
+      isDiagnostic: true,
+    },
+    {
+      id: 'sp-respond-info-2',
+      content: {
+        scenario: 'Use the flight itinerary below to answer questions from a colleague who missed the briefing.',
+        document: {
+          title: 'Business Travel Itinerary — Sales Conference Tokyo',
+          type: 'table',
+          headers: ['Segment', 'Date', 'Details'],
+          rows: [
+            ['Outbound Flight', 'Nov 14 (Thu)', 'NY JFK → Tokyo NRT | Depart 11:15 AM | Arrive Nov 15, 2:40 PM | Flight NH110'],
+            ['Hotel', 'Nov 15–18', 'Shinjuku Grand Hotel, Tokyo | Booking Ref: HTL-2294'],
+            ['Conference', 'Nov 16–17 (Fri–Sat)', 'Asia Pacific Sales Summit | Venue: Tokyo International Forum | 9:00 AM – 5:00 PM'],
+            ['Return Flight', 'Nov 18 (Sun)', 'Tokyo NRT → NY JFK | Depart 4:30 PM | Arrive Nov 18, 4:10 PM | Flight NH109'],
+          ],
+        },
+        questions: [
+          { id: 'q8', text: 'What is the hotel booking reference number?', prepSeconds: 3, speakSeconds: 15 },
+          { id: 'q9', text: 'When does the conference take place?', prepSeconds: 3, speakSeconds: 15 },
+          { id: 'q10', text: "I need to know everything about the return journey. Could you go over all the details?", prepSeconds: 3, speakSeconds: 30 },
+        ],
+      },
+      options: null, answer: '',
+      explanation: 'Q8: HTL-2294. Q9: November 16–17 (Friday and Saturday). Q10: Depart Tokyo NRT on November 18 (Sunday) at 4:30 PM, arrive New York JFK at 4:10 PM, flight NH109.',
+      tags: ['respond-info', 'travel'],
+      isDiagnostic: false,
+    },
+    {
+      id: 'sp-express-opinion-2',
+      content: {
+        prompt: 'Some people prefer to work from home rather than going to an office. What is your opinion about working from home? Give reasons and examples to support your view.',
+        prepSeconds: 45,
+        speakSeconds: 60,
+        structure: ['State opinion', 'Reason 1 + example', 'Reason 2 + example', 'Acknowledge counterpoint', 'Conclusion'],
+      },
+      options: null, answer: '',
+      explanation: 'Model phrases: "I strongly believe that working from home offers significant advantages. Firstly... For example... Secondly... Although some argue that... In conclusion..."',
+      tags: ['express-opinion', 'workplace'],
+      isDiagnostic: false,
+    },
+    {
+      id: 'sp-express-opinion-3',
+      content: {
+        prompt: 'Some people prefer to shop online rather than going to physical stores. Which do you prefer, and why? Give reasons and examples to support your opinion.',
+        prepSeconds: 45,
+        speakSeconds: 60,
+        structure: ['State preference', 'Reason 1 + example', 'Reason 2 + example', 'Conclusion'],
+      },
+      options: null, answer: '',
+      explanation: 'Pick one side clearly. Online: convenience, price comparison, 24/7 access. In-store: seeing products, immediate ownership, social experience.',
+      tags: ['express-opinion', 'consumer'],
+      isDiagnostic: false,
+    },
+    {
+      id: 'sp-express-opinion-4',
+      content: {
+        prompt: 'What do you think is the most important quality of a good leader? Give reasons and examples to support your view.',
+        prepSeconds: 45,
+        speakSeconds: 60,
+        structure: ['State the quality', 'Reason 1 + example', 'Reason 2 + example', 'Conclusion'],
+      },
+      options: null, answer: '',
+      explanation: 'Common strong answers: communication, empathy, decisiveness, vision. Pick one and develop it with 2 strong reasons and real or hypothetical examples.',
+      tags: ['express-opinion', 'leadership'],
+      isDiagnostic: true,
+    },
+  ]
+
+  for (const q of speakingExtra) {
+    const typeMap: Record<string, string> = {
+      'sp-read-aloud': 'READ_ALOUD',
+      'sp-describe': 'DESCRIBE_PICTURE',
+      'sp-respond-free': 'RESPOND_FREE',
+      'sp-respond-info': 'RESPOND_INFO',
+      'sp-express': 'EXPRESS_OPINION',
+    }
+    const prefix = Object.keys(typeMap).find(k => q.id.startsWith(k)) ?? 'sp-express'
+    const type = typeMap[prefix]
+    const partMap: Record<string, number> = {
+      READ_ALOUD: 1, DESCRIBE_PICTURE: 2, RESPOND_FREE: 3, RESPOND_INFO: 4, EXPRESS_OPINION: 5,
+    }
+    await prisma.question.upsert({
+      where: { id: q.id },
+      update: { content: q.content },
+      create: { ...q, section: 'SPEAKING', part: partMap[type], type: type as any, difficulty: 3 },
+    })
+  }
+
+  // ─── WRITING – Additional Tasks ───────────────────────────────────────────
+  const writingExtra = [
+    {
+      id: 'wr-sentence-2',
+      content: {
+        imageUrl: 'https://images.pexels.com/photos/1181396/pexels-photo-1181396.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+        keywords: ['colleague', 'discuss'],
+        instructions: 'Write ONE sentence using both words/phrases. You may change word forms and use them in any order.',
+        timeLimitSec: 96,
+      },
+      options: null, answer: '',
+      explanation: 'Example: "Two colleagues are gathered around a laptop to discuss the latest project data." Both keywords used naturally.',
+      tags: ['write-sentence', 'office'],
+      isDiagnostic: false,
+    },
+    {
+      id: 'wr-sentence-3',
+      content: {
+        imageUrl: 'https://images.pexels.com/photos/3184418/pexels-photo-3184418.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+        keywords: ['presentation', 'although'],
+        instructions: 'Write ONE sentence using both words/phrases. You may change word forms and use them in any order.',
+        timeLimitSec: 96,
+      },
+      options: null, answer: '',
+      explanation: 'Example: "Although the presenter looks nervous, his presentation is clearly well-prepared and engaging." Use "although" to connect contrasting ideas.',
+      tags: ['write-sentence', 'meeting'],
+      isDiagnostic: false,
+    },
+    {
+      id: 'wr-sentence-4',
+      content: {
+        imageUrl: 'https://images.pexels.com/photos/1267338/pexels-photo-1267338.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+        keywords: ['warehouse', 'store'],
+        instructions: 'Write ONE sentence using both words/phrases. You may change word forms and use them in any order.',
+        timeLimitSec: 96,
+      },
+      options: null, answer: '',
+      explanation: 'Example: "Workers in the warehouse are storing large boxes on high shelves using a forklift." Use both keywords in a grammatically complete sentence.',
+      tags: ['write-sentence', 'workplace'],
+      isDiagnostic: false,
+    },
+    {
+      id: 'wr-sentence-5',
+      content: {
+        imageUrl: 'https://images.pexels.com/photos/3184360/pexels-photo-3184360.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+        keywords: ['sign', 'after'],
+        instructions: 'Write ONE sentence using both words/phrases. You may change word forms and use them in any order.',
+        timeLimitSec: 96,
+      },
+      options: null, answer: '',
+      explanation: 'Example: "After reviewing the contract carefully, the manager signed the document at the conference table." Connect the two actions logically.',
+      tags: ['write-sentence', 'business'],
+      isDiagnostic: false,
+    },
+    {
+      id: 'wr-email-2',
+      content: {
+        email: {
+          from: 'HorizonTech Customer Support <support@horizontech.com>',
+          to: 'You',
+          subject: 'Follow-up: Your Recent Support Request #48291',
+          body: "Thank you for contacting HorizonTech Support. We have reviewed your recent support request regarding connectivity issues with your HorizonPro laptop. Our technical team has identified a potential software conflict. We would like to schedule a remote diagnostic session at a time convenient for you. Please let us know your availability this week, and feel free to include any additional questions you may have.",
+        },
+        instructions: 'Respond to the email. Provide your availability and include at least TWO questions for the support team.',
+        timeLimitSec: 600,
+      },
+      options: null, answer: '',
+      explanation: 'Model response structure: 1) Thank them / reference the ticket. 2) State availability (e.g., Tuesday afternoon or Thursday morning). 3) Ask Q1 (e.g., how long the session takes). 4) Ask Q2 (e.g., if data will be affected). 5) Professional closing.',
+      tags: ['respond-email', 'tech-support'],
+      isDiagnostic: false,
+    },
+    {
+      id: 'wr-email-3',
+      content: {
+        email: {
+          from: 'Dr. Linda Park, Conference Organizer <lpark@bizsummit.org>',
+          to: 'Industry Professional',
+          subject: 'Invitation: Global Business Innovation Summit — Speaking Opportunity',
+          body: "Dear Professional, I am writing on behalf of the Global Business Innovation Summit, to be held in Vancouver on March 22–23. We would be honored to have you participate as a speaker or panelist at this year's event. The summit attracts over 500 business leaders from across the industry. Please let us know if you are interested and whether you have any preferences regarding the session format or topic area.",
+        },
+        instructions: 'Respond to the invitation. Indicate your interest (or decline politely) and ask at least TWO questions about the event.',
+        timeLimitSec: 600,
+      },
+      options: null, answer: '',
+      explanation: 'If accepting: express enthusiasm, ask about session length and audience size. If declining: thank them politely and give a brief reason. Either is valid as long as 2+ questions are asked.',
+      tags: ['respond-email', 'conference'],
+      isDiagnostic: true,
+    },
+    {
+      id: 'wr-essay-2',
+      content: {
+        prompt: 'Some companies require employees to wear uniforms or follow a strict dress code. Do you think companies should have a dress code policy? Give reasons and examples to support your opinion.',
+        timeLimitSec: 1800,
+        minWords: 300,
+        structure: ['Introduction + clear opinion', 'Reason 1 + example', 'Reason 2 + example', 'Counterargument + rebuttal (optional)', 'Conclusion'],
+      },
+      options: null, answer: '',
+      explanation: 'For: professional image, equality, sense of belonging. Against: limits individuality, costly for employees. Strong essays acknowledge both sides but defend one position clearly.',
+      tags: ['opinion-essay', 'workplace-culture'],
+      isDiagnostic: false,
+    },
+    {
+      id: 'wr-essay-3',
+      content: {
+        prompt: 'Many people now use public transportation instead of private vehicles to travel within cities. What are the advantages of using public transportation? Give reasons and examples to support your opinion.',
+        timeLimitSec: 1800,
+        minWords: 300,
+        structure: ['Introduction', 'Advantage 1 + example', 'Advantage 2 + example', 'Advantage 3 + example (optional)', 'Conclusion'],
+      },
+      options: null, answer: '',
+      explanation: 'Key points: reduces congestion, lower carbon emissions, cost savings, more productive commute time. Use specific examples (e.g., cities with efficient subway systems).',
+      tags: ['opinion-essay', 'environment'],
+      isDiagnostic: false,
+    },
+  ]
+
+  for (const q of writingExtra) {
+    const typeMap: Record<string, string> = {
+      'wr-sentence': 'WRITE_SENTENCE',
+      'wr-email': 'RESPOND_EMAIL',
+      'wr-essay': 'OPINION_ESSAY',
+    }
+    const prefix = Object.keys(typeMap).find(k => q.id.startsWith(k)) ?? 'wr-essay'
+    const type = typeMap[prefix]
+    const partMap: Record<string, number> = { WRITE_SENTENCE: 1, RESPOND_EMAIL: 2, OPINION_ESSAY: 3 }
+    await prisma.question.upsert({
+      where: { id: q.id },
+      update: { content: q.content },
+      create: { ...q, section: 'WRITING', part: partMap[type], type: type as any, difficulty: 3 },
+    })
+  }
+
   const counts = {
-    reading: part5.length + part6.length + part7.length + part7Messages.length + part7Double.length + part7Triple.length,
-    listening: part1.length + part2.length + part2Extra.length + part3.length + part3Extra.length + part4.length + part4Extra.length,
-    speaking: speakingDiagnostic.length,
-    writing: writingDiagnostic.length,
+    reading: part5.length + part5Batch2.length + part6.length + part6Batch2.length + part7.length + part7Messages.length + part7Double.length + part7Triple.length + part7Batch2.length,
+    listening: part1.length + part2.length + part2Extra.length + part2Batch3.length + part3.length + part3Extra.length + part3Batch3.length + part4.length + part4Extra.length + part4Batch3.length,
+    speaking: speakingDiagnostic.length + speakingExtra.length,
+    writing: writingDiagnostic.length + writingExtra.length,
   }
 
   console.log(`✅ Seeded:`)
