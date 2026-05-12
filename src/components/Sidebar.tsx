@@ -15,9 +15,9 @@ function SectionLabel({ label }: { label: string }) {
         letterSpacing: '0.08em',
         textTransform: 'uppercase',
         fontSize: 10,
-        paddingTop: '20px',
-        paddingBottom: '8px',
-        marginTop: '8px'
+        paddingTop: '12px',
+        paddingBottom: '4px',
+        marginTop: '4px',
       }}>
       {label}
     </p>
@@ -38,14 +38,27 @@ function NavItem({
   return (
     <Link
       href={href}
-      className="flex items-center gap-3 px-3 rounded-lg transition-all"
+      className="flex items-center gap-3 px-3 rounded-lg"
       style={{
-        paddingTop: '10px',
-        paddingBottom: '10px',
-        marginBottom: '2px',
+        paddingTop: '8px',
+        paddingBottom: '8px',
+        marginBottom: '1px',
         background: active ? 'var(--accent-subtle)' : 'transparent',
         color: active ? 'var(--accent)' : 'var(--muted)',
         textDecoration: 'none',
+        transition: 'background 0.15s, color 0.15s',
+      }}
+      onMouseEnter={e => {
+        if (!active) {
+          (e.currentTarget as HTMLElement).style.background = 'rgba(128,128,128,0.08)'
+          ;(e.currentTarget as HTMLElement).style.color = 'var(--foreground)'
+        }
+      }}
+      onMouseLeave={e => {
+        if (!active) {
+          (e.currentTarget as HTMLElement).style.background = 'transparent'
+          ;(e.currentTarget as HTMLElement).style.color = 'var(--muted)'
+        }
       }}
     >
       <Icon size={15} style={{ flexShrink: 0, marginTop: sub ? 2 : 0 }} />
@@ -57,6 +70,16 @@ function NavItem({
           </p>
         )}
       </div>
+      {active && (
+        <div style={{
+          marginLeft: 'auto',
+          width: 3,
+          height: 16,
+          borderRadius: 99,
+          background: 'var(--accent)',
+          flexShrink: 0,
+        }} />
+      )}
     </Link>
   )
 }
@@ -115,8 +138,10 @@ export default function Sidebar() {
         </div>
         <button
           onClick={handleSignOut}
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all"
-          style={{ color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left' }}
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium"
+          style={{ color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left', transition: 'background 0.15s, color 0.15s' }}
+          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(248,113,113,0.08)'; (e.currentTarget as HTMLElement).style.color = 'var(--error)' }}
+          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'none'; (e.currentTarget as HTMLElement).style.color = 'var(--muted)' }}
         >
           <LogOut size={15} />
           {t.nav.signOut}
