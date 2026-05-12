@@ -49,7 +49,7 @@ export default function SkillLandingPage({
         {/* Option 1: Alle Aufgaben */}
         <button
           onClick={() => router.push(tasks[0].href)}
-          className="card p-6 text-left transition-all hover:scale-[1.01]"
+          className="card p-6 text-left"
           style={{ borderColor: color + '40', cursor: 'pointer', background: 'var(--card)', border: `1px solid ${color}40` }}
         >
           <div className="flex items-start gap-4">
@@ -66,7 +66,7 @@ export default function SkillLandingPage({
                 {tasks.map(t => (
                   <span key={t.id}
                     onClick={e => { e.stopPropagation(); router.push(t.href) }}
-                    className="px-3 py-1 rounded-full text-xs font-medium cursor-pointer transition-opacity hover:opacity-80"
+                    className="px-3 py-1 rounded-full text-xs font-medium cursor-pointer"
                     style={{ background: color + '20', color }}>
                     {t.label}
                   </span>
@@ -93,7 +93,7 @@ export default function SkillLandingPage({
                   <button
                     key={t.id}
                     onClick={() => router.push(t.href)}
-                    className="card px-4 py-3 text-left transition-all hover:scale-[1.02]"
+                    className="card px-4 py-3 text-left"
                     style={{ background: 'var(--card)', minWidth: 140 }}
                   >
                     <p className="text-sm font-medium">{t.label}</p>
@@ -108,7 +108,7 @@ export default function SkillLandingPage({
         {/* Option 3: Empfohlen */}
         <button
           onClick={() => router.push('/diagnostic')}
-          className="card p-6 text-left transition-all hover:scale-[1.01]"
+          className="card p-6 text-left"
           style={{ background: hasDiagnostic ? 'var(--green-subtle)' : 'var(--card)', border: hasDiagnostic ? '1px solid var(--green)40' : undefined, cursor: 'pointer' }}
         >
           <div className="flex items-start gap-4">
