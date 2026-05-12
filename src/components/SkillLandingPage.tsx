@@ -30,27 +30,28 @@ export default function SkillLandingPage({
   const router = useRouter()
 
   return (
-    <div style={{ maxWidth: 860, margin: "0 auto" }}>
+    <div style={{ maxWidth: 860, margin: '0 auto' }}>
+
       {/* Header */}
-      <div className="flex items-center gap-4 mb-8">
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32 }}>
         <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl"
-          style={{ background: color + '20', color }}>
+          style={{ background: color + '20', color, flexShrink: 0 }}>
           {icon}
         </div>
         <div>
           <h1 className="text-3xl font-bold">{title}</h1>
-          <p style={{ color: 'var(--muted)' }}>{description}</p>
+          <p style={{ color: 'var(--muted)', marginTop: 4 }}>{description}</p>
         </div>
       </div>
 
       {/* 3 Options */}
-      <div className="flex flex-col gap-4">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
 
         {/* Option 1: Alle Aufgaben */}
         <button
           onClick={() => router.push(tasks[0].href)}
-          className="card p-6 text-left"
-          style={{ borderColor: color + '40', cursor: 'pointer', background: 'var(--card)', border: `1px solid ${color}40` }}
+          className="card text-left"
+          style={{ padding: '20px 24px', cursor: 'pointer', background: 'var(--card)', border: `1px solid ${color}40` }}
         >
           <div className="flex items-start gap-4">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
@@ -77,7 +78,7 @@ export default function SkillLandingPage({
         </button>
 
         {/* Option 2: Aufgaben wählen */}
-        <div className="card p-6" style={{ background: 'var(--card)' }}>
+        <div className="card" style={{ padding: '20px 24px', background: 'var(--card)' }}>
           <div className="flex items-start gap-4">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
               style={{ background: 'var(--accent-subtle)', color: 'var(--accent)' }}>
@@ -108,8 +109,8 @@ export default function SkillLandingPage({
         {/* Option 3: Empfohlen */}
         <button
           onClick={() => router.push('/diagnostic')}
-          className="card p-6 text-left"
-          style={{ background: hasDiagnostic ? 'var(--green-subtle)' : 'var(--card)', border: hasDiagnostic ? '1px solid var(--green)40' : undefined, cursor: 'pointer' }}
+          className="card text-left"
+          style={{ padding: '20px 24px', background: hasDiagnostic ? 'var(--green-subtle)' : 'var(--card)', border: hasDiagnostic ? '1px solid rgba(74,222,128,0.3)' : undefined, cursor: 'pointer' }}
         >
           <div className="flex items-start gap-4">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
