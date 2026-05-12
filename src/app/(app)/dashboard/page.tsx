@@ -46,7 +46,7 @@ export default async function DashboardPage() {
       levels:   true,
       sessions: { orderBy: { createdAt: 'desc' }, take: 5, where: { completedAt: { not: null } } },
     },
-  })
+  }).catch(() => null)
 
   const totalSessions = dbUser?.sessions.length ?? 0
   const avgAccuracy   = dbUser?.progress.length
