@@ -8,7 +8,7 @@ export default async function ReadingPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id } })
+  const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id } }).catch(() => null)
   const hasDiagnostic = !!(dbUser as any)?.diagnosticDone
 
   return (
