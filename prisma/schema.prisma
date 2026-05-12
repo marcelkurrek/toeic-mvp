@@ -120,27 +120,38 @@ enum SessionMode {
 
 enum QuestionType {
   // ── Listening ──────────────────────────────────────
-  PHOTOGRAPH           // Part 1: 4 audio statements about a photo, pick best
-  QUESTION_RESPONSE    // Part 2: hear question + 3 responses, pick best
-  CONVERSATION         // Part 3: conversation + 3 MC questions (may have graphic)
-  TALK                 // Part 4: monologue + 3 MC questions (may have graphic)
+  PHOTOGRAPH           // Part 1 (6 q): 4 spoken statements about a photo, pick best
+  QUESTION_RESPONSE    // Part 2 (25 q): hear question + 3 responses, pick best
+  CONVERSATION         // Part 3 (39 q / 13 conv×3): conversation + 3 MC questions (may have graphic)
+  TALK                 // Part 4 (30 q / 10 talks×3): monologue + 3 MC questions (may have graphic)
 
   // ── Reading ────────────────────────────────────────
-  INCOMPLETE_SENTENCE  // Part 5: fill-in-the-blank grammar/vocab
-  TEXT_COMPLETION      // Part 6: 4 blanks per text passage
-  SINGLE_PASSAGE       // Part 7: one text, 2-4 questions
-  DOUBLE_PASSAGE       // Part 7: two related texts, 5 questions
-  TRIPLE_PASSAGE       // Part 7: three related texts, 5 questions
+  INCOMPLETE_SENTENCE  // Part 5 (30 q): fill-in-the-blank grammar/vocab, 4 options
+  TEXT_COMPLETION      // Part 6 (16 q / 4 texts×4): 4 blanks per passage; blank 4 = sentence insertion
+  SINGLE_PASSAGE       // Part 7 (29 q / 10 passages): one text, 2-4 questions
+  DOUBLE_PASSAGE       // Part 7 (10 q / 2 sets×5): two related texts, 5 questions
+  TRIPLE_PASSAGE       // Part 7 (15 q / 3 sets×5): three related texts, 5 questions
 
-  // ── Speaking ───────────────────────────────────────
-  READ_ALOUD           // Q1-2: read text aloud (45s prep, 45s speak)
-  DESCRIBE_PICTURE     // Q3-4: describe image (45s prep, 30s speak)
-  RESPOND_FREE         // Q5-7: respond to question with no reference text
-  RESPOND_INFO         // Q8-10: respond using provided document/schedule
-  EXPRESS_OPINION      // Q11: give structured opinion (45s prep, 60s speak)
+  // ── Speaking (current format since Aug 2021) ───────
+  READ_ALOUD           // Q1-2: read text aloud (45s prep, 45s speak) scored 0-3
+  DESCRIBE_PICTURE     // Q3-4: describe image (30s prep, 45s speak) scored 0-3
+  RESPOND_FREE         // Q5-7: respond to questions, no reference text (3s prep, 15/15/30s) scored 0-3
+  RESPOND_INFO         // Q8-10: respond using provided document/schedule (45s read, 15/15/30s) scored 0-3
+  EXPRESS_OPINION      // Q11: structured opinion (45s prep, 60s speak) scored 0-5
+  PROPOSE_SOLUTION     // REMOVED Aug 2021 — kept for legacy/extra practice only
 
   // ── Writing ────────────────────────────────────────
-  WRITE_SENTENCE       // Q1-5: one sentence using 2 given keywords + picture
-  RESPOND_EMAIL        // Q6-7: email response (10 min, ≥2 requests/points)
-  OPINION_ESSAY        // Q8: structured essay (30 min, ≥300 words)
+  WRITE_SENTENCE       // Q1-5 (8 min total): one sentence using 2 keywords + picture, scored 0-3
+  RESPOND_EMAIL        // Q6-7 (10 min each): email response with ≥2 requests, scored 0-4
+  OPINION_ESSAY        // Q8 (30 min, ≥300 words): structured essay, scored 0-5
+}
+
+// Tracks TOEIC format update checks
+model ToeicFormatCheck {
+  id            String   @id @default(cuid())
+  checkedAt     DateTime @default(now())
+  formatVersion String   // e.g. "2021-08"
+  findings      Json     // array of { area, description, source, severity }
+  hasChanges    Boolean  @default(false)
+  appliedAt     DateTime?
 }

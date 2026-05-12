@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { LayoutDashboard, BarChart2, LogOut, Info, Zap, Headphones, BookOpen, Mic, PenLine } from 'lucide-react'
+import { LayoutDashboard, BarChart2, LogOut, Info, Zap, Headphones, BookOpen, Mic, PenLine, Settings2 } from 'lucide-react'
 import { useLang } from '@/lib/i18n/client'
 import LanguageSwitcher from './LanguageSwitcher'
 import ThemeSwitcher from './ThemeSwitcher'
@@ -121,6 +121,9 @@ export default function Sidebar() {
         <NavItem href="/diagnostic" label={t.nav.diagnostic} sub={t.nav.diagnosticSub} icon={Zap} />
         <NavItem href="/progress" label={t.nav.progress} icon={BarChart2} />
         <NavItem href="/guide" label={t.nav.guide} icon={Info} />
+
+        <SectionLabel label="System" />
+        <NavItem href="/admin" label="Admin" sub="Fragen & Updates" icon={Settings2} />
 
       </nav>
 
