@@ -48,12 +48,6 @@ function NavItem({
         textDecoration: 'none',
         transition: 'background 0.15s, color 0.15s',
       }}
-      onMouseEnter={e => {
-        if (!active) {
-          (e.currentTarget as HTMLElement).style.background = 'rgba(128,128,128,0.08)'
-          ;(e.currentTarget as HTMLElement).style.color = 'var(--foreground)'
-        }
-      }}
       onMouseLeave={e => {
         if (!active) {
           (e.currentTarget as HTMLElement).style.background = 'transparent'
@@ -140,8 +134,6 @@ export default function Sidebar() {
           onClick={handleSignOut}
           className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium"
           style={{ color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left', transition: 'background 0.15s, color 0.15s' }}
-          onMouseEnter={e => { (e.currentTarget as HTMLElement).style.background = 'rgba(248,113,113,0.08)'; (e.currentTarget as HTMLElement).style.color = 'var(--error)' }}
-          onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = 'none'; (e.currentTarget as HTMLElement).style.color = 'var(--muted)' }}
         >
           <LogOut size={15} />
           {t.nav.signOut}

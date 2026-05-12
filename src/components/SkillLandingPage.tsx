@@ -30,7 +30,7 @@ export default function SkillLandingPage({
   const router = useRouter()
 
   return (
-    <div className="p-8 max-w-3xl mx-auto">
+    <div style={{ maxWidth: 860, margin: "0 auto" }}>
       {/* Header */}
       <div className="flex items-center gap-4 mb-8">
         <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl"
