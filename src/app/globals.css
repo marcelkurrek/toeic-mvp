@@ -95,7 +95,6 @@ body {
   border-radius: 999px;
   border: none;
   cursor: pointer;
-  transition: background 0.15s, transform 0.1s;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -103,12 +102,7 @@ body {
   letter-spacing: 0.01em;
 }
 
-.btn-primary:hover {
-  background: var(--accent-hover);
-  transform: translateY(-1px);
-}
-.btn-primary:active { transform: translateY(0); }
-.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* Inputs */
 .input-field {
@@ -131,5 +125,4 @@ body {
 
 .input-field::placeholder { color: var(--muted); }
 
-.part-card { transition: border-color 0.2s; }
-.part-card:hover { border-color: var(--part-color) !important; }
+.part-card { }
