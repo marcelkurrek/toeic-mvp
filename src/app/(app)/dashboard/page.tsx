@@ -123,7 +123,7 @@ export default async function DashboardPage() {
   const firstName = dbUser?.name?.split(' ')[0] ?? user.email?.split('@')[0] ?? ''
 
   return (
-    <div style={{ maxWidth: 900, margin: '0 auto' }}>
+    <div style={{ maxWidth: 820, margin: '0 auto' }}>
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <div style={{ marginBottom: 28 }}>
