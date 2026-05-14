@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { LayoutDashboard, BarChart2, LogOut, Info, Zap, Headphones, BookOpen, Mic, PenLine, Settings2 } from 'lucide-react'
+import { LayoutDashboard, BarChart2, LogOut, Info, Zap, Headphones, BookOpen, Mic, PenLine, Brain } from 'lucide-react'
 import { useLang } from '@/lib/i18n/client'
 import LanguageSwitcher from './LanguageSwitcher'
 import ThemeSwitcher from './ThemeSwitcher'
@@ -15,9 +15,9 @@ function SectionLabel({ label }: { label: string }) {
         letterSpacing: '0.08em',
         textTransform: 'uppercase',
         fontSize: 10,
-        paddingTop: '12px',
-        paddingBottom: '4px',
-        marginTop: '4px',
+        paddingTop: '20px',
+        paddingBottom: '8px',
+        marginTop: '8px'
       }}>
       {label}
     </p>
@@ -38,21 +38,14 @@ function NavItem({
   return (
     <Link
       href={href}
-      className="flex items-center gap-3 px-3 rounded-lg"
+      className="flex items-center gap-3 px-3 rounded-lg transition-all"
       style={{
-        paddingTop: '8px',
-        paddingBottom: '8px',
-        marginBottom: '1px',
+        paddingTop: '10px',
+        paddingBottom: '10px',
+        marginBottom: '2px',
         background: active ? 'var(--accent-subtle)' : 'transparent',
         color: active ? 'var(--accent)' : 'var(--muted)',
         textDecoration: 'none',
-        transition: 'background 0.15s, color 0.15s',
-      }}
-      onMouseLeave={e => {
-        if (!active) {
-          (e.currentTarget as HTMLElement).style.background = 'transparent'
-          ;(e.currentTarget as HTMLElement).style.color = 'var(--muted)'
-        }
       }}
     >
       <Icon size={15} style={{ flexShrink: 0, marginTop: sub ? 2 : 0 }} />
@@ -64,16 +57,6 @@ function NavItem({
           </p>
         )}
       </div>
-      {active && (
-        <div style={{
-          marginLeft: 'auto',
-          width: 3,
-          height: 16,
-          borderRadius: 99,
-          background: 'var(--accent)',
-          flexShrink: 0,
-        }} />
-      )}
     </Link>
   )
 }
@@ -118,12 +101,10 @@ export default function Sidebar() {
         <NavItem href="/writing" label="Writing" sub="Schriftlich" icon={PenLine} />
 
         <SectionLabel label={t.nav.sectionInfo} />
+        <NavItem href="/review"     label="SRS Wiederholung" sub="Spaced Repetition" icon={Brain} />
         <NavItem href="/diagnostic" label={t.nav.diagnostic} sub={t.nav.diagnosticSub} icon={Zap} />
-        <NavItem href="/progress" label={t.nav.progress} icon={BarChart2} />
-        <NavItem href="/guide" label={t.nav.guide} icon={Info} />
-
-        <SectionLabel label="System" />
-        <NavItem href="/admin" label="Admin" sub="Fragen & Updates" icon={Settings2} />
+        <NavItem href="/progress"   label={t.nav.progress} icon={BarChart2} />
+        <NavItem href="/guide"      label={t.nav.guide} icon={Info} />
 
       </nav>
 
@@ -135,8 +116,8 @@ export default function Sidebar() {
         </div>
         <button
           onClick={handleSignOut}
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium"
-          style={{ color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left', transition: 'background 0.15s, color 0.15s' }}
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all"
+          style={{ color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', width: '100%', textAlign: 'left' }}
         >
           <LogOut size={15} />
           {t.nav.signOut}
