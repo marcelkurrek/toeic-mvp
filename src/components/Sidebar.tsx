@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { LayoutDashboard, BarChart2, LogOut, Info, Zap, Headphones, BookOpen, Mic, PenLine, Brain } from 'lucide-react'
+import { LayoutDashboard, BarChart2, LogOut, Info, Zap, Headphones, BookOpen, Mic, PenLine, Brain, ClipboardList } from 'lucide-react'
 import { useLang } from '@/lib/i18n/client'
 import LanguageSwitcher from './LanguageSwitcher'
 import ThemeSwitcher from './ThemeSwitcher'
@@ -101,7 +101,8 @@ export default function Sidebar() {
         <NavItem href="/writing" label="Writing" sub="Schriftlich" icon={PenLine} />
 
         <SectionLabel label={t.nav.sectionInfo} />
-        <NavItem href="/review"     label="SRS Wiederholung" sub="Spaced Repetition" icon={Brain} />
+        <NavItem href="/mock-exam"   label="Mock-Prüfung"     sub="Vollständiger Test" icon={ClipboardList} />
+        <NavItem href="/review"     label="SRS Wiederholung" sub="Spaced Repetition"  icon={Brain} />
         <NavItem href="/diagnostic" label={t.nav.diagnostic} sub={t.nav.diagnosticSub} icon={Zap} />
         <NavItem href="/progress"   label={t.nav.progress} icon={BarChart2} />
         <NavItem href="/guide"      label={t.nav.guide} icon={Info} />
