@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { CheckCircle, XCircle, Volume2, ChevronRight, RotateCcw, Play, Loader2 } from 'lucide-react'
+import { CheckCircle, XCircle, Volume2, VolumeX, ChevronRight, RotateCcw, Play, Loader2 } from 'lucide-react'
 import type { Question } from '@/types'
 
 interface ListeningShellProps {
@@ -13,18 +13,39 @@ interface QuestionGroup {
   questions: Question[]
 }
 
-function speak(text: string, onEnd?: () => void): SpeechSynthesisUtterance | null {
-  if (typeof window === 'undefined' || !window.speechSynthesis) return null
-  window.speechSynthesis.cancel()
-  const utt = new SpeechSynthesisUtterance(text)
-  utt.lang = 'en-US'
-  utt.rate = 0.92
-  utt.pitch = 1
-  if (onEnd) utt.onend = onEnd
-  window.speechSynthesis.speak(utt)
-  return utt
+// ── TTS helper (OpenAI) ───────────────────────────────────────────────────────
+let currentAudio: HTMLAudioElement | null = null
+
+function cancelTTS() {
+  if (currentAudio) {
+    currentAudio.pause()
+    currentAudio.src = ''
+    currentAudio = null
+  }
 }
 
+async function playTTS(text: string, onEnd?: () => void): Promise<void> {
+  cancelTTS()
+  try {
+    const res = await fetch('/api/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text }),
+    })
+    if (!res.ok) throw new Error('TTS failed')
+    const blob = await res.blob()
+    const url = URL.createObjectURL(blob)
+    const audio = new Audio(url)
+    currentAudio = audio
+    audio.onended = () => { URL.revokeObjectURL(url); currentAudio = null; onEnd?.() }
+    audio.onerror = () => { URL.revokeObjectURL(url); currentAudio = null; onEnd?.() }
+    await audio.play()
+  } catch {
+    onEnd?.()
+  }
+}
+
+// ── Group Part-3/4 questions by transcript ────────────────────────────────────
 function groupByTranscript(questions: Question[]): QuestionGroup[] {
   const groups: QuestionGroup[] = []
   for (const q of questions) {
@@ -39,6 +60,7 @@ function groupByTranscript(questions: Question[]): QuestionGroup[] {
   return groups
 }
 
+// ── Part 1: Photograph ────────────────────────────────────────────────────────
 function Part1Card({
   question, onAnswer,
 }: {
@@ -53,7 +75,7 @@ function Part1Card({
 
   function playStatement(letter: string, text: string) {
     setPlaying(letter)
-    speak(text, () => setPlaying(null))
+    playTTS(text, () => setPlaying(null))
   }
 
   function playAll() {
@@ -64,7 +86,7 @@ function Part1Card({
       setPlaying(letter)
       const fullText = `${letter}. ${content.transcript[i]}`
       i++
-      speak(fullText, playNext)
+      playTTS(fullText, playNext)
     }
     playNext()
   }
@@ -77,10 +99,13 @@ function Part1Card({
 
   return (
     <div className="card" style={{ padding: '24px 24px 20px' }}>
+      {/* Image */}
       <div style={{ marginBottom: 20, borderRadius: 12, overflow: 'hidden', maxHeight: 300 }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={content.imageUrl} alt="TOEIC Listening Part 1" style={{ width: '100%', objectFit: 'cover', maxHeight: 300 }} />
       </div>
+
+      {/* Play all */}
       <button
         onClick={playAll}
         disabled={!!playing}
@@ -90,18 +115,22 @@ function Part1Card({
         {playing ? <Loader2 size={15} className="animate-spin" /> : <Play size={15} />}
         Alle Aussagen abspielen
       </button>
+
+      {/* Options */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
         {content.transcript.map((text, i) => {
           const letter = letters[i]
           const isSelected = selected === letter
           const isCorrect = submitted && letter === question.answer
           const isWrong = submitted && isSelected && !isCorrect
+
           let borderColor = 'var(--card-border)'
           let bg = 'transparent'
           let textColor = 'var(--foreground)'
           if (!submitted && isSelected) { borderColor = 'var(--accent)'; bg = 'var(--accent-subtle)' }
           if (isCorrect) { borderColor = 'var(--success)'; bg = 'rgba(74,222,128,0.1)'; textColor = 'var(--success)' }
           if (isWrong) { borderColor = 'var(--error)'; bg = 'rgba(248,113,113,0.1)'; textColor = 'var(--error)' }
+
           return (
             <div key={letter} className="flex items-center gap-3">
               <button
@@ -129,6 +158,7 @@ function Part1Card({
           )
         })}
       </div>
+
       {submitted && question.explanation && (
         <div className="rounded-lg text-sm mb-4"
           style={{ background: 'var(--accent-subtle)', borderLeft: '3px solid var(--accent)', padding: '12px 14px' }}>
@@ -136,6 +166,7 @@ function Part1Card({
           {question.explanation}
         </div>
       )}
+
       <div className="flex justify-end">
         {!submitted ? (
           <button onClick={handleSubmit} disabled={!selected} className="btn-primary">Antwort prüfen</button>
@@ -145,6 +176,7 @@ function Part1Card({
   )
 }
 
+// ── Part 2: Question-Response ─────────────────────────────────────────────────
 function Part2Card({
   question, onAnswer,
 }: {
@@ -160,23 +192,26 @@ function Part2Card({
 
   function playQuestion() {
     setPlaying('Q')
-    speak(content.question, () => { setPlaying(null); setQuestionPlayed(true) })
+    playTTS(content.question, () => {
+      setPlaying(null)
+      setQuestionPlayed(true)
+    })
   }
 
   function playResponse(letter: string, text: string) {
     setPlaying(letter)
-    speak(text, () => setPlaying(null))
+    playTTS(text, () => setPlaying(null))
   }
 
   function playAll() {
     setPlaying('Q')
-    speak(content.question, () => {
+    playTTS(content.question, () => {
       let i = 0
       const playNext = () => {
         if (i >= content.responses.length) { setPlaying(null); setQuestionPlayed(true); return }
         const letter = letters[i]
         setPlaying(letter)
-        speak(`${letter}. ${content.responses[i]}`, playNext)
+        playTTS(`${letter}. ${content.responses[i]}`, playNext)
         i++
       }
       playNext()
@@ -191,6 +226,7 @@ function Part2Card({
 
   return (
     <div className="card" style={{ padding: '24px 24px 20px' }}>
+      {/* Question audio */}
       <div className="rounded-lg p-4 mb-4" style={{ background: 'var(--surface)', border: '1px solid var(--surface-border)' }}>
         <p className="text-xs font-medium mb-2" style={{ color: 'var(--muted)' }}>Frage (Ton)</p>
         <div className="flex items-center gap-3">
@@ -216,18 +252,22 @@ function Part2Card({
           <p className="text-sm mt-2 italic" style={{ color: 'var(--muted)' }}>{content.question}</p>
         )}
       </div>
+
+      {/* Responses */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
         {content.responses.map((text, i) => {
           const letter = letters[i]
           const isSelected = selected === letter
           const isCorrect = submitted && letter === question.answer
           const isWrong = submitted && isSelected && !isCorrect
+
           let borderColor = 'var(--card-border)'
           let bg = 'transparent'
           let textColor = 'var(--foreground)'
           if (!submitted && isSelected) { borderColor = 'var(--accent)'; bg = 'var(--accent-subtle)' }
           if (isCorrect) { borderColor = 'var(--success)'; bg = 'rgba(74,222,128,0.1)'; textColor = 'var(--success)' }
           if (isWrong) { borderColor = 'var(--error)'; bg = 'rgba(248,113,113,0.1)'; textColor = 'var(--error)' }
+
           return (
             <div key={letter} className="flex items-center gap-3">
               <button
@@ -255,6 +295,7 @@ function Part2Card({
           )
         })}
       </div>
+
       {submitted && question.explanation && (
         <div className="rounded-lg text-sm mb-4"
           style={{ background: 'var(--accent-subtle)', borderLeft: '3px solid var(--accent)', padding: '12px 14px' }}>
@@ -262,6 +303,7 @@ function Part2Card({
           {question.explanation}
         </div>
       )}
+
       <div className="flex justify-end">
         {!submitted && (
           <button onClick={handleSubmit} disabled={!selected} className="btn-primary">Antwort prüfen</button>
@@ -271,6 +313,7 @@ function Part2Card({
   )
 }
 
+// ── Part 3/4: Group Card (transcript + multiple questions) ────────────────────
 function GroupCard({
   group, partLabel, onGroupDone,
 }: {
@@ -287,7 +330,10 @@ function GroupCard({
 
   function playTranscript() {
     setPlaying(true)
-    speak(group.transcript, () => { setPlaying(false); setPlayed(true) })
+    playTTS(group.transcript, () => {
+      setPlaying(false)
+      setPlayed(true)
+    })
   }
 
   function handleSubmit() {
@@ -306,7 +352,11 @@ function GroupCard({
       }, 1200)
     } else {
       setAnswers(newAnswers)
-      setTimeout(() => { setQIndex(i => i + 1); setSelected(null); setSubmitted(false) }, 1200)
+      setTimeout(() => {
+        setQIndex(i => i + 1)
+        setSelected(null)
+        setSubmitted(false)
+      }, 1200)
     }
   }
 
@@ -317,6 +367,7 @@ function GroupCard({
 
   return (
     <div className="card" style={{ padding: '24px 24px 20px' }}>
+      {/* Transcript audio */}
       <div className="rounded-lg p-4 mb-5" style={{ background: 'var(--surface)', border: '1px solid var(--surface-border)' }}>
         <p className="text-xs font-medium mb-2" style={{ color: 'var(--muted)' }}>
           {partLabel === 'Part 3' ? 'Gespräch (Ton)' : 'Monolog (Ton)'}
@@ -336,6 +387,8 @@ function GroupCard({
           </p>
         )}
       </div>
+
+      {/* Graphic (if any) */}
       {content.graphic && (
         <div className="rounded-lg p-3 mb-4 text-sm" style={{ background: 'var(--accent-subtle)', border: '1px solid var(--card-border)' }}>
           <p className="font-semibold mb-2" style={{ color: 'var(--accent)' }}>{content.graphic.title}</p>
@@ -359,24 +412,30 @@ function GroupCard({
           </table>
         </div>
       )}
+
+      {/* Question */}
       <div className="mb-2 flex items-center gap-2">
         <span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: 'var(--card-border)', color: 'var(--muted)' }}>
           Frage {qIndex + 1}/{group.questions.length}
         </span>
       </div>
       <p className="text-base font-medium mb-4">{content.question}</p>
+
+      {/* Options */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
         {opts.map((opt, i) => {
           const letter = letters[i]
           const isSelected = selected === letter
           const isCorrect = submitted && letter === question.answer
           const isWrong = submitted && isSelected && !isCorrect
+
           let borderColor = 'var(--card-border)'
           let bg = 'transparent'
           let textColor = 'var(--foreground)'
           if (!submitted && isSelected) { borderColor = 'var(--accent)'; bg = 'var(--accent-subtle)' }
           if (isCorrect) { borderColor = 'var(--success)'; bg = 'rgba(74,222,128,0.1)'; textColor = 'var(--success)' }
           if (isWrong) { borderColor = 'var(--error)'; bg = 'rgba(248,113,113,0.1)'; textColor = 'var(--error)' }
+
           return (
             <button
               key={letter}
@@ -394,6 +453,7 @@ function GroupCard({
           )
         })}
       </div>
+
       {submitted && question.explanation && (
         <div className="rounded-lg text-sm mb-4"
           style={{ background: 'var(--accent-subtle)', borderLeft: '3px solid var(--accent)', padding: '12px 14px' }}>
@@ -401,6 +461,7 @@ function GroupCard({
           {question.explanation}
         </div>
       )}
+
       <div className="flex justify-end">
         {!submitted && (
           <button onClick={handleSubmit} disabled={!selected} className="btn-primary">Antwort prüfen</button>
@@ -418,6 +479,7 @@ function GroupCard({
   )
 }
 
+// ── Main ListeningShell ───────────────────────────────────────────────────────
 export default function ListeningShell({ part }: ListeningShellProps) {
   const router = useRouter()
   const [questions, setQuestions] = useState<Question[]>([])
@@ -446,7 +508,11 @@ export default function ListeningShell({ part }: ListeningShellProps) {
     const data = await res.json()
     const qs: Question[] = data.questions ?? []
     setQuestions(qs)
-    if (part === 3 || part === 4) setGroups(groupByTranscript(qs))
+
+    if (part === 3 || part === 4) {
+      setGroups(groupByTranscript(qs))
+    }
+
     const sessionRes = await fetch('/api/sessions', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -458,23 +524,31 @@ export default function ListeningShell({ part }: ListeningShellProps) {
   }, [part])
 
   useEffect(() => { loadQuestions() }, [loadQuestions])
-  useEffect(() => () => { window.speechSynthesis?.cancel() }, [])
+
+  // Stop audio on unmount
+  useEffect(() => () => { cancelTTS() }, [])
 
   function handleSingleAnswer(letter: string, correct: boolean) {
     const q = questions[singleIndex]
     const newResults = [...results, { questionId: q.id, letter, correct }]
     setResults(newResults)
     setTimeout(() => {
-      if (singleIndex + 1 >= questions.length) finalize(newResults)
-      else setSingleIndex(i => i + 1)
+      if (singleIndex + 1 >= questions.length) {
+        finalize(newResults)
+      } else {
+        setSingleIndex(i => i + 1)
+      }
     }, 1000)
   }
 
   function handleGroupDone(groupResults: { questionId: string; letter: string; correct: boolean }[]) {
     const newResults = [...results, ...groupResults]
     setResults(newResults)
-    if (groupIndex + 1 >= groups.length) finalize(newResults)
-    else setGroupIndex(i => i + 1)
+    if (groupIndex + 1 >= groups.length) {
+      finalize(newResults)
+    } else {
+      setGroupIndex(i => i + 1)
+    }
   }
 
   function finalize(finalResults: { questionId: string; letter: string; correct: boolean }[]) {
@@ -485,26 +559,41 @@ export default function ListeningShell({ part }: ListeningShellProps) {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          score, maxScore: finalResults.length, durationSec: 0,
-          answers: finalResults.map(r => ({ questionId: r.questionId, userAnswer: r.letter, isCorrect: r.correct, timeSpentSec: 0 })),
+          score,
+          maxScore: finalResults.length,
+          durationSec: 0,
+          answers: finalResults.map(r => ({
+            questionId: r.questionId,
+            userAnswer: r.letter,
+            isCorrect: r.correct,
+            timeSpentSec: 0,
+          })),
         }),
       })
     }
   }
 
-  if (loading) return (
-    <div style={{ maxWidth: 768, margin: '0 auto' }}>
-      <h1 className="text-2xl font-bold mb-2">{partTitles[part]}</h1>
-      <div className="card" style={{ padding: 48, marginTop: 24, textAlign: 'center', color: 'var(--muted)' }}>Fragen werden geladen…</div>
-    </div>
-  )
+  if (loading) {
+    return (
+      <div style={{ maxWidth: 768, margin: '0 auto' }}>
+        <h1 className="text-2xl font-bold mb-2">{partTitles[part]}</h1>
+        <div className="card" style={{ padding: 48, marginTop: 24, textAlign: 'center', color: 'var(--muted)' }}>
+          Fragen werden geladen…
+        </div>
+      </div>
+    )
+  }
 
-  if (questions.length === 0) return (
-    <div style={{ maxWidth: 768, margin: '0 auto' }}>
-      <h1 className="text-2xl font-bold mb-4">{partTitles[part]}</h1>
-      <div className="card" style={{ padding: 48, textAlign: 'center', color: 'var(--muted)' }}>Keine Fragen für diesen Teil gefunden.</div>
-    </div>
-  )
+  if (questions.length === 0) {
+    return (
+      <div style={{ maxWidth: 768, margin: '0 auto' }}>
+        <h1 className="text-2xl font-bold mb-4">{partTitles[part]}</h1>
+        <div className="card" style={{ padding: 48, textAlign: 'center', color: 'var(--muted)' }}>
+          Keine Fragen für diesen Teil gefunden.
+        </div>
+      </div>
+    )
+  }
 
   if (finished) {
     const score = results.filter(r => r.correct).length
@@ -514,15 +603,23 @@ export default function ListeningShell({ part }: ListeningShellProps) {
         <h1 className="text-2xl font-bold mb-6">{partTitles[part]} — Ergebnis</h1>
         <div className="card" style={{ padding: '36px 32px', marginBottom: 24, textAlign: 'center' }}>
           <div className="text-6xl font-bold mb-2"
-            style={{ color: pct >= 80 ? 'var(--success)' : pct >= 60 ? 'var(--warning)' : 'var(--error)' }}>{pct}%</div>
+            style={{ color: pct >= 80 ? 'var(--success)' : pct >= 60 ? 'var(--warning)' : 'var(--error)' }}>
+            {pct}%
+          </div>
           <p className="text-lg mb-1">{score} von {results.length} richtig</p>
-          <p style={{ color: 'var(--muted)' }}>{pct >= 80 ? 'Ausgezeichnet!' : pct >= 60 ? 'Gut gemacht!' : 'Weiter üben!'}</p>
+          <p style={{ color: 'var(--muted)' }}>
+            {pct >= 80 ? 'Ausgezeichnet!' : pct >= 60 ? 'Gut gemacht!' : 'Weiter üben!'}
+          </p>
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
-          <button onClick={loadQuestions} className="btn-primary flex items-center gap-2"><RotateCcw size={16} /> Nochmals üben</button>
+          <button onClick={loadQuestions} className="btn-primary flex items-center gap-2">
+            <RotateCcw size={16} /> Nochmals üben
+          </button>
           <button onClick={() => router.push('/listening')}
             className="text-sm font-medium rounded-lg border"
-            style={{ padding: '0 20px', borderColor: 'var(--card-border)', height: 44 }}>Zurück zu Listening</button>
+            style={{ padding: '0 20px', borderColor: 'var(--card-border)', height: 44 }}>
+            Zurück zu Listening
+          </button>
         </div>
       </div>
     )
@@ -537,7 +634,7 @@ export default function ListeningShell({ part }: ListeningShellProps) {
         <div>
           <h1 className="text-2xl font-bold mb-1">{partTitles[part]}</h1>
           <p className="text-sm flex items-center gap-1" style={{ color: 'var(--muted)' }}>
-            <Volume2 size={13} /> TTS-Audio aktiviert
+            <Volume2 size={13} /> KI-Audio aktiviert
           </p>
         </div>
         <div className="text-sm font-medium rounded-full"
@@ -545,18 +642,33 @@ export default function ListeningShell({ part }: ListeningShellProps) {
           {doneQ + 1} / {totalQ}
         </div>
       </div>
+
       <div className="rounded-full overflow-hidden" style={{ height: 6, marginBottom: 24, background: 'var(--card-border)' }}>
         <div className="h-full rounded-full transition-all duration-300"
           style={{ width: `${(doneQ / totalQ) * 100}%`, background: 'var(--accent)' }} />
       </div>
+
       {(part === 1) && questions[singleIndex] && (
-        <Part1Card key={(questions[singleIndex] as Question).id} question={questions[singleIndex] as Question} onAnswer={handleSingleAnswer} />
+        <Part1Card
+          key={(questions[singleIndex] as Question).id}
+          question={questions[singleIndex] as Question}
+          onAnswer={(letter, correct) => handleSingleAnswer(letter, correct)}
+        />
       )}
       {(part === 2) && questions[singleIndex] && (
-        <Part2Card key={(questions[singleIndex] as Question).id} question={questions[singleIndex] as Question} onAnswer={handleSingleAnswer} />
+        <Part2Card
+          key={(questions[singleIndex] as Question).id}
+          question={questions[singleIndex] as Question}
+          onAnswer={(letter, correct) => handleSingleAnswer(letter, correct)}
+        />
       )}
       {(part === 3 || part === 4) && groups[groupIndex] && (
-        <GroupCard key={groupIndex} group={groups[groupIndex] as QuestionGroup} partLabel={part === 3 ? 'Part 3' : 'Part 4'} onGroupDone={handleGroupDone} />
+        <GroupCard
+          key={groupIndex}
+          group={groups[groupIndex] as QuestionGroup}
+          partLabel={part === 3 ? 'Part 3' : 'Part 4'}
+          onGroupDone={handleGroupDone}
+        />
       )}
     </div>
   )
