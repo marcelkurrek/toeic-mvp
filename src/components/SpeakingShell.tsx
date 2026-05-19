@@ -1,12 +1,12 @@
 'use client'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Mic, MicOff, RotateCcw, ChevronRight, CheckCircle, Play, Pause } from 'lucide-react'
+import { Mic, MicOff, RotateCcw, ChevronRight, CheckCircle, Play, Pause, Loader2 } from 'lucide-react'
 import type { Question } from '@/types'
 
 type SpeakingMode = 'read-aloud' | 'describe' | 'respond'
 interface SpeakingShellProps { mode: SpeakingMode }
-type Phase = 'idle' | 'prep' | 'recording' | 'self-assessment' | 'feedback' | 'done'
+type Phase = 'idle' | 'prep' | 'recording' | 'done'
 interface FeedbackResult { complete: boolean; completenessPercent: number; feedback: string; missingPortion?: string | null }
 
 function useTimer(seconds: number, running: boolean, onEnd: () => void) {
@@ -29,6 +29,7 @@ type AnyRecognition = { lang: string; continuous: boolean; interimResults: boole
 function useRecognition() {
   const recognitionRef = useRef<AnyRecognition | null>(null)
   const [transcript, setTranscript] = useState('')
+  const transcriptRef = useRef('')
   const [supported, setSupported] = useState(true)
   useEffect(() => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -39,13 +40,15 @@ function useRecognition() {
     rec.onresult = (e) => {
       let final = ''
       for (let i = 0; i < e.results.length; i++) { if (e.results[i].isFinal) final += e.results[i][0].transcript + ' ' }
-      setTranscript(final.trim())
+      const t = final.trim()
+      setTranscript(t)
+      transcriptRef.current = t
     }
     recognitionRef.current = rec
   }, [])
-  const start = useCallback(() => { setTranscript(''); try { recognitionRef.current?.start() } catch { /* already started */ } }, [])
+  const start = useCallback(() => { setTranscript(''); transcriptRef.current = ''; try { recognitionRef.current?.start() } catch { /* already started */ } }, [])
   const stop = useCallback(() => { try { recognitionRef.current?.stop() } catch { /* already stopped */ } }, [])
-  return { transcript, supported, start, stop, setTranscript }
+  return { transcript, transcriptRef, supported, start, stop }
 }
 
 function useAudioRecorder() {
@@ -106,24 +109,61 @@ function AudioPlayback({ url }: { url: string }) {
   )
 }
 
-function SelfAssessmentPanel({ audioUrl, onReRecord, onSubmit, loading }: {
-  audioUrl: string | null; onReRecord: () => void; onSubmit: () => void; loading: boolean
+function FeedbackCard({ feedback, transcript, showTranscript }: {
+  feedback: FeedbackResult; transcript?: string; showTranscript?: boolean
 }) {
+  const pct = feedback.completenessPercent
+  const pctColor = pct >= 85 ? 'var(--success)' : pct >= 60 ? '#f59e0b' : 'var(--error)'
   return (
     <div>
-      <p className="text-sm font-semibold mb-3">Wie war deine Antwort?</p>
-      <p className="text-xs mb-4" style={{ color: 'var(--muted)' }}>
-        Höre dir deine Aufnahme an und entscheide, ob du nochmal aufnehmen oder KI-Feedback holen möchtest.
-      </p>
-      {audioUrl && <div className="mb-4"><AudioPlayback url={audioUrl} /></div>}
+      <div className="flex items-center gap-3 mb-3">
+        <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shrink-0"
+          style={{ background: feedback.complete ? 'var(--green-subtle)' : 'rgba(245,158,11,0.12)', color: pctColor }}>
+          {pct}%
+        </div>
+        <p className="font-semibold text-sm">{feedback.complete ? 'Gut gemacht!' : 'Weiter üben'}</p>
+      </div>
+      <div className="rounded-lg p-4 mb-3 text-sm leading-relaxed" style={{ background: 'var(--accent-subtle)', borderLeft: '3px solid var(--accent)' }}>
+        {feedback.feedback}
+      </div>
+      {showTranscript && transcript && (
+        <div className="rounded-lg p-3 text-sm mb-3" style={{ background: 'var(--surface)' }}>
+          <p className="font-medium mb-1" style={{ color: 'var(--muted)' }}>Erkannter Text:</p>
+          <p className="italic">{transcript}</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function DonePanel({ audioUrl, feedback, loadingFeedback, transcript, showTranscript, onReRecord, onNext, isLast, nextLabel }: {
+  audioUrl: string | null
+  feedback: FeedbackResult | null
+  loadingFeedback: boolean
+  transcript?: string
+  showTranscript?: boolean
+  onReRecord: () => void
+  onNext: () => void
+  isLast: boolean
+  nextLabel?: string
+}) {
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      {audioUrl && <AudioPlayback url={audioUrl} />}
+      {loadingFeedback
+        ? <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--muted)' }}><Loader2 size={14} className="animate-spin" /> Feedback wird berechnet…</div>
+        : feedback && <FeedbackCard feedback={feedback} transcript={transcript} showTranscript={showTranscript} />
+      }
       <div className="flex gap-3 flex-wrap">
         <button onClick={onReRecord} className="flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg border"
           style={{ borderColor: 'var(--card-border)', color: 'var(--foreground)' }}>
           <RotateCcw size={14} /> Nochmal aufnehmen
         </button>
-        <button onClick={onSubmit} disabled={loading} className="btn-primary flex items-center gap-2" style={{ opacity: loading ? 0.6 : 1 }}>
-          <Mic size={14} />{loading ? 'Feedback wird erstellt…' : 'KI-Feedback anfragen'}
-        </button>
+        {!loadingFeedback && (
+          <button onClick={onNext} className="btn-primary flex items-center gap-2">
+            {nextLabel ?? (isLast ? 'Fertig' : 'Weiter')} <ChevronRight size={16} />
+          </button>
+        )}
       </div>
     </div>
   )
@@ -133,22 +173,38 @@ function ReadAloudTask({ question, onNext, isLast }: { question: Question; onNex
   const content = question.content as { text: string; prepSeconds: number; speakSeconds: number }
   const [phase, setPhase] = useState<Phase>('idle')
   const [feedback, setFeedback] = useState<FeedbackResult | null>(null)
-  const [loading, setLoading] = useState(false)
-  const { transcript, supported: srSupported, start: startSR, stop: stopSR } = useRecognition()
+  const [loadingFeedback, setLoadingFeedback] = useState(false)
+  const { transcript, transcriptRef, supported: srSupported, start: startSR, stop: stopSR } = useRecognition()
   const { audioUrl, startRecording, stopRecording, clearAudio } = useAudioRecorder()
   const startTimeRef = useRef<number>(0)
   const durationRef = useRef<number>(0)
+
+  const fetchFeedback = useCallback((t: string, dur: number) => {
+    setLoadingFeedback(true)
+    fetch('/api/speech-feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ transcript: t, expectedText: content.text, questionType: 'READ_ALOUD', durationSeconds: dur }) })
+      .then(r => r.json()).then(data => { setFeedback(data as FeedbackResult); setLoadingFeedback(false) })
+      .catch(() => setLoadingFeedback(false))
+  }, [content.text])
+
   const handlePrepEnd = useCallback(() => setPhase('recording'), [])
-  const handleRecordEnd = useCallback(() => { stopSR(); stopRecording(); durationRef.current = (Date.now() - startTimeRef.current) / 1000; setPhase('self-assessment') }, [stopSR, stopRecording])
-  const handleSubmitFeedback = useCallback(() => {
-    setPhase('feedback'); setLoading(true)
-    fetch('/api/speech-feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ transcript, expectedText: content.text, questionType: 'READ_ALOUD', durationSeconds: durationRef.current }) })
-      .then(r => r.json()).then(data => { setFeedback(data); setLoading(false) }).catch(() => setLoading(false))
-  }, [transcript, content.text])
-  const handleReRecord = useCallback(() => { clearAudio(); setPhase('recording'); startSR(); startRecording(); startTimeRef.current = Date.now() }, [clearAudio, startSR, startRecording])
+  const handleRecordEnd = useCallback(() => {
+    stopSR(); stopRecording()
+    const dur = (Date.now() - startTimeRef.current) / 1000
+    durationRef.current = dur
+    setPhase('done')
+    setTimeout(() => fetchFeedback(transcriptRef.current, dur), 300)
+  }, [stopSR, stopRecording, fetchFeedback, transcriptRef])
+
+  const handleReRecord = useCallback(() => {
+    clearAudio(); setFeedback(null); setPhase('recording')
+    startSR(); startRecording(); startTimeRef.current = Date.now()
+  }, [clearAudio, startSR, startRecording])
+
   const prepRemaining = useTimer(content.prepSeconds, phase === 'prep', handlePrepEnd)
   const recRemaining = useTimer(content.speakSeconds, phase === 'recording', handleRecordEnd)
   useEffect(() => { if (phase === 'recording') { startSR(); startRecording(); startTimeRef.current = Date.now() } }, [phase, startSR, startRecording])
+
   return (
     <div className="card" style={{ padding: '28px 28px 24px' }}>
       <p className="text-xs font-medium mb-1" style={{ color: 'var(--muted)' }}>Aufgabe: Laut vorlesen</p>
@@ -162,19 +218,8 @@ function ReadAloudTask({ question, onNext, isLast }: { question: Question; onNex
           <button onClick={handleRecordEnd} className="flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg" style={{ background: 'var(--error)', color: '#fff' }}><MicOff size={14} /> Aufnahme stoppen</button>
         </div>
       )}
-      {phase === 'self-assessment' && <SelfAssessmentPanel audioUrl={audioUrl} onReRecord={handleReRecord} onSubmit={handleSubmitFeedback} loading={loading} />}
-      {phase === 'feedback' && (
-        <div>{loading ? <p style={{ color: 'var(--muted)' }}>Feedback wird erstellt…</p> : feedback ? (
-          <div>
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm" style={{ background: feedback.complete ? 'var(--green-subtle)' : 'var(--orange-subtle)', color: feedback.complete ? 'var(--success)' : 'var(--warning)' }}>{feedback.completenessPercent}%</div>
-              <div><p className="font-semibold text-sm">{feedback.complete ? 'Gut gemacht!' : 'Weiter üben'}</p><p className="text-xs" style={{ color: 'var(--muted)' }}>Vollständigkeit</p></div>
-            </div>
-            <div className="rounded-lg p-4 mb-4 text-sm" style={{ background: 'var(--accent-subtle)', borderLeft: '3px solid var(--accent)' }}>{feedback.feedback}</div>
-            {transcript && <div className="rounded-lg p-3 mb-4 text-sm" style={{ background: 'var(--surface)' }}><p className="font-medium mb-1" style={{ color: 'var(--muted)' }}>Dein Transcript:</p><p className="italic">{transcript}</p></div>}
-            <button onClick={onNext} className="btn-primary flex items-center gap-2">{isLast ? 'Fertig' : 'Weiter'} <ChevronRight size={16} /></button>
-          </div>
-        ) : null}</div>
+      {phase === 'done' && (
+        <DonePanel audioUrl={audioUrl} feedback={feedback} loadingFeedback={loadingFeedback} transcript={transcript} showTranscript onReRecord={handleReRecord} onNext={onNext} isLast={isLast} />
       )}
     </div>
   )
@@ -184,22 +229,38 @@ function DescribeTask({ question, onNext, isLast }: { question: Question; onNext
   const content = question.content as { imageUrl: string; prompt: string; prepSeconds: number; speakSeconds: number; hints: string[] }
   const [phase, setPhase] = useState<Phase>('idle')
   const [feedback, setFeedback] = useState<FeedbackResult | null>(null)
-  const [loading, setLoading] = useState(false)
-  const { transcript, supported: srSupported, start: startSR, stop: stopSR } = useRecognition()
+  const [loadingFeedback, setLoadingFeedback] = useState(false)
+  const { transcript, transcriptRef, supported: srSupported, start: startSR, stop: stopSR } = useRecognition()
   const { audioUrl, startRecording, stopRecording, clearAudio } = useAudioRecorder()
   const startTimeRef = useRef<number>(0)
   const durationRef = useRef<number>(0)
+
+  const fetchFeedback = useCallback((t: string, dur: number) => {
+    setLoadingFeedback(true)
+    fetch('/api/speech-feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ transcript: t, questionType: 'DESCRIBE_PICTURE', durationSeconds: dur }) })
+      .then(r => r.json()).then(data => { setFeedback(data as FeedbackResult); setLoadingFeedback(false) })
+      .catch(() => setLoadingFeedback(false))
+  }, [])
+
   const handlePrepEnd = useCallback(() => setPhase('recording'), [])
-  const handleRecordEnd = useCallback(() => { stopSR(); stopRecording(); durationRef.current = (Date.now() - startTimeRef.current) / 1000; setPhase('self-assessment') }, [stopSR, stopRecording])
-  const handleSubmitFeedback = useCallback(() => {
-    setPhase('feedback'); setLoading(true)
-    fetch('/api/speech-feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ transcript, questionType: 'DESCRIBE_PICTURE', durationSeconds: durationRef.current }) })
-      .then(r => r.json()).then(data => { setFeedback(data); setLoading(false) }).catch(() => setLoading(false))
-  }, [transcript])
-  const handleReRecord = useCallback(() => { clearAudio(); setPhase('recording'); startSR(); startRecording(); startTimeRef.current = Date.now() }, [clearAudio, startSR, startRecording])
+  const handleRecordEnd = useCallback(() => {
+    stopSR(); stopRecording()
+    const dur = (Date.now() - startTimeRef.current) / 1000
+    durationRef.current = dur
+    setPhase('done')
+    setTimeout(() => fetchFeedback(transcriptRef.current, dur), 300)
+  }, [stopSR, stopRecording, fetchFeedback, transcriptRef])
+
+  const handleReRecord = useCallback(() => {
+    clearAudio(); setFeedback(null); setPhase('recording')
+    startSR(); startRecording(); startTimeRef.current = Date.now()
+  }, [clearAudio, startSR, startRecording])
+
   const prepRemaining = useTimer(content.prepSeconds, phase === 'prep', handlePrepEnd)
   const recRemaining = useTimer(content.speakSeconds, phase === 'recording', handleRecordEnd)
   useEffect(() => { if (phase === 'recording') { startSR(); startRecording(); startTimeRef.current = Date.now() } }, [phase, startSR, startRecording])
+
   return (
     <div className="card" style={{ padding: '28px 28px 24px' }}>
       <p className="text-xs font-medium mb-2" style={{ color: 'var(--muted)' }}>Aufgabe: Bild beschreiben</p>
@@ -208,7 +269,12 @@ function DescribeTask({ question, onNext, isLast }: { question: Question; onNext
         <img src={content.imageUrl} alt="Describe this picture" style={{ width: '100%', objectFit: 'cover', maxHeight: 280 }} />
       </div>
       <p className="text-sm font-medium mb-3">{content.prompt}</p>
-      {content.hints && <div className="flex gap-2 flex-wrap mb-4">{content.hints.map(h => <span key={h} className="px-2 py-0.5 rounded-full text-xs" style={{ background: 'var(--accent-subtle)', color: 'var(--accent)' }}>{h}</span>)}</div>}
+      {content.hints && content.hints.length > 0 && (
+        <div className="flex gap-2 flex-wrap items-center mb-4">
+          <span className="text-xs" style={{ color: 'var(--muted)' }}>Tipp:</span>
+          {content.hints.map(h => <span key={h} className="px-2 py-0.5 rounded-full text-xs" style={{ background: 'var(--accent-subtle)', color: 'var(--accent)' }}>{h}</span>)}
+        </div>
+      )}
       {phase === 'idle' && <button onClick={() => setPhase('prep')} className="btn-primary">Vorbereitung starten</button>}
       {phase === 'prep' && <div className="flex items-center gap-4"><div className="text-4xl font-bold" style={{ color: 'var(--accent)' }}>{prepRemaining}s</div><p style={{ color: 'var(--muted)' }}>Betrachte das Bild…</p></div>}
       {phase === 'recording' && (
@@ -218,19 +284,8 @@ function DescribeTask({ question, onNext, isLast }: { question: Question; onNext
           <button onClick={handleRecordEnd} className="flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg" style={{ background: 'var(--error)', color: '#fff' }}><MicOff size={14} /> Aufnahme stoppen</button>
         </div>
       )}
-      {phase === 'self-assessment' && <SelfAssessmentPanel audioUrl={audioUrl} onReRecord={handleReRecord} onSubmit={handleSubmitFeedback} loading={loading} />}
-      {phase === 'feedback' && (
-        <div>{loading ? <p style={{ color: 'var(--muted)' }}>Feedback wird erstellt…</p> : feedback ? (
-          <div>
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm" style={{ background: feedback.complete ? 'var(--green-subtle)' : 'var(--orange-subtle)', color: feedback.complete ? 'var(--success)' : 'var(--warning)' }}>{feedback.completenessPercent}%</div>
-              <div><p className="font-semibold text-sm">{feedback.complete ? 'Gut gemacht!' : 'Weiter üben'}</p><p className="text-xs" style={{ color: 'var(--muted)' }}>Vollständigkeit</p></div>
-            </div>
-            <div className="rounded-lg p-4 mb-3 text-sm" style={{ background: 'var(--accent-subtle)', borderLeft: '3px solid var(--accent)' }}>{feedback.feedback}</div>
-            {question.explanation && <div className="rounded-lg p-3 mb-3 text-sm" style={{ background: 'var(--surface)' }}><p className="font-medium mb-1" style={{ color: 'var(--accent)' }}>TOEIC-Tipp:</p><p>{question.explanation}</p></div>}
-            <button onClick={onNext} className="btn-primary flex items-center gap-2">{isLast ? 'Fertig' : 'Weiter'} <ChevronRight size={16} /></button>
-          </div>
-        ) : null}</div>
+      {phase === 'done' && (
+        <DonePanel audioUrl={audioUrl} feedback={feedback} loadingFeedback={loadingFeedback} onReRecord={handleReRecord} onNext={onNext} isLast={isLast} />
       )}
     </div>
   )
@@ -241,25 +296,55 @@ function RespondTask({ question, onNext, isLast }: { question: Question; onNext:
   const [subIndex, setSubIndex] = useState(0)
   const [phase, setPhase] = useState<Phase>('idle')
   const [feedbacks, setFeedbacks] = useState<FeedbackResult[]>([])
-  const [loading, setLoading] = useState(false)
-  const { transcript, supported: srSupported, start: startSR, stop: stopSR } = useRecognition()
+  const [loadingFeedback, setLoadingFeedback] = useState(false)
+  const { transcript, transcriptRef, supported: srSupported, start: startSR, stop: stopSR } = useRecognition()
   const { audioUrl, startRecording, stopRecording, clearAudio } = useAudioRecorder()
   const startTimeRef = useRef<number>(0)
   const durationRef = useRef<number>(0)
   const subQ = content.questions[subIndex]
+  const subIndexRef = useRef(subIndex)
+  useEffect(() => { subIndexRef.current = subIndex }, [subIndex])
+
+  const fetchFeedback = useCallback((t: string, dur: number, idx: number) => {
+    setLoadingFeedback(true)
+    fetch('/api/speech-feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ transcript: t, questionType: 'RESPOND_FREE', durationSeconds: dur }) })
+      .then(r => r.json()).then(data => {
+        setFeedbacks(prev => { const next = [...prev]; next[idx] = data as FeedbackResult; return next })
+        setLoadingFeedback(false)
+      })
+      .catch(() => setLoadingFeedback(false))
+  }, [])
+
   const handlePrepEnd = useCallback(() => setPhase('recording'), [])
-  const handleRecordEnd = useCallback(() => { stopSR(); stopRecording(); durationRef.current = (Date.now() - startTimeRef.current) / 1000; setPhase('self-assessment') }, [stopSR, stopRecording])
-  const handleSubmitFeedback = useCallback(() => {
-    setPhase('feedback'); setLoading(true)
-    fetch('/api/speech-feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ transcript, questionType: 'RESPOND_FREE', durationSeconds: durationRef.current }) })
-      .then(r => r.json()).then(data => { setFeedbacks(prev => [...prev, data]); setLoading(false) }).catch(() => setLoading(false))
-  }, [transcript])
-  const handleReRecord = useCallback(() => { clearAudio(); setPhase('recording'); startSR(); startRecording(); startTimeRef.current = Date.now() }, [clearAudio, startSR, startRecording])
+  const handleRecordEnd = useCallback(() => {
+    stopSR(); stopRecording()
+    const dur = (Date.now() - startTimeRef.current) / 1000
+    durationRef.current = dur
+    setPhase('done')
+    const idx = subIndexRef.current
+    setTimeout(() => fetchFeedback(transcriptRef.current, dur, idx), 300)
+  }, [stopSR, stopRecording, fetchFeedback, transcriptRef])
+
+  const handleReRecord = useCallback(() => {
+    clearAudio(); setPhase('recording')
+    startSR(); startRecording(); startTimeRef.current = Date.now()
+  }, [clearAudio, startSR, startRecording])
+
   const prepRemaining = useTimer(subQ?.prepSeconds ?? 3, phase === 'prep', handlePrepEnd)
   const recRemaining = useTimer(subQ?.speakSeconds ?? 15, phase === 'recording', handleRecordEnd)
   useEffect(() => { if (phase === 'recording') { startSR(); startRecording(); startTimeRef.current = Date.now() } }, [phase, startSR, startRecording])
-  function handleNextSub() { clearAudio(); if (subIndex + 1 >= content.questions.length) { onNext() } else { setSubIndex(i => i + 1); setPhase('idle') } }
+
+  function handleNextSub() {
+    clearAudio()
+    if (subIndex + 1 >= content.questions.length) { onNext() }
+    else { setSubIndex(i => i + 1); setPhase('idle') }
+  }
+
   if (!subQ) return null
+
+  const nextSubLabel = subIndex + 1 >= content.questions.length ? (isLast ? 'Fertig' : 'Weiter') : `Frage ${subIndex + 2}`
+
   return (
     <div className="card" style={{ padding: '28px 28px 24px' }}>
       <div className="rounded-lg p-3 mb-4 text-sm" style={{ background: 'var(--surface)', border: '1px solid var(--surface-border)' }}><p className="font-medium mb-1" style={{ color: 'var(--muted)' }}>Szenario:</p><p>{content.scenario}</p></div>
@@ -274,14 +359,8 @@ function RespondTask({ question, onNext, isLast }: { question: Question; onNext:
           <button onClick={handleRecordEnd} className="flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg" style={{ background: 'var(--error)', color: '#fff' }}><MicOff size={14} /> Stoppen</button>
         </div>
       )}
-      {phase === 'self-assessment' && <SelfAssessmentPanel audioUrl={audioUrl} onReRecord={handleReRecord} onSubmit={handleSubmitFeedback} loading={loading} />}
-      {phase === 'feedback' && (
-        <div>{loading ? <p style={{ color: 'var(--muted)' }}>Feedback wird erstellt…</p> : feedbacks[subIndex] ? (
-          <div>
-            <div className="rounded-lg p-4 mb-3 text-sm" style={{ background: 'var(--accent-subtle)', borderLeft: '3px solid var(--accent)' }}>{feedbacks[subIndex].feedback}</div>
-            <button onClick={handleNextSub} className="btn-primary flex items-center gap-2">{subIndex + 1 >= content.questions.length ? (isLast ? 'Fertig' : 'Weiter') : `Frage ${subIndex + 2}`} <ChevronRight size={16} /></button>
-          </div>
-        ) : null}</div>
+      {phase === 'done' && (
+        <DonePanel audioUrl={audioUrl} feedback={feedbacks[subIndex] ?? null} loadingFeedback={loadingFeedback} onReRecord={handleReRecord} onNext={handleNextSub} isLast={isLast} nextLabel={nextSubLabel} />
       )}
     </div>
   )
@@ -302,7 +381,7 @@ export default function SpeakingShell({ mode }: SpeakingShellProps) {
   const load = useCallback(async () => {
     setLoading(true); setIndex(0); setFinished(false)
     const res = await fetch(`/api/questions?section=${config.section}&part=${config.part}`)
-    const data = await res.json()
+    const data = await res.json() as { questions: Question[] }
     setQuestions(data.questions ?? []); setLoading(false)
   }, [config.section, config.part])
   useEffect(() => { load() }, [load])
