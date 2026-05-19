@@ -44,6 +44,17 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
+  if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin')) {
+    const adminEmails = (process.env.ADMIN_EMAILS ?? '')
+      .split(',')
+      .map(e => e.trim().toLowerCase())
+      .filter(Boolean)
+    const email = user?.email?.toLowerCase() ?? ''
+    if (!adminEmails.includes(email)) {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+  }
+
   return supabaseResponse
 }
 
