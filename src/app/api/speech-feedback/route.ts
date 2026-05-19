@@ -93,7 +93,7 @@ function analyzeDescribePicture(transcript: string, durationSeconds?: number) {
   const structureScore = [hasIntro, hasForeground || hasBackground, hasAction].filter(Boolean).length
 
   const rate = durationSeconds ? wpm(wordCount, durationSeconds) : 0
-  const pace = rate > 0 && rate < 80 ? ' Versuchen Sie, flüssiger zu sprechen – keine langen Pausen.'
+  const pace = wordCount >= 15 && rate > 0 && rate < 80 ? ' Versuchen Sie, flüssiger zu sprechen – keine langen Pausen.'
     : rate > 190 ? ' Sprechen Sie etwas langsamer für bessere Verständlichkeit.' : ''
 
   // Target: 45s → approx. 65–80 words
@@ -134,7 +134,7 @@ function analyzeExpressOpinion(transcript: string, durationSeconds?: number) {
   const structureScore = [hasOpinion, hasFirstly, hasSecondly, hasConclusion].filter(Boolean).length
 
   const rate = durationSeconds ? wpm(wordCount, durationSeconds) : 0
-  const pace = rate > 0 && rate < 80 ? ' Sprechen Sie flüssiger – keine langen Denkpausen.' : ''
+  const pace = wordCount >= 15 && rate > 0 && rate < 80 ? ' Sprechen Sie flüssiger – keine langen Denkpausen.' : ''
 
   const pct = Math.min(Math.round((wordCount / 60) * 100), 100)
   const complete = wordCount >= 50 && structureScore >= 3
