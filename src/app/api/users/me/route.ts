@@ -25,14 +25,15 @@ export async function PUT(request: Request) {
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
     const body = await request.json()
-    const { examType, examDate, name } = body
+    const { examType, examDate, name, scoreTarget } = body
 
     const dbUser = await prisma.user.upsert({
       where: { supabaseId: user.id },
       update: {
-        ...(examType !== undefined && { examType }),
-        ...(examDate !== undefined && { examDate: examDate ? new Date(examDate) : null }),
-        ...(name !== undefined && { name }),
+        ...(examType      !== undefined && { examType }),
+        ...(examDate      !== undefined && { examDate: examDate ? new Date(examDate) : null }),
+        ...(name          !== undefined && { name }),
+        ...(scoreTarget   !== undefined && { scoreTarget: scoreTarget ? Number(scoreTarget) : null }),
       },
       create: {
         supabaseId: user.id,
@@ -40,6 +41,7 @@ export async function PUT(request: Request) {
         name: name ?? user.user_metadata?.name ?? null,
         examType: examType ?? null,
         examDate: examDate ? new Date(examDate) : null,
+        scoreTarget: scoreTarget ? Number(scoreTarget) : null,
       },
     })
 

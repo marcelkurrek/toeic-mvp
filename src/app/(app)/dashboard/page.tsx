@@ -58,6 +58,17 @@ export default async function DashboardPage() {
     : null
   const streak = computeStreak((dbUser?.sessions ?? []).map(s => s.createdAt))
 
+  // ── Goal progress ──────────────────────────────────────────────────────────
+  const scoreTarget = (dbUser as { scoreTarget?: number | null } | null)?.scoreTarget ?? null
+  const cefrToScore: Record<string, number> = { A1: 100, A2: 180, B1: 280, B2: 400, C1: 490, C2: 495 }
+  const levels = dbUser?.levels ?? []
+  const estimatedScore = levels.length
+    ? levels.reduce((sum, l) => sum + (cefrToScore[l.cefr] ?? 0), 0)
+    : null
+  const goalPct = scoreTarget && estimatedScore !== null
+    ? Math.min(100, Math.round(estimatedScore / scoreTarget * 100))
+    : null
+
   const examType = dbUser?.examType ?? null
   const relevantSections: Section[] = examType === 'LISTENING_READING'
     ? ['LISTENING', 'READING']
@@ -319,6 +330,52 @@ export default async function DashboardPage() {
           )
         })}
       </div>
+
+      {/* ── Goal progress ──────────────────────────────────────────────── */}
+      {scoreTarget && (
+        <div className="card" style={{ padding: '20px 24px', marginBottom: 32 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(251,191,36,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Target size={15} style={{ color: '#fbbf24' }} />
+              </div>
+              <div>
+                <p className="font-semibold text-sm">Lernziel</p>
+                <p className="text-xs" style={{ color: 'var(--muted)' }}>
+                  {estimatedScore !== null
+                    ? `Geschätzter Score: ${estimatedScore} / ${scoreTarget} Punkte`
+                    : `Ziel: ${scoreTarget} Punkte`}
+                </p>
+              </div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              {goalPct !== null && (
+                <p className="font-bold text-xl" style={{ color: goalPct >= 100 ? 'var(--success)' : '#fbbf24' }}>
+                  {goalPct}%
+                </p>
+              )}
+              <Link href="/settings" className="text-xs" style={{ color: 'var(--muted)' }}>Ziel ändern →</Link>
+            </div>
+          </div>
+          <div style={{ height: 8, borderRadius: 99, background: 'var(--card-border)', overflow: 'hidden' }}>
+            <div style={{
+              height: '100%', borderRadius: 99, transition: 'width 0.5s',
+              background: goalPct !== null && goalPct >= 100 ? 'var(--success)' : 'linear-gradient(90deg, #fbbf24, #f59e0b)',
+              width: `${goalPct ?? 0}%`,
+            }} />
+          </div>
+          {goalPct !== null && goalPct >= 100 && (
+            <p className="text-xs" style={{ color: 'var(--success)', marginTop: 8, fontWeight: 600 }}>
+              🎯 Ziel erreicht! Bereit für die Prüfung.
+            </p>
+          )}
+          {goalPct !== null && goalPct < 100 && estimatedScore !== null && (
+            <p className="text-xs" style={{ color: 'var(--muted)', marginTop: 8 }}>
+              Noch {scoreTarget - estimatedScore} Punkte bis zum Ziel — weiter üben!
+            </p>
+          )}
+        </div>
+      )}
 
       {/* ── Practice cards ─────────────────────────────────────────────── */}
       {(examType === 'LISTENING_READING' || examType === 'FULL_CERTIFICATE' || !examType) && (

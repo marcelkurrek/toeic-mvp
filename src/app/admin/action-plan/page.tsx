@@ -30,7 +30,7 @@ const TASKS: Task[] = [
   { title: 'Dashboard API', desc: 'GET /api/dashboard — aggregierter Endpunkt', status: 'done', priority: 'hoch', category: 'Dashboard' },
   { title: 'Streak-Tracking', desc: 'Aktuelle & längste Lernserie berechnen und anzeigen', status: 'done', priority: 'mittel', category: 'Dashboard' },
   { title: 'Wöchentliche Aktivitäts-Heatmap', desc: '7-Tage-Kalender mit täglicher Sitzungsanzahl', status: 'done', priority: 'mittel', category: 'Dashboard' },
-  { title: 'Lernziel setzen', desc: 'Ziel-Score eingeben, Fortschritt zum Ziel anzeigen', status: 'planned', priority: 'niedrig', category: 'Dashboard' },
+  { title: 'Lernziel setzen', desc: 'Ziel-Score eingeben, Fortschritt zum Ziel anzeigen', status: 'done', priority: 'niedrig', category: 'Dashboard' },
 
   // ── Admin ─────────────────────────────────────────────────────────────────
   { title: 'Admin-Bereich', desc: 'Geschützter Bereich mit ADMIN_EMAILS Env-Variable', status: 'done', priority: 'hoch', category: 'Admin' },
@@ -51,7 +51,7 @@ const TASKS: Task[] = [
   // ── AI Features ───────────────────────────────────────────────────────────
   { title: 'AI Writing-Feedback', desc: 'Anthropic Claude bewertet Essay und E-Mail', status: 'done', priority: 'hoch', category: 'AI' },
   { title: 'AI Speech-Feedback', desc: 'Transcript-Bewertung für Speaking-Aufgaben', status: 'done', priority: 'hoch', category: 'AI' },
-  { title: 'Adaptive Fragen-Auswahl', desc: 'Schwierigkeitsgrad automatisch anpassen basierend auf Leistung', status: 'planned', priority: 'hoch', category: 'AI' },
+  { title: 'Adaptive Fragen-Auswahl', desc: 'Schwierigkeitsgrad automatisch anpassen basierend auf Leistung', status: 'done', priority: 'hoch', category: 'AI' },
   { title: 'AI Study Plan', desc: 'Personalisierter Wochenplan basierend auf CEFR und Prüfungsdatum', status: 'done', priority: 'mittel', category: 'AI' },
 
   // ── Infrastructure ────────────────────────────────────────────────────────

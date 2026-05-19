@@ -17,6 +17,7 @@ model User {
   examType       ExamType?
   examDate       DateTime?
   diagnosticDone Boolean     @default(false)
+  scoreTarget    Int?        // desired TOEIC total score (e.g. 700, 860, 990)
   sessions       Session[]
   progress       Progress[]
   levels         UserLevel[]
