@@ -10,13 +10,14 @@ const SECTION_COLORS: Record<string, string> = {
   LISTENING: '#22d3ee', READING: '#4ade80', SPEAKING: '#fb923c', WRITING: '#a78bfa',
 }
 
-export default async function AdminUserDetailPage({ params }: { params: { id: string } }) {
+export default async function AdminUserDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user || !isAdminEmail(user.email)) redirect('/dashboard')
 
+  const { id } = await params
   const dbUser = await prisma.user.findUnique({
-    where: { id: params.id },
+    where: { id },
     include: {
       levels: true,
       progress: true,

@@ -1,12 +1,13 @@
 'use client'
 import { useRouter } from 'next/navigation'
-import { Zap, List, Sparkles } from 'lucide-react'
+import { Zap, List, Sparkles, ChevronRight } from 'lucide-react'
 
 interface Task {
   id: string
   label: string
   sub: string
   href: string
+  part?: number
 }
 
 interface SkillLandingPageProps {
@@ -17,6 +18,7 @@ interface SkillLandingPageProps {
   icon: React.ReactNode
   tasks: Task[]
   hasDiagnostic: boolean
+  partAccuracy?: Record<number, { accuracy: number; sampleSize: number }>
 }
 
 export default function SkillLandingPage({
@@ -26,113 +28,120 @@ export default function SkillLandingPage({
   icon,
   tasks,
   hasDiagnostic,
+  partAccuracy,
 }: SkillLandingPageProps) {
   const router = useRouter()
 
   return (
-    <div className="p-8 max-w-3xl mx-auto">
+    <div style={{ maxWidth: 720, margin: '0 auto' }}>
       {/* Header */}
-      <div className="flex items-center gap-4 mb-8">
-        <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl"
-          style={{ background: color + '20', color }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32 }}>
+        <div style={{ width: 56, height: 56, borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, flexShrink: 0, background: color + '20' }}>
           {icon}
         </div>
         <div>
-          <h1 className="text-3xl font-bold">{title}</h1>
-          <p style={{ color: 'var(--muted)' }}>{description}</p>
+          <h1 className="text-3xl font-bold" style={{ marginBottom: 4 }}>{title}</h1>
+          <p style={{ color: 'var(--muted)', fontSize: 14 }}>{description}</p>
         </div>
       </div>
 
-      {/* 3 Options */}
-      <div className="flex flex-col gap-4">
+      {/* Per-part cards (when accuracy data available) */}
+      {tasks.length > 0 && (
+        <>
+          <h2 className="text-sm font-semibold" style={{ color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 14 }}>
+            Aufgaben wählen
+          </h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 28 }}>
+            {tasks.map(task => {
+              const prog = task.part !== undefined ? partAccuracy?.[task.part] : undefined
+              const pct  = prog ? Math.round(prog.accuracy * 100) : null
+              const pctColor = pct === null ? 'var(--muted)' : pct >= 80 ? 'var(--success)' : pct >= 60 ? '#fbbf24' : '#ef4444'
+              return (
+                <button
+                  key={task.id}
+                  onClick={() => router.push(task.href)}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 16, padding: '16px 20px',
+                    borderRadius: 12, border: `1.5px solid var(--card-border)`,
+                    background: 'var(--card)', cursor: 'pointer', textAlign: 'left',
+                    transition: 'border-color 0.15s',
+                    width: '100%',
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.borderColor = color + '60')}
+                  onMouseLeave={e => (e.currentTarget.style.borderColor = 'var(--card-border)')}
+                >
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: color + '15', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <span style={{ fontSize: 14, fontWeight: 700, color }}>{task.label}</span>
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p className="font-medium text-sm" style={{ marginBottom: 2 }}>{task.sub}</p>
+                    {pct !== null && prog ? (
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                          <div style={{ flex: 1, height: 4, borderRadius: 99, background: 'var(--card-border)', overflow: 'hidden' }}>
+                            <div style={{ height: '100%', borderRadius: 99, background: pctColor, width: `${pct}%` }} />
+                          </div>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: pctColor, flexShrink: 0 }}>{pct}%</span>
+                        </div>
+                        <p style={{ fontSize: 10, color: 'var(--muted)' }}>{prog.sampleSize} Fragen beantwortet</p>
+                      </div>
+                    ) : (
+                      <p style={{ fontSize: 11, color: 'var(--muted)' }}>Noch nicht geübt</p>
+                    )}
+                  </div>
+                  <ChevronRight size={15} style={{ color: 'var(--muted)', flexShrink: 0 }} />
+                </button>
+              )
+            })}
+          </div>
+        </>
+      )}
 
-        {/* Option 1: Alle Aufgaben */}
+      {/* Quick options */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+
+        {/* Start all */}
         <button
           onClick={() => router.push(tasks[0].href)}
-          className="card p-6 text-left transition-all hover:scale-[1.01]"
-          style={{ borderColor: color + '40', cursor: 'pointer', background: 'var(--card)', border: `1px solid ${color}40` }}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 14, padding: '16px 20px',
+            borderRadius: 12, border: `1.5px solid ${color}40`,
+            background: color + '08', cursor: 'pointer', textAlign: 'left', width: '100%',
+          }}
         >
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-              style={{ background: color + '20', color }}>
-              <List size={20} />
-            </div>
-            <div>
-              <p className="font-semibold text-base mb-1">Alle Aufgaben</p>
-              <p style={{ color: 'var(--muted)', fontSize: 14 }}>
-                Gehe alle verfügbaren Aufgaben durch — von Anfang bis Ende.
-              </p>
-              <div className="flex gap-2 mt-3 flex-wrap">
-                {tasks.map(t => (
-                  <span key={t.id}
-                    onClick={e => { e.stopPropagation(); router.push(t.href) }}
-                    className="px-3 py-1 rounded-full text-xs font-medium cursor-pointer transition-opacity hover:opacity-80"
-                    style={{ background: color + '20', color }}>
-                    {t.label}
-                  </span>
-                ))}
-              </div>
-            </div>
+          <div style={{ width: 38, height: 38, borderRadius: 10, background: color + '20', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <List size={18} style={{ color }} />
           </div>
+          <div>
+            <p className="font-semibold text-sm">Alle Aufgaben starten</p>
+            <p style={{ color: 'var(--muted)', fontSize: 12, marginTop: 2 }}>Von oben nach unten alle verfügbaren Aufgaben durcharbeiten</p>
+          </div>
+          <ChevronRight size={15} style={{ color, flexShrink: 0, marginLeft: 'auto' }} />
         </button>
 
-        {/* Option 2: Aufgaben wählen */}
-        <div className="card p-6" style={{ background: 'var(--card)' }}>
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-              style={{ background: 'var(--accent-subtle)', color: 'var(--accent)' }}>
-              <Sparkles size={20} />
-            </div>
-            <div className="flex-1">
-              <p className="font-semibold text-base mb-1">Aufgaben wählen</p>
-              <p style={{ color: 'var(--muted)', fontSize: 14, marginBottom: 12 }}>
-                Wähle gezielt welche Übungen du machen möchtest.
-              </p>
-              <div className="flex gap-3 flex-wrap">
-                {tasks.map(t => (
-                  <button
-                    key={t.id}
-                    onClick={() => router.push(t.href)}
-                    className="card px-4 py-3 text-left transition-all hover:scale-[1.02]"
-                    style={{ background: 'var(--card)', minWidth: 140 }}
-                  >
-                    <p className="text-sm font-medium">{t.label}</p>
-                    <p style={{ color: 'var(--muted)', fontSize: 11, marginTop: 2 }}>{t.sub}</p>
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Option 3: Empfohlen */}
+        {/* Adaptive / Diagnostic */}
         <button
-          onClick={() => router.push('/diagnostic')}
-          className="card p-6 text-left transition-all hover:scale-[1.01]"
-          style={{ background: hasDiagnostic ? 'var(--green-subtle)' : 'var(--card)', border: hasDiagnostic ? '1px solid var(--green)40' : undefined, cursor: 'pointer' }}
+          onClick={() => router.push(hasDiagnostic ? tasks[0].href + '?adaptive=true' : '/diagnostic')}
+          style={{
+            display: 'flex', alignItems: 'center', gap: 14, padding: '16px 20px',
+            borderRadius: 12, border: `1.5px solid var(--card-border)`,
+            background: 'var(--card)', cursor: 'pointer', textAlign: 'left', width: '100%',
+          }}
         >
-          <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-              style={{ background: hasDiagnostic ? 'var(--green-subtle)' : 'var(--orange-subtle)', color: hasDiagnostic ? 'var(--green)' : 'var(--orange)' }}>
-              <Zap size={20} />
-            </div>
-            <div>
-              <p className="font-semibold text-base mb-1">
-                {hasDiagnostic ? 'Empfohlene Aufgaben' : 'Einstufungstest zuerst'}
-              </p>
-              <p style={{ color: 'var(--muted)', fontSize: 14 }}>
-                {hasDiagnostic
-                  ? 'Auf Basis deines Einstufungstests zeigen wir dir die Aufgaben, die dir am meisten bringen.'
-                  : 'Mache zuerst den Einstufungstest, damit wir dir passende Aufgaben empfehlen können.'}
-              </p>
-              {!hasDiagnostic && (
-                <span className="inline-block mt-3 px-3 py-1 rounded-full text-xs font-semibold"
-                  style={{ background: 'var(--orange-subtle)', color: 'var(--orange)' }}>
-                  Einstufungstest starten →
-                </span>
-              )}
-            </div>
+          <div style={{ width: 38, height: 38, borderRadius: 10, background: hasDiagnostic ? 'var(--accent-subtle)' : 'rgba(251,146,60,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            {hasDiagnostic ? <Sparkles size={18} style={{ color: 'var(--accent)' }} /> : <Zap size={18} style={{ color: '#fb923c' }} />}
           </div>
+          <div>
+            <p className="font-semibold text-sm">
+              {hasDiagnostic ? 'Adaptives Training' : 'Einstufungstest zuerst'}
+            </p>
+            <p style={{ color: 'var(--muted)', fontSize: 12, marginTop: 2 }}>
+              {hasDiagnostic
+                ? 'Fragen werden automatisch an dein Niveau angepasst'
+                : 'Starte mit dem Einstufungstest für personalisierte Empfehlungen'}
+            </p>
+          </div>
+          <ChevronRight size={15} style={{ color: 'var(--muted)', flexShrink: 0, marginLeft: 'auto' }} />
         </button>
       </div>
     </div>
