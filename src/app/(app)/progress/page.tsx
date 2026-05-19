@@ -44,8 +44,49 @@ export default async function ProgressPage() {
         <p style={{ color: 'var(--muted)', fontSize: 15 }}>{t.progress.subheading}</p>
       </div>
 
-      {/* Per-part accuracy */}
-      <h2 className="text-lg font-semibold" style={{ marginBottom: 16 }}>{t.progress.accuracyByPart}</h2>
+      {/* ── Listening parts 1–4 ─────────────────────────────────────────── */}
+      <h2 className="text-lg font-semibold" style={{ marginBottom: 16 }}>Listening</h2>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 40 }}>
+        {([
+          { part: 1, label: 'Part 1', desc: 'Fotografien',     color: '#22d3ee', subtle: 'rgba(34,211,238,0.12)' },
+          { part: 2, label: 'Part 2', desc: 'Frage & Antwort', color: '#06b6d4', subtle: 'rgba(6,182,212,0.12)' },
+          { part: 3, label: 'Part 3', desc: 'Gespräche',       color: '#0891b2', subtle: 'rgba(8,145,178,0.12)' },
+          { part: 4, label: 'Part 4', desc: 'Monologe',        color: '#0e7490', subtle: 'rgba(14,116,144,0.12)' },
+        ] as const).map(({ part, label, desc, color, subtle }) => {
+          const prog = progress.find(p => p.part === part)
+          const pct  = prog ? Math.round(prog.accuracy * 100) : null
+          return (
+            <div key={part} className="card" style={{ padding: '20px 24px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                  <div className="rounded-lg flex items-center justify-center font-bold text-sm"
+                    style={{ width: 36, height: 36, background: subtle, color, flexShrink: 0 }}>{part}</div>
+                  <div>
+                    <p className="font-semibold" style={{ marginBottom: 3 }}>{label}</p>
+                    <p className="text-xs" style={{ color: 'var(--muted)' }}>{desc}</p>
+                  </div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <p className="text-2xl font-bold">{pct !== null ? `${pct}%` : '—'}</p>
+                  {prog && <p className="text-xs" style={{ color: 'var(--muted)', marginTop: 2 }}>{prog.sampleSize} {t.progress.questions}</p>}
+                </div>
+              </div>
+              <div className="rounded-full overflow-hidden" style={{ height: 8, background: 'var(--card-border)' }}>
+                <div className="h-full rounded-full transition-all duration-500" style={{ width: `${pct ?? 0}%`, background: color }} />
+              </div>
+              {!prog && (
+                <Link href={`/practice/part${part}`} className="text-xs font-medium flex items-center gap-1"
+                  style={{ color: 'var(--accent)', marginTop: 10 }}>
+                  {t.progress.startPracticing} <ChevronRight size={12} />
+                </Link>
+              )}
+            </div>
+          )
+        })}
+      </div>
+
+      {/* ── Reading parts 5–7 ───────────────────────────────────────────── */}
+      <h2 className="text-lg font-semibold" style={{ marginBottom: 16 }}>Reading</h2>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 40 }}>
         {PART_META.map(({ part, label, desc, color, subtle }) => {
           const prog = progress.find(p => p.part === part)
@@ -91,6 +132,22 @@ export default async function ProgressPage() {
             </div>
           )
         })}
+      </div>
+
+      {/* ── Speaking & Writing ───────────────────────────────────────────── */}
+      <h2 className="text-lg font-semibold" style={{ marginBottom: 16 }}>Speaking & Writing</h2>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginBottom: 40 }}>
+        {([
+          { href: '/practice/speaking',      label: 'Speaking',  desc: 'KI-Feedback auf deine Antworten', color: '#fb923c', subtle: 'rgba(251,146,60,0.12)' },
+          { href: '/practice/writing/email', label: 'Writing',   desc: 'E-Mail & Aufsatz mit KI-Feedback', color: '#a78bfa', subtle: 'rgba(167,139,250,0.12)' },
+        ] as const).map(({ href, label, desc, color, subtle }) => (
+          <Link key={href} href={href} style={{ textDecoration: 'none' }}>
+            <div className="card" style={{ padding: '20px 24px', cursor: 'pointer' }}>
+              <p className="font-semibold" style={{ marginBottom: 4, color }}>{label}</p>
+              <p className="text-xs" style={{ color: 'var(--muted)' }}>{desc}</p>
+            </div>
+          </Link>
+        ))}
       </div>
 
       {/* Session history */}

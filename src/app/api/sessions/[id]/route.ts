@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase/server'
 import { Section, QuestionType } from '@prisma/client'
+import { sm2, answerQuality } from '@/lib/srs'
 
 export async function PUT(request: Request, { params }: { params: { id: string } }) {
   try {
@@ -75,6 +76,41 @@ export async function PUT(request: Request, { params }: { params: { id: string }
             accuracy:   stats.correct / stats.total,
             avgTime:    stats.totalTime / stats.total,
             sampleSize: stats.total,
+          },
+        })
+      }
+
+      // Update SRS cards for each answered question
+      const newAnswers = answers as { questionId: string; isCorrect: boolean; timeSpentSec: number }[]
+      for (const a of newAnswers) {
+        const existing = await prisma.srsCard.findUnique({
+          where: { userId_questionId: { userId: dbUser.id, questionId: a.questionId } },
+        })
+
+        const quality = answerQuality(a.isCorrect, a.timeSpentSec)
+        const currentState = existing ?? {
+          repetitions: 0, interval: 1, easeFactor: 2.5,
+          dueDate: new Date(), lastReviewed: null,
+        }
+        const next = sm2(currentState, quality)
+
+        await prisma.srsCard.upsert({
+          where: { userId_questionId: { userId: dbUser.id, questionId: a.questionId } },
+          update: {
+            repetitions:  next.repetitions,
+            interval:     next.interval,
+            easeFactor:   next.easeFactor,
+            dueDate:      next.dueDate,
+            lastReviewed: next.lastReviewed,
+          },
+          create: {
+            userId:       dbUser.id,
+            questionId:   a.questionId,
+            repetitions:  next.repetitions,
+            interval:     next.interval,
+            easeFactor:   next.easeFactor,
+            dueDate:      next.dueDate,
+            lastReviewed: next.lastReviewed,
           },
         })
       }

@@ -29,7 +29,16 @@ export async function POST(request: Request) {
     const { data: { user } } = await supabase.auth.getUser()
     if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
-    const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id } })
+    let dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id } })
+    if (!dbUser) {
+      try {
+        dbUser = await prisma.user.create({
+          data: { supabaseId: user.id, email: user.email ?? '', name: user.user_metadata?.name ?? null },
+        })
+      } catch {
+        dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id } })
+      }
+    }
     if (!dbUser) return NextResponse.json({ error: 'User not found' }, { status: 404 })
 
     const body = await request.json()

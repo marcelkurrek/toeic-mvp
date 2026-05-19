@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import {
   BookOpen, Clock, TrendingUp, Headphones, PenLine, Mic,
-  AlertCircle, Zap, ChevronRight, Sparkles, FileEdit, Target,
+  AlertCircle, Zap, ChevronRight, Sparkles, FileEdit, Target, Brain,
 } from 'lucide-react'
 import { getServerTranslations } from '@/lib/i18n/server'
 
@@ -47,6 +47,10 @@ export default async function DashboardPage() {
       sessions: { orderBy: { createdAt: 'desc' }, take: 5, where: { completedAt: { not: null } } },
     },
   })
+
+  const srsDueCount = dbUser ? await prisma.srsCard.count({
+    where: { userId: dbUser.id, dueDate: { lte: new Date() } },
+  }) : 0
 
   const totalSessions = dbUser?.sessions.length ?? 0
   const avgAccuracy   = dbUser?.progress.length
@@ -156,6 +160,31 @@ export default async function DashboardPage() {
           </div>
           <Link href="/diagnostic" className="btn-primary" style={{ whiteSpace: 'nowrap', flexShrink: 0, fontSize: 13 }}>
             {t.dashboard.diagnosticBanner.cta}
+          </Link>
+        </div>
+      )}
+
+      {/* ── SRS due banner ─────────────────────────────────────────────── */}
+      {srsDueCount > 0 && (
+        <div style={{
+          padding: '18px 22px', marginBottom: 24, borderRadius: 12,
+          border: '1px solid rgba(167,139,250,0.4)',
+          background: 'rgba(167,139,250,0.07)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <Brain size={18} style={{ color: '#a78bfa', flexShrink: 0 }} />
+            <div>
+              <p className="font-semibold text-sm" style={{ marginBottom: 2 }}>
+                {srsDueCount} Wiederholungskarte{srsDueCount !== 1 ? 'n' : ''} fällig
+              </p>
+              <p className="text-xs" style={{ color: 'var(--muted)' }}>
+                Stärke dein Langzeitgedächtnis mit SRS-Wiederholungen
+              </p>
+            </div>
+          </div>
+          <Link href="/review" className="btn-primary" style={{ whiteSpace: 'nowrap', flexShrink: 0, fontSize: 13, background: '#a78bfa' }}>
+            Jetzt wiederholen
           </Link>
         </div>
       )}
@@ -311,7 +340,55 @@ export default async function DashboardPage() {
         })}
       </div>
 
-      {/* ── Practice cards ─────────────────────────────────────────────── */}
+      {/* ── Listening Practice cards ────────────────────────────────────── */}
+      {(examType === 'LISTENING_READING' || examType === 'FULL_CERTIFICATE' || !examType) && (
+        <>
+          <h2 className="text-base font-semibold" style={{ marginBottom: 14 }}>Listening — Übungen</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 32 }}>
+            {([
+              { part: 1, href: '/practice/part1', label: 'Fotografien',    sub: 'Listening · Part 1', color: '#22d3ee', subtle: 'rgba(34,211,238,0.12)' },
+              { part: 2, href: '/practice/part2', label: 'Frage & Antwort', sub: 'Listening · Part 2', color: '#06b6d4', subtle: 'rgba(6,182,212,0.12)' },
+              { part: 3, href: '/practice/part3', label: 'Gespräche',      sub: 'Listening · Part 3', color: '#0891b2', subtle: 'rgba(8,145,178,0.12)' },
+              { part: 4, href: '/practice/part4', label: 'Monologe',       sub: 'Listening · Part 4', color: '#0e7490', subtle: 'rgba(14,116,144,0.12)' },
+            ] as const).map(({ part, href, label, sub, color, subtle }) => {
+              const prog = progByPart[part]
+              const pct  = prog ? Math.round(prog.accuracy * 100) : null
+              return (
+                <Link key={part} href={href} style={{ textDecoration: 'none', display: 'block' }}>
+                  <div className="card" style={{ padding: '20px', height: '100%', cursor: 'pointer' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
+                      <div style={{ width: 38, height: 38, borderRadius: 10, background: subtle, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 14, color }}>
+                        {part}
+                      </div>
+                      {pct !== null && (
+                        <span style={{
+                          fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99,
+                          background: pct >= 80 ? 'rgba(74,222,128,0.15)' : pct >= 60 ? 'rgba(251,191,36,0.15)' : 'rgba(248,113,113,0.15)',
+                          color: pct >= 80 ? 'var(--success)' : pct >= 60 ? '#fbbf24' : 'var(--error)',
+                        }}>{pct}%</span>
+                      )}
+                    </div>
+                    <p className="font-semibold text-sm" style={{ marginBottom: 2 }}>{label}</p>
+                    <p style={{ fontSize: 10, color, fontWeight: 600, marginBottom: 14, letterSpacing: '0.04em' }}>{sub}</p>
+                    {prog ? (
+                      <>
+                        <div style={{ height: 4, borderRadius: 99, background: 'var(--card-border)', marginBottom: 6, overflow: 'hidden' }}>
+                          <div style={{ height: '100%', borderRadius: 99, background: color, width: `${prog.accuracy * 100}%` }} />
+                        </div>
+                        <p style={{ fontSize: 10, color: 'var(--muted)' }}>{prog.sampleSize} {t.dashboard.questionsAnswered}</p>
+                      </>
+                    ) : (
+                      <p style={{ fontSize: 10, color: 'var(--muted)' }}>{t.dashboard.notStarted}</p>
+                    )}
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+        </>
+      )}
+
+      {/* ── Reading Practice cards ──────────────────────────────────────── */}
       {(examType === 'LISTENING_READING' || examType === 'FULL_CERTIFICATE' || !examType) && (
         <>
           <h2 className="text-base font-semibold" style={{ marginBottom: 14 }}>{t.dashboard.practiceByPart}</h2>
@@ -322,15 +399,7 @@ export default async function DashboardPage() {
               const pct  = prog ? Math.round(prog.accuracy * 100) : null
               return (
                 <Link key={part} href={href} style={{ textDecoration: 'none', display: 'block' }}>
-                  <div className="card" style={{
-                    padding: '20px',
-                    height: '100%',
-                    transition: 'border-color 0.15s',
-                    cursor: 'pointer',
-                    borderColor: 'var(--card-border)',
-                  }}
-                  >
-                    {/* Icon + badge */}
+                  <div className="card" style={{ padding: '20px', height: '100%', cursor: 'pointer' }}>
                     <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
                       <div style={{ width: 38, height: 38, borderRadius: 10, background: subtle, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <Icon size={18} style={{ color }} />
@@ -343,13 +412,9 @@ export default async function DashboardPage() {
                         }}>{pct}%</span>
                       )}
                     </div>
-
-                    {/* Title + meta */}
                     <p className="font-semibold text-sm" style={{ marginBottom: 2 }}>{info.label}</p>
                     <p style={{ fontSize: 10, color, fontWeight: 600, marginBottom: 6, letterSpacing: '0.04em' }}>{info.part}</p>
                     <p className="text-xs" style={{ color: 'var(--muted)', lineHeight: 1.5, marginBottom: 14 }}>{info.desc}</p>
-
-                    {/* Progress */}
                     {prog ? (
                       <>
                         <div style={{ height: 4, borderRadius: 99, background: 'var(--card-border)', marginBottom: 6, overflow: 'hidden' }}>
@@ -366,6 +431,31 @@ export default async function DashboardPage() {
                 </Link>
               )
             })}
+          </div>
+        </>
+      )}
+
+      {/* ── Speaking & Writing cards ────────────────────────────────────── */}
+      {(examType === 'SPEAKING_WRITING' || examType === 'FULL_CERTIFICATE' || !examType) && (
+        <>
+          <h2 className="text-base font-semibold" style={{ marginBottom: 14 }}>Speaking & Writing — Übungen</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 32 }}>
+            {([
+              { href: '/practice/speaking',       label: 'Sprechen',       sub: 'Speaking',        color: '#fb923c', subtle: 'rgba(251,146,60,0.12)',  Icon: Mic },
+              { href: '/practice/writing/email',  label: 'E-Mail',         sub: 'Writing · Part 2', color: '#a78bfa', subtle: 'rgba(167,139,250,0.12)', Icon: PenLine },
+              { href: '/practice/writing/essay',  label: 'Aufsatz',        sub: 'Writing · Part 3', color: '#a78bfa', subtle: 'rgba(167,139,250,0.12)', Icon: PenLine },
+            ] as const).map(({ href, label, sub, color, subtle, Icon }) => (
+              <Link key={href} href={href} style={{ textDecoration: 'none', display: 'block' }}>
+                <div className="card" style={{ padding: '20px', height: '100%', cursor: 'pointer' }}>
+                  <div style={{ width: 38, height: 38, borderRadius: 10, background: subtle, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>
+                    <Icon size={18} style={{ color }} />
+                  </div>
+                  <p className="font-semibold text-sm" style={{ marginBottom: 2 }}>{label}</p>
+                  <p style={{ fontSize: 10, color, fontWeight: 600, marginBottom: 8, letterSpacing: '0.04em' }}>{sub}</p>
+                  <p className="text-xs" style={{ color: 'var(--muted)' }}>KI-Feedback nach jeder Aufgabe</p>
+                </div>
+              </Link>
+            ))}
           </div>
         </>
       )}
@@ -394,10 +484,9 @@ export default async function DashboardPage() {
                 {dbUser.sessions.map((s, i) => {
                   const pct = s.score != null && s.maxScore ? Math.round(s.score / s.maxScore * 100) : null
                   const partLabel = s.parts.length > 0
-                    ? s.parts.map(p => {
-                        const info = t.dashboard.parts[p as 5 | 6 | 7]
-                        return info ? info.shortLabel ?? info.label : `Part ${p}`
-                      }).join(', ')
+                    ? s.parts.map(p => `Part ${p}`).join(', ')
+                    : (s.mode as string) === 'SPEAKING_PRACTICE' ? 'Speaking'
+                    : (s.mode as string) === 'WRITING_PRACTICE'  ? 'Writing'
                     : s.mode
                   return (
                     <tr key={s.id} style={{ borderBottom: i < dbUser.sessions.length - 1 ? '1px solid var(--card-border)' : 'none' }}>

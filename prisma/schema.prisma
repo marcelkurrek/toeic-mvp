@@ -20,6 +20,7 @@ model User {
   sessions       Session[]
   progress       Progress[]
   levels         UserLevel[]
+  srsCards       SrsCard[]
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
 }
@@ -50,6 +51,7 @@ model Question {
   tags        String[]
   isDiagnostic Boolean     @default(false)
   answers     Answer[]
+  srsCards    SrsCard[]
   createdAt   DateTime     @default(now())
 }
 
@@ -81,6 +83,22 @@ model Answer {
   aiFeedback   String?  // structured JSON with what_was_good, what_to_improve, tip
   timeSpentSec Int?
   createdAt    DateTime @default(now())
+}
+
+model SrsCard {
+  id           String    @id @default(cuid())
+  userId       String
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questionId   String
+  question     Question  @relation(fields: [questionId], references: [id])
+  repetitions  Int       @default(0)
+  interval     Int       @default(1)   // days until next review
+  easeFactor   Float     @default(2.5)
+  dueDate      DateTime  @default(now())
+  lastReviewed DateTime?
+  createdAt    DateTime  @default(now())
+
+  @@unique([userId, questionId])
 }
 
 model Progress {
