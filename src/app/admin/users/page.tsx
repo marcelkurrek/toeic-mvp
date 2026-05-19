@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 import { isAdminEmail } from '@/lib/admin'
+import Link from 'next/link'
 
 export default async function AdminUsersPage() {
   const supabase = await createClient()
@@ -40,8 +41,10 @@ export default async function AdminUsersPage() {
               return (
                 <tr key={u.id} style={{ borderBottom: i < users.length - 1 ? '1px solid var(--card-border)' : 'none' }}>
                   <td style={{ padding: '12px 16px' }}>
-                    <p className="font-medium">{u.name ?? '—'}</p>
-                    <p style={{ fontSize: 11, color: 'var(--muted)' }}>{u.email}</p>
+                    <Link href={`/admin/users/${u.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                      <p className="font-medium" style={{ color: 'var(--accent)' }}>{u.name ?? '—'}</p>
+                      <p style={{ fontSize: 11, color: 'var(--muted)' }}>{u.email}</p>
+                    </Link>
                   </td>
                   <td style={{ padding: '12px 16px', color: 'var(--muted)', fontSize: 12 }}>
                     {u.examType ?? '—'}

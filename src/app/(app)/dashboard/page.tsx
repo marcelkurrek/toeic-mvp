@@ -4,9 +4,10 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import {
   BookOpen, Clock, TrendingUp, Headphones, PenLine, Mic,
-  AlertCircle, Zap, ChevronRight, Sparkles, FileEdit, Target,
+  AlertCircle, Zap, ChevronRight, Sparkles, FileEdit, Target, Flame,
 } from 'lucide-react'
 import { getServerTranslations } from '@/lib/i18n/server'
+import { computeStreak } from '@/lib/streak'
 
 type Section = 'LISTENING' | 'READING' | 'SPEAKING' | 'WRITING'
 
@@ -55,6 +56,7 @@ export default async function DashboardPage() {
   const daysUntilExam = dbUser?.examDate
     ? Math.ceil((new Date(dbUser.examDate).getTime() - Date.now()) / 86400000)
     : null
+  const streak = computeStreak((dbUser?.sessions ?? []).map(s => s.createdAt))
 
   const examType = dbUser?.examType ?? null
   const relevantSections: Section[] = examType === 'LISTENING_READING'
@@ -211,7 +213,7 @@ export default async function DashboardPage() {
       )}
 
       {/* ── Stats row ──────────────────────────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 32 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 32 }}>
         {[
           {
             icon: <BookOpen size={16} style={{ color: 'var(--accent)' }} />,
@@ -226,6 +228,13 @@ export default async function DashboardPage() {
             label: t.dashboard.stats.avgAccuracy,
             value: avgAccuracy !== null ? `${avgAccuracy}%` : '—',
             sub: avgAccuracy !== null ? (avgAccuracy >= 75 ? '🎯 Gut!' : 'Weiter üben') : 'Noch keine Daten',
+          },
+          {
+            icon: <Flame size={16} style={{ color: '#fb923c' }} />,
+            bg: 'rgba(251,146,60,0.12)',
+            label: 'Streak',
+            value: streak.current > 0 ? `${streak.current}🔥` : '0',
+            sub: streak.current > 0 ? `Längste Serie: ${streak.longest}d` : 'Heute starten!',
           },
           {
             icon: <Clock size={16} style={{ color: 'var(--purple)' }} />,

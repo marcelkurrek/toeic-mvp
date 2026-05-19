@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase/server'
+import { computeStreak } from '@/lib/streak'
 
 export async function GET() {
   try {
@@ -15,7 +16,6 @@ export async function GET() {
         levels: true,
         sessions: {
           orderBy: { createdAt: 'desc' },
-          take: 5,
           where: { completedAt: { not: null } },
         },
       },
@@ -23,7 +23,7 @@ export async function GET() {
 
     if (!dbUser) {
       return NextResponse.json({
-        stats: { totalSessions: 0, avgAccuracy: null, daysUntilExam: null },
+        stats: { totalSessions: 0, avgAccuracy: null, daysUntilExam: null, streak: 0 },
         levels: [],
         progress: [],
         recentSessions: [],
@@ -39,11 +39,14 @@ export async function GET() {
       ? Math.ceil((new Date(dbUser.examDate).getTime() - Date.now()) / 86400000)
       : null
 
+    const streak = computeStreak(dbUser.sessions.map(s => s.createdAt))
+
     return NextResponse.json({
-      stats: { totalSessions, avgAccuracy, daysUntilExam },
+      stats: { totalSessions, avgAccuracy, daysUntilExam, streak: streak.current },
+      streak,
       levels: dbUser.levels,
       progress: dbUser.progress,
-      recentSessions: dbUser.sessions,
+      recentSessions: dbUser.sessions.slice(0, 5),
       user: {
         id: dbUser.id,
         name: dbUser.name,

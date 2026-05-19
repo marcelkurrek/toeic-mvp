@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { LayoutDashboard, Users, BookOpen, BarChart2, ShieldAlert } from 'lucide-react'
+import { LayoutDashboard, Users, BookOpen, BarChart2, ShieldAlert, ListChecks } from 'lucide-react'
 
 function AdminNavItem({ href, label, icon: Icon }: { href: string; label: string; icon: React.ElementType }) {
   return (
@@ -37,6 +37,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <AdminNavItem href="/admin/users" label="Nutzer" icon={Users} />
           <AdminNavItem href="/admin/questions" label="Fragen" icon={BookOpen} />
           <AdminNavItem href="/admin/sessions" label="Sitzungen" icon={BarChart2} />
+          <AdminNavItem href="/admin/action-plan" label="Action Plan" icon={ListChecks} />
         </nav>
 
         <div className="mt-auto pt-4" style={{ borderTop: '1px solid var(--card-border)' }}>
