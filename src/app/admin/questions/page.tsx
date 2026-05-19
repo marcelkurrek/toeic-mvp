@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation'
 import { isAdminEmail } from '@/lib/admin'
 import Link from 'next/link'
 import { QuestionsTable } from './QuestionsTable'
+import { QuestionsFilter } from './QuestionsFilter'
 
 const SECTION_COLORS: Record<string, string> = {
   LISTENING: '#22d3ee',
@@ -15,7 +16,7 @@ const SECTION_COLORS: Record<string, string> = {
 export default async function AdminQuestionsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ section?: string; part?: string; page?: string }>
+  searchParams: Promise<{ section?: string; part?: string; page?: string; search?: string }>
 }) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -24,20 +25,30 @@ export default async function AdminQuestionsPage({
   const sp      = await searchParams
   const section = sp.section ?? ''
   const part    = sp.part    ? Number(sp.part) : 0
+  const search  = sp.search  ?? ''
   const page    = Math.max(1, Number(sp.page ?? 1))
   const pageSize = 25
 
-  const where = {
+  const where: Record<string, unknown> = {
     ...(section ? { section: section as never } : {}),
     ...(part    ? { part } : {}),
+    ...(search  ? {
+      OR: [
+        { answer:      { contains: search, mode: 'insensitive' } },
+        { explanation: { contains: search, mode: 'insensitive' } },
+        { tags: { has: search } },
+      ],
+    } : {}),
   }
+
+  const showList = section || part > 0 || !!search
 
   const [totalCount, bySection, byPart, diagnosticCount, questions, filteredTotal] = await Promise.all([
     prisma.question.count(),
     prisma.question.groupBy({ by: ['section'], _count: { _all: true } }),
-    prisma.question.groupBy({ by: ['section', 'part'], _count: { _all: true }, orderBy: [{ section: 'asc' }, { part: 'asc' }] }),
+    showList ? Promise.resolve([]) : prisma.question.groupBy({ by: ['section', 'part'], _count: { _all: true }, orderBy: [{ section: 'asc' }, { part: 'asc' }] }),
     prisma.question.count({ where: { isDiagnostic: true } }),
-    prisma.question.findMany({
+    showList ? prisma.question.findMany({
       where,
       orderBy: [{ section: 'asc' }, { part: 'asc' }, { createdAt: 'desc' }],
       skip: (page - 1) * pageSize,
@@ -48,9 +59,12 @@ export default async function AdminQuestionsPage({
         answer: true, explanation: true, createdAt: true,
         _count: { select: { answers: true } },
       },
-    }),
-    prisma.question.count({ where }),
+    }) : Promise.resolve([]),
+    showList ? prisma.question.count({ where }) : Promise.resolve(0),
   ])
+
+  // For the not-showList case, we need byPart from the non-awaited prisma call
+  const byPartData = showList ? [] : byPart
 
   const pages = Math.ceil(filteredTotal / pageSize)
 
@@ -69,8 +83,8 @@ export default async function AdminQuestionsPage({
         </Link>
       </div>
 
-      {/* Section stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 36 }}>
+      {/* Section stats — clickable filter */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 24 }}>
         {bySection.map(row => (
           <Link key={row.section} href={`/admin/questions?section=${row.section}`} style={{ textDecoration: 'none' }}>
             <div className="card" style={{ padding: '18px 20px', cursor: 'pointer', border: section === row.section ? `1.5px solid ${SECTION_COLORS[row.section]}` : undefined }}>
@@ -84,8 +98,11 @@ export default async function AdminQuestionsPage({
         ))}
       </div>
 
-      {/* Part breakdown table — only when no filter active */}
-      {!section && !part && (
+      {/* Search / filter bar */}
+      <QuestionsFilter />
+
+      {/* Part breakdown — only when no active filter */}
+      {!showList && (
         <>
           <h2 className="text-base font-semibold" style={{ marginBottom: 14 }}>Aufschlüsselung nach Part</h2>
           <div className="card" style={{ overflow: 'hidden', marginBottom: 36 }}>
@@ -98,8 +115,8 @@ export default async function AdminQuestionsPage({
                 </tr>
               </thead>
               <tbody>
-                {byPart.map((row, i) => (
-                  <tr key={`${row.section}-${row.part}`} style={{ borderBottom: i < byPart.length - 1 ? '1px solid var(--card-border)' : 'none' }}>
+                {byPartData.map((row, i) => (
+                  <tr key={`${row.section}-${row.part}`} style={{ borderBottom: i < byPartData.length - 1 ? '1px solid var(--card-border)' : 'none' }}>
                     <td style={{ padding: '12px 18px' }}>
                       <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99, background: `${SECTION_COLORS[row.section] ?? 'var(--accent)'}20`, color: SECTION_COLORS[row.section] ?? 'var(--accent)' }}>
                         {row.section}
@@ -116,7 +133,7 @@ export default async function AdminQuestionsPage({
                 ))}
               </tbody>
             </table>
-            {byPart.length === 0 && (
+            {byPartData.length === 0 && (
               <p style={{ padding: 32, textAlign: 'center', color: 'var(--muted)', fontSize: 14 }}>Keine Fragen in der Datenbank.</p>
             )}
           </div>
@@ -124,7 +141,7 @@ export default async function AdminQuestionsPage({
       )}
 
       {/* Filtered questions list */}
-      {(section || part > 0) && (
+      {showList && (
         <QuestionsTable
           questions={questions as never}
           total={filteredTotal}
@@ -132,6 +149,7 @@ export default async function AdminQuestionsPage({
           pages={pages}
           section={section}
           part={part}
+          search={search}
           sectionColors={SECTION_COLORS}
         />
       )}

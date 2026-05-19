@@ -25,10 +25,11 @@ interface Props {
   pages: number
   section: string
   part: number
+  search?: string
   sectionColors: Record<string, string>
 }
 
-export function QuestionsTable({ questions, total, page, pages, section, part, sectionColors }: Props) {
+export function QuestionsTable({ questions, total, page, pages, section, part, search, sectionColors }: Props) {
   const router = useRouter()
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
@@ -50,6 +51,7 @@ export function QuestionsTable({ questions, total, page, pages, section, part, s
     const params = new URLSearchParams()
     if (section) params.set('section', section)
     if (part)    params.set('part', String(part))
+    if (search)  params.set('search', search)
     if (p > 1)   params.set('page', String(p))
     const q = params.toString()
     return `/admin/questions${q ? `?${q}` : ''}`
@@ -62,6 +64,7 @@ export function QuestionsTable({ questions, total, page, pages, section, part, s
           <h2 className="text-base font-semibold">
             {section && <span style={{ color: sectionColors[section] ?? 'var(--accent)' }}>{section}</span>}
             {part > 0 && <span style={{ color: 'var(--muted)' }}> · Part {part}</span>}
+            {search && <span style={{ color: 'var(--muted)', fontWeight: 400, fontSize: 13 }}> · Suche: „{search}"</span>}
           </h2>
           <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{total} Fragen</p>
         </div>
