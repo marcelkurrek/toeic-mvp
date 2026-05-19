@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { ChevronRight, Flame, Trophy, Target } from 'lucide-react'
 import { getServerTranslations } from '@/lib/i18n/server'
 import { computeStreak } from '@/lib/streak'
+import WeeklyHeatmap from '@/components/WeeklyHeatmap'
 
 export default async function ProgressPage() {
   const t = await getServerTranslations()
@@ -73,6 +74,12 @@ export default async function ProgressPage() {
             <p className="text-xs" style={{ color: 'var(--muted)' }}>{sub}</p>
           </div>
         ))}
+      </div>
+
+      {/* Weekly heatmap */}
+      <div className="card" style={{ padding: '20px 24px', marginBottom: 36 }}>
+        <p className="font-semibold text-sm" style={{ marginBottom: 16 }}>Aktivität — letzte 4 Wochen</p>
+        <WeeklyHeatmap sessionDates={sessions.map(s => s.createdAt.toISOString())} />
       </div>
 
       {/* Per-part accuracy */}

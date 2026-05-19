@@ -19,9 +19,14 @@ export default async function AdminUsersPage() {
 
   return (
     <div style={{ maxWidth: 1000, margin: '0 auto' }}>
-      <div style={{ marginBottom: 28 }}>
-        <h1 className="text-3xl font-bold" style={{ marginBottom: 6 }}>Nutzerverwaltung</h1>
-        <p style={{ color: 'var(--muted)', fontSize: 14 }}>{users.length} Nutzer gesamt</p>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 28 }}>
+        <div>
+          <h1 className="text-3xl font-bold" style={{ marginBottom: 6 }}>Nutzerverwaltung</h1>
+          <p style={{ color: 'var(--muted)', fontSize: 14 }}>{users.length} Nutzer gesamt</p>
+        </div>
+        <Link href="/api/admin/export/users" style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: 'var(--accent)', border: '1px solid var(--accent)', borderRadius: 8, padding: '8px 14px', textDecoration: 'none' }}>
+          ↓ CSV Export
+        </Link>
       </div>
 
       <div className="card" style={{ overflow: 'hidden' }}>

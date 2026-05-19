@@ -29,7 +29,7 @@ const TASKS: Task[] = [
   { title: 'Dashboard Übersicht', desc: 'Stats, CEFR-Level, Empfehlung, letzte Aktivität', status: 'done', priority: 'hoch', category: 'Dashboard' },
   { title: 'Dashboard API', desc: 'GET /api/dashboard — aggregierter Endpunkt', status: 'done', priority: 'hoch', category: 'Dashboard' },
   { title: 'Streak-Tracking', desc: 'Aktuelle & längste Lernserie berechnen und anzeigen', status: 'done', priority: 'mittel', category: 'Dashboard' },
-  { title: 'Wöchentliche Aktivitäts-Heatmap', desc: '7-Tage-Kalender mit täglicher Sitzungsanzahl', status: 'planned', priority: 'mittel', category: 'Dashboard' },
+  { title: 'Wöchentliche Aktivitäts-Heatmap', desc: '7-Tage-Kalender mit täglicher Sitzungsanzahl', status: 'done', priority: 'mittel', category: 'Dashboard' },
   { title: 'Lernziel setzen', desc: 'Ziel-Score eingeben, Fortschritt zum Ziel anzeigen', status: 'planned', priority: 'niedrig', category: 'Dashboard' },
 
   // ── Admin ─────────────────────────────────────────────────────────────────
@@ -38,27 +38,27 @@ const TASKS: Task[] = [
   { title: 'Admin: Fragen-Datenbank', desc: 'Aufschlüsselung nach Section und Part', status: 'done', priority: 'hoch', category: 'Admin' },
   { title: 'Admin: Sitzungen', desc: 'Letzte 20 abgeschlossene Sitzungen', status: 'done', priority: 'mittel', category: 'Admin' },
   { title: 'Admin: Action Plan', desc: 'Diese Seite — Roadmap mit Status-Tracking', status: 'done', priority: 'mittel', category: 'Admin' },
-  { title: 'Admin: Nutzer-Detail', desc: 'Einzelansicht pro Nutzer mit vollständiger History', status: 'in-progress', priority: 'mittel', category: 'Admin' },
-  { title: 'Admin: Fragen-Editor', desc: 'Neue Fragen anlegen, bearbeiten, löschen', status: 'planned', priority: 'hoch', category: 'Admin' },
-  { title: 'Admin: Export (CSV)', desc: 'Nutzer- und Sitzungsdaten als CSV exportieren', status: 'planned', priority: 'niedrig', category: 'Admin' },
+  { title: 'Admin: Nutzer-Detail', desc: 'Einzelansicht pro Nutzer mit vollständiger History', status: 'done', priority: 'mittel', category: 'Admin' },
+  { title: 'Admin: Fragen-Editor', desc: 'Neue Fragen anlegen, bearbeiten, löschen', status: 'done', priority: 'hoch', category: 'Admin' },
+  { title: 'Admin: Export (CSV)', desc: 'Nutzer- und Sitzungsdaten als CSV exportieren', status: 'done', priority: 'niedrig', category: 'Admin' },
 
   // ── User Settings ─────────────────────────────────────────────────────────
-  { title: 'Nutzer-Einstellungen', desc: 'Name, Prüfungstyp und Datum ändern', status: 'in-progress', priority: 'mittel', category: 'Settings' },
+  { title: 'Nutzer-Einstellungen', desc: 'Name, Prüfungstyp und Datum ändern', status: 'done', priority: 'mittel', category: 'Settings' },
   { title: 'Sprachumschalter', desc: 'Deutsch / Englisch wechseln', status: 'done', priority: 'mittel', category: 'Settings' },
   { title: 'Theme-Switcher', desc: 'Hell / Dunkel wechseln', status: 'done', priority: 'mittel', category: 'Settings' },
-  { title: 'Account löschen', desc: 'Nutzer kann Konto und Daten dauerhaft löschen', status: 'planned', priority: 'niedrig', category: 'Settings' },
+  { title: 'Account löschen', desc: 'Nutzer kann Konto und Daten dauerhaft löschen', status: 'done', priority: 'niedrig', category: 'Settings' },
 
   // ── AI Features ───────────────────────────────────────────────────────────
   { title: 'AI Writing-Feedback', desc: 'Anthropic Claude bewertet Essay und E-Mail', status: 'done', priority: 'hoch', category: 'AI' },
   { title: 'AI Speech-Feedback', desc: 'Transcript-Bewertung für Speaking-Aufgaben', status: 'done', priority: 'hoch', category: 'AI' },
   { title: 'Adaptive Fragen-Auswahl', desc: 'Schwierigkeitsgrad automatisch anpassen basierend auf Leistung', status: 'planned', priority: 'hoch', category: 'AI' },
-  { title: 'AI Study Plan', desc: 'Personalisierter Wochenplan basierend auf CEFR und Prüfungsdatum', status: 'planned', priority: 'mittel', category: 'AI' },
+  { title: 'AI Study Plan', desc: 'Personalisierter Wochenplan basierend auf CEFR und Prüfungsdatum', status: 'done', priority: 'mittel', category: 'AI' },
 
   // ── Infrastructure ────────────────────────────────────────────────────────
   { title: 'Middleware Auth-Schutz', desc: 'Alle App-Routen erfordern Authentifizierung', status: 'done', priority: 'hoch', category: 'Infra' },
   { title: 'Prisma Schema & Migrations', desc: 'Vollständiges Datenmodell für alle Entitäten', status: 'done', priority: 'hoch', category: 'Infra' },
   { title: 'Seed-Daten', desc: 'Fragen-Datenbank initial befüllen', status: 'done', priority: 'hoch', category: 'Infra' },
-  { title: 'Rate Limiting', desc: 'API-Endpunkte gegen Missbrauch schützen', status: 'planned', priority: 'mittel', category: 'Infra' },
+  { title: 'Rate Limiting', desc: 'API-Endpunkte gegen Missbrauch schützen', status: 'done', priority: 'mittel', category: 'Infra' },
   { title: 'E-Mail-Benachrichtigungen', desc: 'Lern-Erinnerungen und Fortschritts-Reports', status: 'planned', priority: 'niedrig', category: 'Infra' },
 ]
 

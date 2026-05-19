@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { Save, User, Calendar, BookOpen } from 'lucide-react'
+import { Save, User, Calendar, BookOpen, Trash2, AlertTriangle } from 'lucide-react'
 
 const EXAM_TYPES = [
   { value: 'LISTENING_READING', label: 'TOEIC Listening & Reading', desc: 'Parts 1–7, Multiple Choice' },
@@ -16,6 +16,10 @@ export default function SettingsPage() {
   const [saving, setSaving]       = useState(false)
   const [saved, setSaved]         = useState(false)
   const [error, setError]         = useState('')
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [deleteInput, setDeleteInput]             = useState('')
+  const [deleting, setDeleting]                   = useState(false)
+  const [deleteError, setDeleteError]             = useState('')
 
   useEffect(() => {
     fetch('/api/users/me')
@@ -50,6 +54,20 @@ export default function SettingsPage() {
       setError('Speichern fehlgeschlagen. Bitte versuche es erneut.')
     } finally {
       setSaving(false)
+    }
+  }
+
+  async function handleDelete() {
+    if (deleteInput !== 'LÖSCHEN') return
+    setDeleting(true)
+    setDeleteError('')
+    try {
+      const res = await fetch('/api/users/me/delete', { method: 'DELETE' })
+      if (!res.ok) throw new Error()
+      window.location.href = '/login'
+    } catch {
+      setDeleteError('Löschen fehlgeschlagen. Bitte versuche es erneut.')
+      setDeleting(false)
     }
   }
 
@@ -169,6 +187,75 @@ export default function SettingsPage() {
           {saving ? 'Wird gespeichert…' : saved ? '✓ Gespeichert' : 'Einstellungen speichern'}
         </button>
       </form>
+
+      {/* Danger zone */}
+      <div style={{ marginTop: 48, borderTop: '1px solid var(--card-border)', paddingTop: 32 }}>
+        <h2 className="font-semibold text-sm" style={{ color: 'var(--error)', marginBottom: 16 }}>Gefahrenzone</h2>
+        <div className="card" style={{ padding: '20px 24px', border: '1px solid rgba(239,68,68,0.3)' }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16 }}>
+            <div>
+              <p className="font-medium text-sm" style={{ marginBottom: 4 }}>Konto löschen</p>
+              <p className="text-xs" style={{ color: 'var(--muted)' }}>Alle Daten werden unwiderruflich gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => { setShowDeleteConfirm(true); setDeleteInput(''); setDeleteError('') }}
+              style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: 'var(--error)', border: '1px solid rgba(239,68,68,0.4)', borderRadius: 8, padding: '8px 14px', background: 'none', cursor: 'pointer' }}
+            >
+              <Trash2 size={13} />
+              Konto löschen
+            </button>
+          </div>
+
+          {showDeleteConfirm && (
+            <div style={{ marginTop: 20, padding: '16px', borderRadius: 10, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.2)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+                <AlertTriangle size={15} style={{ color: '#ef4444', flexShrink: 0 }} />
+                <p className="text-xs font-semibold" style={{ color: '#ef4444' }}>
+                  Bitte tippe <strong>LÖSCHEN</strong> zur Bestätigung
+                </p>
+              </div>
+              <input
+                type="text"
+                value={deleteInput}
+                onChange={e => setDeleteInput(e.target.value)}
+                placeholder="LÖSCHEN"
+                style={{
+                  width: '100%', boxSizing: 'border-box',
+                  background: 'var(--card)',
+                  border: '1px solid rgba(239,68,68,0.4)',
+                  borderRadius: 8, padding: '10px 14px',
+                  fontSize: 14, color: 'var(--fg)', outline: 'none',
+                  marginBottom: 12,
+                }}
+              />
+              {deleteError && <p className="text-xs" style={{ color: 'var(--error)', marginBottom: 8 }}>{deleteError}</p>}
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={deleteInput !== 'LÖSCHEN' || deleting}
+                  style={{
+                    flex: 1, padding: '10px', fontSize: 13, fontWeight: 600, borderRadius: 8, border: 'none', cursor: deleteInput === 'LÖSCHEN' && !deleting ? 'pointer' : 'not-allowed',
+                    background: deleteInput === 'LÖSCHEN' ? '#ef4444' : 'rgba(239,68,68,0.2)',
+                    color: deleteInput === 'LÖSCHEN' ? '#fff' : 'var(--muted)',
+                    transition: 'all 0.15s',
+                  }}
+                >
+                  {deleting ? 'Wird gelöscht…' : 'Konto endgültig löschen'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowDeleteConfirm(false)}
+                  style={{ padding: '10px 16px', fontSize: 13, fontWeight: 600, borderRadius: 8, border: '1px solid var(--card-border)', background: 'none', color: 'var(--muted)', cursor: 'pointer' }}
+                >
+                  Abbrechen
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   )
 }

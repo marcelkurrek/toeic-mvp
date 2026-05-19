@@ -24,9 +24,14 @@ export default async function AdminSessionsPage() {
 
   return (
     <div style={{ maxWidth: 900, margin: '0 auto' }}>
-      <div style={{ marginBottom: 28 }}>
-        <h1 className="text-3xl font-bold" style={{ marginBottom: 6 }}>Sitzungen</h1>
-        <p style={{ color: 'var(--muted)', fontSize: 14 }}>Abgeschlossene Übungssitzungen</p>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 28 }}>
+        <div>
+          <h1 className="text-3xl font-bold" style={{ marginBottom: 6 }}>Sitzungen</h1>
+          <p style={{ color: 'var(--muted)', fontSize: 14 }}>Abgeschlossene Übungssitzungen</p>
+        </div>
+        <a href="/api/admin/export/sessions" style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: 'var(--accent)', border: '1px solid var(--accent)', borderRadius: 8, padding: '8px 14px', textDecoration: 'none' }}>
+          ↓ CSV Export
+        </a>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 36 }}>

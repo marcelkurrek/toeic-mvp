@@ -176,6 +176,13 @@ function analyzeLocally(
 
 // ── ROUTE HANDLER ─────────────────────────────────────────────────────────────
 export async function POST(request: Request) {
+  // Rate limit: 20 requests per 10 minutes per IP
+  const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
+  const { checkRateLimit } = await import('@/lib/rateLimit')
+  if (!checkRateLimit(`writing:${ip}`, 20, 10 * 60 * 1000)) {
+    return NextResponse.json({ error: 'Zu viele Anfragen. Bitte warte kurz.' }, { status: 429 })
+  }
+
   const { text, questionType, keywords, expectedStructure } = await request.json() as {
     text: string
     questionType: string
