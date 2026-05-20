@@ -254,6 +254,8 @@ Ideal: ca. 15 Sekunden pro Frage, direkt auf die Frage eingehen, Konnektoren ver
 Nützliche Phrasen: Regarding…, I am afraid that…, I would appreciate it if…, Best regards.`,
       PROPOSE_SOLUTION: `Kriterien: Inhalt, Struktur, Aussprache, Grammatik.
 Struktur: 1. Problem anerkennen (I am sorry to hear…), 2. Vorgehen erklären, 3. Lösung vorschlagen (I am glad to tell you…).`,
+      RESPOND_INFO: `Kriterien: Genauigkeit der Information, Vollständigkeit, Aussprache, Grammatik.
+Für dokumentbasierte Fragen: gib die Information präzise aus dem Dokument wieder. Für Meinungsfragen: kurze klare Antwort mit 1-2 Gründen.`,
       EXPRESS_OPINION: `Kriterien: Aussprache, Grammatik, Wortschatz, Struktur, Relevanz.
 Struktur: Meinung (I personally believe…) → Grund 1 (Firstly…) → Grund 2 (Secondly/Moreover…) → Beispiel → Fazit (In conclusion…).
 Mindestens 2 Gründe mit Beispielen. Nicht vom Thema abweichen.`,
