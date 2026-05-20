@@ -41,8 +41,8 @@ export async function PUT(request: Request) {
         name: name ?? user.user_metadata?.name ?? null,
         examType: examType ?? null,
         examDate: examDate ? new Date(examDate) : null,
-        scoreTarget: scoreTarget ? Number(scoreTarget) : null,
-      },
+        ...(scoreTarget !== undefined && { scoreTarget: scoreTarget ? Number(scoreTarget) : null }),
+      } as never,
     })
 
     return NextResponse.json(dbUser)
