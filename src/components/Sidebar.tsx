@@ -25,16 +25,18 @@ function SectionLabel({ label }: { label: string }) {
 }
 
 function NavItem({
-  href, label, sub, icon: Icon, exact = false,
+  href, label, sub, icon: Icon, exact = false, color,
 }: {
   href: string
   label: string
   sub?: string
   icon: React.ElementType
   exact?: boolean
+  color?: string
 }) {
   const pathname = usePathname()
   const active = exact ? pathname === href : pathname === href || pathname.startsWith(href + '/')
+  const activeColor = color ?? '#ffffff'
   return (
     <Link
       href={href}
@@ -43,8 +45,8 @@ function NavItem({
         paddingTop: '10px',
         paddingBottom: '10px',
         marginBottom: '2px',
-        background: active ? 'var(--accent-subtle)' : 'transparent',
-        color: active ? 'var(--accent)' : 'var(--muted)',
+        background: active ? `${activeColor}18` : 'transparent',
+        color: active ? activeColor : 'var(--muted)',
         textDecoration: 'none',
       }}
     >
@@ -52,7 +54,7 @@ function NavItem({
       <div style={{ minWidth: 0 }}>
         <p className="text-sm font-medium" style={{ lineHeight: 1.3 }}>{label}</p>
         {sub && (
-          <p style={{ fontSize: 10, lineHeight: 1.3, color: active ? 'var(--accent)' : 'var(--muted)', opacity: 0.7, marginTop: 1 }}>
+          <p style={{ fontSize: 10, lineHeight: 1.3, color: active ? activeColor : 'var(--muted)', opacity: 0.7, marginTop: 1 }}>
             {sub}
           </p>
         )}
@@ -95,10 +97,10 @@ export default function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
 
         <SectionLabel label={t.nav.sectionPractice} />
 
-        <NavItem href="/listening" label="Listening" sub="Parts 1–4" icon={Headphones} />
-        <NavItem href="/reading" label="Reading" sub="Parts 5–7" icon={BookOpen} />
-        <NavItem href="/speaking" label="Speaking" sub="Mündlich" icon={Mic} />
-        <NavItem href="/writing" label="Writing" sub="Schriftlich" icon={PenLine} />
+        <NavItem href="/listening" label="Listening" sub="Parts 1–4" icon={Headphones} color="#04FF88" />
+        <NavItem href="/reading" label="Reading" sub="Parts 5–7" icon={BookOpen} color="#D5FD44" />
+        <NavItem href="/speaking" label="Speaking" sub="Mündlich" icon={Mic} color="#fb923c" />
+        <NavItem href="/writing" label="Writing" sub="Schriftlich" icon={PenLine} color="#AE00FF" />
 
         <SectionLabel label={t.nav.sectionInfo} />
         <NavItem href="/diagnostic" label={t.nav.diagnostic} sub={t.nav.diagnosticSub} icon={Zap} />
