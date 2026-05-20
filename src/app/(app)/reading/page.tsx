@@ -22,7 +22,7 @@ export default async function ReadingPage() {
       skill="reading"
       title="Reading"
       description="Verbessere dein Leseverständnis für den TOEIC Test"
-      color="#4ade80"
+      color="#D5FD44"
       icon="📖"
       hasDiagnostic={!!dbUser?.diagnosticDone}
       partAccuracy={partAccuracy}

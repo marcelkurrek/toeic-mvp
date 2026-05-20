@@ -22,7 +22,7 @@ export default async function WritingPage() {
       skill="writing"
       title="Writing"
       description="Verbessere deine schriftliche Ausdrucksfähigkeit"
-      color="#a78bfa"
+      color="#AE00FF"
       icon="✍️"
       hasDiagnostic={!!dbUser?.diagnosticDone}
       partAccuracy={partAccuracy}

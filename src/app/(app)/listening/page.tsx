@@ -22,7 +22,7 @@ export default async function ListeningPage() {
       skill="listening"
       title="Listening"
       description="Trainiere dein Hörverständnis für den TOEIC Test"
-      color="#22d3ee"
+      color="#04FF88"
       icon="🎧"
       hasDiagnostic={!!dbUser?.diagnosticDone}
       partAccuracy={partAccuracy}
