@@ -2,70 +2,71 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import {
-  LayoutDashboard, BarChart2, LogOut, Zap,
-  Headphones, BookOpen, Mic, PenLine,
-  Settings, ClipboardList, ShieldAlert,
-} from 'lucide-react'
+import { LayoutDashboard, LogOut, Dumbbell, FlaskConical, Settings, ShieldAlert } from 'lucide-react'
 import { useLang } from '@/lib/i18n/client'
 import LanguageSwitcher from './LanguageSwitcher'
 import ThemeSwitcher from './ThemeSwitcher'
 
-const SKILLS = [
-  { href: '/listening', label: 'Listening', icon: Headphones, color: '#04FF88' },
-  { href: '/reading',   label: 'Reading',   icon: BookOpen,   color: '#D5FD44' },
-  { href: '/speaking',  label: 'Speaking',  icon: Mic,        color: '#fb923c' },
-  { href: '/writing',   label: 'Writing',   icon: PenLine,    color: '#AE00FF' },
+const NAV = [
+  {
+    href: '/dashboard',
+    label: 'Dashboard',
+    icon: LayoutDashboard,
+    exact: true,
+    activeFor: [] as string[],
+  },
+  {
+    href: '/test-training',
+    label: 'Test Training',
+    icon: Dumbbell,
+    exact: false,
+    activeFor: ['/listening', '/reading', '/speaking', '/writing'],
+  },
+  {
+    href: '/test-simulation',
+    label: 'Test Simulation',
+    icon: FlaskConical,
+    exact: false,
+    activeFor: ['/practice', '/diagnostic', '/guide'],
+  },
+  {
+    href: '/settings',
+    label: 'Einstellungen',
+    icon: Settings,
+    exact: true,
+    activeFor: [] as string[],
+  },
 ]
 
-function SectionLabel({ label }: { label: string }) {
-  return (
-    <p style={{
-      color: 'var(--muted)',
-      letterSpacing: '0.07em',
-      textTransform: 'uppercase',
-      fontSize: 9,
-      fontWeight: 700,
-      padding: '18px 12px 5px',
-    }}>
-      {label}
-    </p>
-  )
-}
-
 function NavItem({
-  href, label, icon: Icon, exact = false, color,
+  href, label, icon: Icon, exact, activeFor,
 }: {
   href: string
   label: string
   icon: React.ElementType
-  exact?: boolean
-  color?: string
+  exact: boolean
+  activeFor: string[]
 }) {
   const pathname = usePathname()
-  const active = exact ? pathname === href : pathname === href || pathname.startsWith(href + '/')
-  const accentColor = color ?? 'rgba(255,255,255,0.85)'
+  const selfActive = exact ? pathname === href : pathname === href || pathname.startsWith(href + '/')
+  const childActive = activeFor.some(p => pathname === p || pathname.startsWith(p + '/'))
+  const active = selfActive || childActive
 
   return (
     <Link
       href={href}
       className="flex items-center gap-3 rounded-lg transition-all duration-150"
       style={{
-        padding: '8px 10px',
-        marginBottom: '1px',
-        background: active ? `${accentColor}12` : 'transparent',
+        padding: '10px 12px',
+        marginBottom: '2px',
+        background: active ? 'rgba(255,255,255,0.07)' : 'transparent',
         color: active ? '#ffffff' : 'var(--muted)',
         textDecoration: 'none',
-        borderLeft: active ? `3px solid ${accentColor}` : '3px solid transparent',
+        borderLeft: active ? '3px solid rgba(255,255,255,0.7)' : '3px solid transparent',
       }}
     >
-      <Icon
-        size={15}
-        style={{ flexShrink: 0, color: active ? accentColor : 'inherit', transition: 'color 0.15s' }}
-      />
-      <p style={{ fontSize: 13, fontWeight: active ? 600 : 500, lineHeight: 1.3 }}>
-        {label}
-      </p>
+      <Icon size={16} style={{ flexShrink: 0, opacity: active ? 1 : 0.6, transition: 'opacity 0.15s' }} />
+      <p style={{ fontSize: 13, fontWeight: active ? 600 : 500 }}>{label}</p>
     </Link>
   )
 }
@@ -92,7 +93,7 @@ export default function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
       }}>
 
       {/* Brand */}
-      <div style={{ padding: '4px 12px 18px', borderBottom: '1px solid var(--card-border)', marginBottom: 6 }}>
+      <div style={{ padding: '4px 12px 18px', borderBottom: '1px solid var(--card-border)', marginBottom: 10 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{
             width: 28, height: 28, borderRadius: 8,
@@ -109,31 +110,17 @@ export default function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
         </div>
       </div>
 
-      <nav className="flex-1 flex flex-col">
-
-        <NavItem href="/dashboard" label={t.nav.dashboard} icon={LayoutDashboard} exact />
-
-        <SectionLabel label="Test Training" />
-
-        {SKILLS.map(s => (
-          <NavItem key={s.href} href={s.href} label={s.label} icon={s.icon} color={s.color} />
+      <nav className="flex-1 flex flex-col gap-0">
+        {NAV.map(item => (
+          <NavItem key={item.href} {...item} />
         ))}
-
-        <SectionLabel label="Prüfung" />
-
-        <NavItem href="/practice/mini-exam" label="Mini-Prüfung" icon={ClipboardList} />
-        <NavItem href="/diagnostic" label={t.nav.diagnostic} icon={Zap} />
-
-        <NavItem href="/progress"     label={t.nav.progress}  icon={BarChart2} />
-        <NavItem href="/settings"     label="Einstellungen"   icon={Settings} />
 
         {isAdmin && (
           <>
-            <SectionLabel label="Admin" />
-            <NavItem href="/admin" label="Admin" icon={ShieldAlert} color="#ef4444" exact />
+            <div style={{ height: 1, background: 'var(--card-border)', margin: '12px 4px' }} />
+            <NavItem href="/admin" label="Admin" icon={ShieldAlert} exact activeFor={[]} />
           </>
         )}
-
       </nav>
 
       {/* Footer */}
@@ -146,7 +133,7 @@ export default function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
           onClick={handleSignOut}
           className="flex items-center gap-3 rounded-lg transition-all duration-150"
           style={{
-            padding: '8px 10px',
+            padding: '8px 12px',
             color: 'var(--muted)',
             background: 'none', border: 'none',
             cursor: 'pointer', width: '100%', textAlign: 'left',
