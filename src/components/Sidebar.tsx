@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { LayoutDashboard, BarChart2, LogOut, Info, Zap, Headphones, BookOpen, Mic, PenLine, Settings, CalendarDays, Trophy, ClipboardList, BookMarked } from 'lucide-react'
+import { LayoutDashboard, BarChart2, LogOut, Info, Zap, Headphones, BookOpen, Mic, PenLine, Settings, CalendarDays, Trophy, ClipboardList, BookMarked, ShieldAlert } from 'lucide-react'
 import { useLang } from '@/lib/i18n/client'
 import LanguageSwitcher from './LanguageSwitcher'
 import ThemeSwitcher from './ThemeSwitcher'
@@ -61,7 +61,7 @@ function NavItem({
   )
 }
 
-export default function Sidebar() {
+export default function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
   const router = useRouter()
   const supabase = createClient()
   const { t } = useLang()
@@ -109,6 +109,13 @@ export default function Sidebar() {
         <NavItem href="/vocabulary" label="Vokabeln" sub="Flashcards" icon={BookMarked} />
         <NavItem href="/guide" label={t.nav.guide} icon={Info} />
         <NavItem href="/settings" label="Einstellungen" icon={Settings} />
+
+        {isAdmin && (
+          <>
+            <SectionLabel label="Admin" />
+            <NavItem href="/admin" label="Admin-Bereich" sub="Verwaltung" icon={ShieldAlert} exact />
+          </>
+        )}
 
       </nav>
 
