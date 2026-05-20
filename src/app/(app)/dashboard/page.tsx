@@ -141,7 +141,7 @@ export default async function DashboardPage() {
     s === 'LISTENING' ? Headphones : s === 'WRITING' ? PenLine : s === 'SPEAKING' ? Mic : BookOpen
 
   return (
-    <div style={{ maxWidth: 860, margin: '0 auto' }}>
+    <div>
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <div style={{ marginBottom: 28 }}>

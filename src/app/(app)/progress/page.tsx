@@ -47,7 +47,7 @@ export default async function ProgressPage() {
   }))
 
   return (
-    <div style={{ maxWidth: 860, margin: '0 auto' }}>
+    <div>
 
       {/* Page header */}
       <div style={{ marginBottom: 28 }}>

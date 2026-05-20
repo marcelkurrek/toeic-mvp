@@ -33,7 +33,7 @@ export default function SkillLandingPage({
   const router = useRouter()
 
   return (
-    <div style={{ maxWidth: 860, margin: '0 auto' }}>
+    <div>
       {/* Header — same structure as all other pages */}
       <div style={{ marginBottom: 28 }}>
         <h1 className="text-3xl font-bold" style={{ marginBottom: 4 }}>{title}</h1>

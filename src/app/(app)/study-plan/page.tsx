@@ -212,7 +212,7 @@ export default async function StudyPlanPage() {
   const todayPlan = plan[todayIndex]
 
   return (
-    <div style={{ maxWidth: 860, margin: '0 auto' }}>
+    <div>
       <div style={{ marginBottom: 28 }}>
         <h1 className="text-3xl font-bold" style={{ marginBottom: 6 }}>Lernplan</h1>
         <p style={{ color: 'var(--muted)', fontSize: 14 }}>Personalisierter Wochenplan · {advice}</p>
