@@ -18,7 +18,7 @@ PAT="<token>" && git remote set-url origin "https://${PAT}@github.com/marcelkurr
 
 **Wenn Änderungen nicht sichtbar sind — Diagnose:**
 1. Codespace ist auf falschem Branch → `git checkout main && rm -rf .next && git pull origin main && npm run dev`
-2. `.next` Cache blockiert Pull → zuerst `rm -rf .next`
+2. `.next` Cache blockiert Pull → **IMMER** `rm -rf .next && git pull origin main` verwenden, nie nur `git pull`
 3. `.env.local` fehlt nach Pull → neu anlegen (nie in git tracken)
 4. Dev-Server läuft auf anderem Port → Port aus Terminal-Output nehmen (3001–3006)
 
