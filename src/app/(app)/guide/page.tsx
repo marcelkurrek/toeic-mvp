@@ -650,7 +650,7 @@ export default function GuidePage() {
   const [tab, setTab] = useState<Tab>('format')
 
   return (
-    <div style={{ maxWidth: 900, margin: '0 auto' }}>
+    <div style={{ maxWidth: 860, margin: '0 auto' }}>
 
       {/* Header */}
       <div style={{ marginBottom: 28 }}>
