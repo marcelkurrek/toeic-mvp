@@ -70,6 +70,7 @@ const TASKS: Task[] = [
   { title: 'Loading Skeletons & Error Boundaries', desc: 'Ladezustände und Fehlerseiten für alle Routen', status: 'done', priority: 'mittel', category: 'Infra' },
 
   // ── Geplant ───────────────────────────────────────────────────────────────
+  { title: 'Vercel Deployment', desc: 'Repo mit Vercel verbinden — jeder Push auf main löst automatisches Deployment aus, Änderungen sofort im Browser sichtbar ohne git pull oder Dev-Server', status: 'planned', priority: 'hoch', category: 'Infra' },
   { title: 'E-Mail-Benachrichtigungen', desc: 'Lern-Erinnerungen und Fortschritts-Reports via Resend', status: 'planned', priority: 'niedrig', category: 'Infra' },
 
   // ── Ideen (warten auf Validierung) ────────────────────────────────────────
