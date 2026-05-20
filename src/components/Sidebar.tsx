@@ -36,7 +36,7 @@ function NavItem({
 }) {
   const pathname = usePathname()
   const active = exact ? pathname === href : pathname === href || pathname.startsWith(href + '/')
-  const activeColor = color ?? '#ffffff'
+  const borderColor = color ?? 'rgba(255,255,255,0.4)'
   return (
     <Link
       href={href}
@@ -45,16 +45,17 @@ function NavItem({
         paddingTop: '10px',
         paddingBottom: '10px',
         marginBottom: '2px',
-        background: active ? `${activeColor}18` : 'transparent',
-        color: active ? activeColor : 'var(--muted)',
+        background: active ? 'rgba(255,255,255,0.06)' : 'transparent',
+        color: active ? '#ffffff' : 'var(--muted)',
         textDecoration: 'none',
+        border: active ? `1px solid ${borderColor}` : '1px solid transparent',
       }}
     >
       <Icon size={15} style={{ flexShrink: 0, marginTop: sub ? 2 : 0 }} />
       <div style={{ minWidth: 0 }}>
         <p className="text-sm font-medium" style={{ lineHeight: 1.3 }}>{label}</p>
         {sub && (
-          <p style={{ fontSize: 10, lineHeight: 1.3, color: active ? activeColor : 'var(--muted)', opacity: 0.7, marginTop: 1 }}>
+          <p style={{ fontSize: 10, lineHeight: 1.3, color: active ? 'rgba(255,255,255,0.6)' : 'var(--muted)', marginTop: 1 }}>
             {sub}
           </p>
         )}
