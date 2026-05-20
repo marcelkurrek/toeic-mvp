@@ -34,15 +34,10 @@ export default function SkillLandingPage({
 
   return (
     <div style={{ maxWidth: 860, margin: '0 auto' }}>
-      {/* Header */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 28 }}>
-        <div style={{ width: 56, height: 56, borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, flexShrink: 0, background: color + '20' }}>
-          {icon}
-        </div>
-        <div>
-          <h1 className="text-3xl font-bold" style={{ marginBottom: 4 }}>{title}</h1>
-          <p style={{ color: 'var(--muted)', fontSize: 14 }}>{description}</p>
-        </div>
+      {/* Header — same structure as all other pages */}
+      <div style={{ marginBottom: 28 }}>
+        <h1 className="text-3xl font-bold" style={{ marginBottom: 4 }}>{title}</h1>
+        <p style={{ color: 'var(--muted)', fontSize: 14 }}>{description}</p>
       </div>
 
       {/* Per-part cards (when accuracy data available) */}
