@@ -241,6 +241,7 @@ function MultiQuestionView({ question, part, onAnswers, submitted, selected }: M
   const prereadSecs = 30
   const remaining = useTimer(prereadSecs, phase === 'prereading', () => setPhase('ready'))
   const questions = (c.questions as { stem: string; options: string[]; answer: string }[]) ?? []
+  const graphic   = c.graphic as { type: string; title: string; headers?: string[]; rows: (string[])[] } | undefined
   const color = part === 3 ? '#fb923c' : '#AE00FF'
 
   const handlePlay = () => {
@@ -261,6 +262,31 @@ function MultiQuestionView({ question, part, onAnswers, submitted, selected }: M
         <div style={{ padding: '12px 16px', borderRadius: 10, background: `${color}10`, border: `1px solid ${color}40`, marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <p style={{ fontSize: 13, color, fontWeight: 600 }}>Fragen vorab lesen — {remaining} Sek.</p>
           <button onClick={() => setPhase('ready')} style={{ fontSize: 12, color, background: 'none', border: 'none', cursor: 'pointer' }}>Überspringen</button>
+        </div>
+      )}
+
+      {/* Graphic (table/list) if question has one */}
+      {graphic && (
+        <div style={{ marginBottom: 16, borderRadius: 10, overflow: 'hidden', border: '1px solid var(--card-border)' }}>
+          <div style={{ padding: '8px 14px', background: 'var(--surface)', borderBottom: '1px solid var(--card-border)' }}>
+            <p style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)' }}>{graphic.title}</p>
+          </div>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+            {graphic.headers && (
+              <thead>
+                <tr style={{ background: 'var(--card-border)' }}>
+                  {graphic.headers.map(h => <th key={h} style={{ padding: '6px 12px', textAlign: 'left', fontWeight: 600, color: 'var(--muted)' }}>{h}</th>)}
+                </tr>
+              </thead>
+            )}
+            <tbody>
+              {graphic.rows.map((row, ri) => (
+                <tr key={ri} style={{ borderBottom: '1px solid var(--card-border)' }}>
+                  {row.map((cell, ci) => <td key={ci} style={{ padding: '7px 12px' }}>{cell}</td>)}
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
 
