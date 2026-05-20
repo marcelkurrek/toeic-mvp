@@ -6,6 +6,7 @@ import { ChevronRight, Flame, Trophy, Target } from 'lucide-react'
 import { getServerTranslations } from '@/lib/i18n/server'
 import { computeStreak } from '@/lib/streak'
 import WeeklyHeatmap from '@/components/WeeklyHeatmap'
+import ScoreChart from '@/components/ScoreChart'
 
 export default async function ProgressPage() {
   const t = await getServerTranslations()
@@ -38,13 +39,15 @@ export default async function ProgressPage() {
     ? progress.reduce((best, p) => p.accuracy > best.accuracy ? p : best)
     : null
 
-  const PART_META = ([5, 6, 7] as const).map(part => ({
-    part,
-    label: t.progress.parts[part].label,
-    desc:  t.progress.parts[part].desc,
-    color: part === 5 ? '#22d3ee' : part === 6 ? '#4ade80' : '#fb923c',
-    subtle: part === 5 ? 'rgba(34,211,238,0.12)' : part === 6 ? 'rgba(74,222,128,0.12)' : 'rgba(251,146,60,0.12)',
-  }))
+  const PART_META = [
+    { part: 1, label: 'Listening · Part 1', desc: 'Fotos beschreiben (4 Aussagen)',                href: '/practice/part1', color: '#04FF88', subtle: 'rgba(4,255,136,0.10)' },
+    { part: 2, label: 'Listening · Part 2', desc: 'Frage-Antwort (3 Antwortmöglichkeiten)',        href: '/practice/part2', color: '#04FF88', subtle: 'rgba(4,255,136,0.10)' },
+    { part: 3, label: 'Listening · Part 3', desc: 'Gespräche (3 Fragen pro Konversation)',         href: '/practice/part3', color: '#04FF88', subtle: 'rgba(4,255,136,0.10)' },
+    { part: 4, label: 'Listening · Part 4', desc: 'Monologe / Ankündigungen (3 Fragen pro Talk)',  href: '/practice/part4', color: '#04FF88', subtle: 'rgba(4,255,136,0.10)' },
+    { part: 5, label: t.progress.parts[5].label, desc: t.progress.parts[5].desc, href: '/practice/part5', color: '#D5FD44', subtle: 'rgba(213,253,68,0.10)' },
+    { part: 6, label: t.progress.parts[6].label, desc: t.progress.parts[6].desc, href: '/practice/part6', color: '#D5FD44', subtle: 'rgba(213,253,68,0.10)' },
+    { part: 7, label: t.progress.parts[7].label, desc: t.progress.parts[7].desc, href: '/practice/part7', color: '#D5FD44', subtle: 'rgba(213,253,68,0.10)' },
+  ]
 
   return (
     <div>
@@ -76,6 +79,24 @@ export default async function ProgressPage() {
         ))}
       </div>
 
+      {/* Score trajectory chart */}
+      {(() => {
+        const chartData = sessions
+          .filter(s => s.score != null && s.maxScore)
+          .map(s => ({
+            date: s.createdAt.toISOString(),
+            pct: Math.round((s.score! / s.maxScore!) * 100),
+            label: new Date(s.createdAt).toLocaleDateString('de-DE', { month: 'numeric', day: 'numeric' }),
+          }))
+          .reverse()
+        return chartData.length >= 2 ? (
+          <div className="card" style={{ padding: '20px 24px', marginBottom: 24 }}>
+            <p className="font-semibold text-sm" style={{ marginBottom: 14 }}>Genauigkeits-Verlauf</p>
+            <ScoreChart data={chartData} />
+          </div>
+        ) : null
+      })()}
+
       {/* Weekly heatmap */}
       <div className="card" style={{ padding: '20px 24px', marginBottom: 36 }}>
         <p className="font-semibold text-sm" style={{ marginBottom: 16 }}>Aktivität — letzte 4 Wochen</p>
@@ -85,7 +106,7 @@ export default async function ProgressPage() {
       {/* Per-part accuracy */}
       <h2 className="text-lg font-semibold" style={{ marginBottom: 16 }}>{t.progress.accuracyByPart}</h2>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 40 }}>
-        {PART_META.map(({ part, label, desc, color, subtle }) => {
+        {PART_META.map(({ part, label, desc, color, subtle, href }) => {
           const prog = progress.find(p => p.part === part)
           const pct  = prog ? Math.round(prog.accuracy * 100) : null
           return (
@@ -120,7 +141,7 @@ export default async function ProgressPage() {
                 </p>
               )}
               {!prog && (
-                <Link href={`/practice/part${part}`}
+                <Link href={href}
                   className="text-xs font-medium flex items-center gap-1"
                   style={{ color: 'var(--accent)', marginTop: 10 }}>
                   {t.progress.startPracticing} <ChevronRight size={12} />
