@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Flame, Target, Trophy, ChevronRight, Headphones, BookOpen, Mic, PenLine } from 'lucide-react'
 import { computeStreak } from '@/lib/streak'
 import WeeklyHeatmap from '@/components/WeeklyHeatmap'
+import SkillsRadar from '@/components/SkillsRadar'
 
 const SKILLS = [
   { href: '/listening', label: 'Listening', sub: 'Parts 1–4', icon: Headphones, color: '#04FF88', section: 'LISTENING' as const },
@@ -126,6 +127,22 @@ export default async function TestTrainingPage() {
           )
         })}
       </div>
+
+      {/* Skills radar */}
+      {(() => {
+        const radarSkills = SKILLS.map(skill => {
+          const prog = progress.filter(p => p.section === skill.section)
+          const avg  = prog.length ? prog.reduce((s, p) => s + p.accuracy, 0) / prog.length : 0
+          return { label: skill.label, value: avg, color: skill.color }
+        })
+        const hasData = radarSkills.some(s => s.value > 0)
+        return hasData ? (
+          <div className="card" style={{ padding: '20px 24px', marginBottom: 24 }}>
+            <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 16 }}>Skills-Übersicht</p>
+            <SkillsRadar skills={radarSkills} />
+          </div>
+        ) : null
+      })()}
 
       {/* Activity heatmap */}
       <div className="card" style={{ padding: '20px 24px' }}>
