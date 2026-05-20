@@ -57,7 +57,7 @@ export default async function WeakPartsPage() {
   const hasAnyProgress = parts.some(p => p.pct !== null)
 
   return (
-    <div style={{ maxWidth: 720, margin: '0 auto' }}>
+    <div>
       <div style={{ marginBottom: 28 }}>
         <Link href="/dashboard" style={{ fontSize: 12, color: 'var(--muted)', textDecoration: 'none' }}>
           ← Dashboard

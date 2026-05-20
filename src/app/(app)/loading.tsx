@@ -1,6 +1,6 @@
 export default function Loading() {
   return (
-    <div style={{ maxWidth: 900, margin: '0 auto' }}>
+    <div>
       {/* Page header skeleton */}
       <div style={{ marginBottom: 28 }}>
         <div style={{ height: 32, width: 240, borderRadius: 8, background: 'var(--card-border)', marginBottom: 10 }} />
