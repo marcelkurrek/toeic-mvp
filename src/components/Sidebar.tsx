@@ -124,8 +124,6 @@ export default function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
         <NavItem href="/practice/mini-exam" label="Mini-Prüfung" icon={ClipboardList} />
         <NavItem href="/diagnostic" label={t.nav.diagnostic} icon={Zap} />
 
-        <SectionLabel label="Fortschritt" />
-
         <NavItem href="/progress"     label={t.nav.progress}  icon={BarChart2} />
         <NavItem href="/settings"     label="Einstellungen"   icon={Settings} />
 
