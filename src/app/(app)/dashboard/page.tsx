@@ -3,11 +3,13 @@ import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import {
-  BookOpen, Clock, TrendingUp, Headphones, PenLine, Mic,
-  AlertCircle, Zap, ChevronRight, Target, Flame, ArrowRight,
+  BookOpen, TrendingUp, Headphones, PenLine, Mic,
+  Zap, ChevronRight, Target, Flame, ArrowRight, Star,
+  HelpCircle,
 } from 'lucide-react'
 import { getServerTranslations } from '@/lib/i18n/server'
 import { computeStreak } from '@/lib/streak'
+import WeeklyHeatmap from '@/components/WeeklyHeatmap'
 
 type Section = 'LISTENING' | 'READING' | 'SPEAKING' | 'WRITING'
 
@@ -53,6 +55,11 @@ export default async function DashboardPage() {
     ? Math.ceil((new Date(dbUser.examDate).getTime() - Date.now()) / 86400000)
     : null
   const streak         = computeStreak(allSessions.map(s => s.createdAt))
+
+  const totalQuestionsAnswered = (dbUser?.progress ?? []).reduce((sum, p) => sum + (p.sampleSize ?? 0), 0)
+  const allProgress    = [...(dbUser?.progress ?? [])].sort((a, b) => b.accuracy - a.accuracy)
+  const bestPartEntry  = allProgress.length > 0 ? allProgress[0] : null
+  const bestPart       = bestPartEntry ? { part: bestPartEntry.part, pct: Math.round(bestPartEntry.accuracy * 100) } : null
 
   const scoreTarget    = (dbUser as { scoreTarget?: number | null } | null)?.scoreTarget ?? null
   const cefrToScore: Record<string, number> = { A1: 100, A2: 180, B1: 280, B2: 400, C1: 490, C2: 495 }
@@ -137,7 +144,7 @@ export default async function DashboardPage() {
     <div style={{ maxWidth: 860, margin: '0 auto' }}>
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
-      <div style={{ marginBottom: 24 }}>
+      <div style={{ marginBottom: 28 }}>
         <h1 className="text-3xl font-bold" style={{ marginBottom: 4 }}>
           Hallo, {firstName} 👋
         </h1>
@@ -149,26 +156,6 @@ export default async function DashboardPage() {
               : 'Kein Prüfungsdatum gesetzt — in den Einstellungen ändern'}
         </p>
       </div>
-
-      {/* ── Diagnostic banner ──────────────────────────────────────────── */}
-      {!dbUser?.diagnosticDone && (
-        <div style={{
-          padding: '16px 20px', marginBottom: 20, borderRadius: 12,
-          border: '1px solid rgba(251,146,60,0.4)', background: 'rgba(251,146,60,0.07)',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
-        }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
-            <AlertCircle size={16} style={{ color: '#fb923c', flexShrink: 0, marginTop: 2 }} />
-            <p className="text-sm" style={{ lineHeight: 1.5 }}>
-              <span className="font-semibold">Sprachniveau unbekannt</span>
-              <span style={{ color: 'var(--muted)' }}> — Mach den Einstufungstest, damit das System dir den richtigen Inhalt zeigt.</span>
-            </p>
-          </div>
-          <Link href="/diagnostic" className="btn-primary" style={{ whiteSpace: 'nowrap', flexShrink: 0, fontSize: 13 }}>
-            Jetzt einstufen
-          </Link>
-        </div>
-      )}
 
       {/* ── Nächster Schritt (Hero) ─────────────────────────────────────── */}
       <Link href={rec.href} style={{ textDecoration: 'none', display: 'block', marginBottom: 24 }}>
@@ -201,7 +188,7 @@ export default async function DashboardPage() {
         </div>
       </Link>
 
-      {/* ── Aktivität & Status ─────────────────────────────────────────── */}
+      {/* ── Stat Cards ────────────────────────────────────────────────── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
         {[
           {
@@ -212,25 +199,25 @@ export default async function DashboardPage() {
             sub: streak.current > 0 ? `Längste: ${streak.longest}d` : 'Heute starten',
           },
           {
-            icon: <BookOpen size={15} style={{ color: 'var(--accent)' }} />,
-            bg: 'var(--accent-subtle)',
-            label: 'Sitzungen',
-            value: String(totalSessions),
-            sub: totalSessions === 1 ? '1 abgeschlossen' : `${totalSessions} abgeschlossen`,
-          },
-          {
             icon: <TrendingUp size={15} style={{ color: 'var(--success)' }} />,
             bg: 'rgba(74,222,128,0.12)',
-            label: 'Genauigkeit',
+            label: 'Ø Genauigkeit',
             value: avgAccuracy !== null ? `${avgAccuracy}%` : '—',
-            sub: avgAccuracy !== null ? (avgAccuracy >= 75 ? 'Gut!' : 'Weiter üben') : 'Noch keine Daten',
+            sub: avgAccuracy !== null ? (avgAccuracy >= 75 ? 'Sehr gut!' : avgAccuracy >= 60 ? 'Gut' : 'Weiter üben') : 'Noch keine Daten',
           },
           {
-            icon: <Clock size={15} style={{ color: '#a78bfa' }} />,
-            bg: 'rgba(167,139,250,0.12)',
-            label: 'Prüfung',
-            value: daysUntilExam !== null ? (daysUntilExam > 0 ? `${daysUntilExam}d` : '🎓') : '—',
-            sub: daysUntilExam !== null && daysUntilExam > 0 ? 'verbleibend' : daysUntilExam === 0 ? 'Heute!' : 'Kein Datum',
+            icon: <HelpCircle size={15} style={{ color: 'var(--accent)' }} />,
+            bg: 'var(--accent-subtle)',
+            label: 'Fragen beantwortet',
+            value: totalQuestionsAnswered > 0 ? String(totalQuestionsAnswered) : '0',
+            sub: totalQuestionsAnswered === 1 ? '1 Frage' : `${totalQuestionsAnswered} Fragen`,
+          },
+          {
+            icon: <Star size={15} style={{ color: '#fbbf24' }} />,
+            bg: 'rgba(251,191,36,0.12)',
+            label: 'Bester Part',
+            value: bestPart ? `Part ${bestPart.part}` : '—',
+            sub: bestPart ? `${bestPart.pct}% Genauigkeit` : 'Noch keine Daten',
           },
         ].map(({ icon, bg, label, value, sub }) => (
           <div key={label} className="card" style={{ padding: '14px 16px' }}>
@@ -244,6 +231,12 @@ export default async function DashboardPage() {
             <p className="text-xs" style={{ color: 'var(--muted)' }}>{sub}</p>
           </div>
         ))}
+      </div>
+
+      {/* ── Aktivität (Kalender) ───────────────────────────────────────── */}
+      <div className="card" style={{ padding: '16px 20px', marginBottom: 20 }}>
+        <p className="text-sm font-semibold" style={{ marginBottom: 14 }}>Aktivität</p>
+        <WeeklyHeatmap sessionDates={allSessions.map(s => s.createdAt.toISOString())} />
       </div>
 
       {/* ── Sprachniveau (kompakt) ─────────────────────────────────────── */}
