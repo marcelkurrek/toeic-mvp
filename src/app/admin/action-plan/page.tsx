@@ -54,11 +54,18 @@ const TASKS: Task[] = [
   { title: 'Adaptive Fragen-Auswahl', desc: 'Schwierigkeitsgrad automatisch anpassen basierend auf Leistung', status: 'done', priority: 'hoch', category: 'AI' },
   { title: 'AI Study Plan', desc: 'Personalisierter Wochenplan basierend auf CEFR und Prüfungsdatum', status: 'done', priority: 'mittel', category: 'AI' },
 
+  // ── Practice ──────────────────────────────────────────────────────────────
+  { title: 'Mini-Exam (Timed Practice)', desc: 'Prüfungssimulation mit Timer — alle Reading Parts in Folge', status: 'done', priority: 'hoch', category: 'Practice' },
+  { title: 'Achievements / Meilensteine', desc: 'Badges für Streak, Sitzungsanzahl, Genauigkeit', status: 'done', priority: 'mittel', category: 'Practice' },
+  { title: 'Vocabulary Flashcards', desc: 'Wichtige TOEIC-Vokabeln wiederholen (Karteikarten)', status: 'planned', priority: 'mittel', category: 'Practice' },
+
   // ── Infrastructure ────────────────────────────────────────────────────────
   { title: 'Middleware Auth-Schutz', desc: 'Alle App-Routen erfordern Authentifizierung', status: 'done', priority: 'hoch', category: 'Infra' },
   { title: 'Prisma Schema & Migrations', desc: 'Vollständiges Datenmodell für alle Entitäten', status: 'done', priority: 'hoch', category: 'Infra' },
   { title: 'Seed-Daten', desc: 'Fragen-Datenbank initial befüllen', status: 'done', priority: 'hoch', category: 'Infra' },
   { title: 'Rate Limiting', desc: 'API-Endpunkte gegen Missbrauch schützen', status: 'done', priority: 'mittel', category: 'Infra' },
+  { title: 'Loading Skeletons & Error Boundaries', desc: 'Ladezustände und Fehlerseiten für alle Routen', status: 'done', priority: 'mittel', category: 'Infra' },
+  { title: 'Admin: CSV Fragen-Import', desc: 'Bulk-Upload von Fragen via CSV-Datei', status: 'done', priority: 'mittel', category: 'Infra' },
   { title: 'E-Mail-Benachrichtigungen', desc: 'Lern-Erinnerungen und Fortschritts-Reports', status: 'planned', priority: 'niedrig', category: 'Infra' },
 ]
 
@@ -74,7 +81,7 @@ const PRIORITY_COLORS = {
   niedrig: { color: 'var(--muted)', bg: 'var(--card-border)' },
 }
 
-const CATEGORIES = ['Core', 'Dashboard', 'Admin', 'Settings', 'AI', 'Infra']
+const CATEGORIES = ['Core', 'Dashboard', 'Admin', 'Settings', 'AI', 'Practice', 'Infra']
 
 export default async function AdminActionPlanPage() {
   const supabase = await createClient()
