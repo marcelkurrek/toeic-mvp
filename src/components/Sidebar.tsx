@@ -1,11 +1,24 @@
 'use client'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import { LayoutDashboard, BarChart2, LogOut, Info, Zap, Headphones, BookOpen, Mic, PenLine, Settings, CalendarDays, Trophy, ClipboardList, ShieldAlert } from 'lucide-react'
+import {
+  LayoutDashboard, BarChart2, LogOut, Zap,
+  Headphones, BookOpen, Mic, PenLine,
+  Settings, ChevronDown, Layers,
+  ClipboardList, ShieldAlert,
+} from 'lucide-react'
 import { useLang } from '@/lib/i18n/client'
 import LanguageSwitcher from './LanguageSwitcher'
 import ThemeSwitcher from './ThemeSwitcher'
+
+const SKILLS = [
+  { href: '/listening', label: 'Listening', icon: Headphones, color: '#04FF88' },
+  { href: '/reading',   label: 'Reading',   icon: BookOpen,   color: '#D5FD44' },
+  { href: '/speaking',  label: 'Speaking',  icon: Mic,        color: '#fb923c' },
+  { href: '/writing',   label: 'Writing',   icon: PenLine,    color: '#AE00FF' },
+]
 
 function SectionLabel({ label }: { label: string }) {
   return (
@@ -15,7 +28,7 @@ function SectionLabel({ label }: { label: string }) {
       textTransform: 'uppercase',
       fontSize: 9,
       fontWeight: 700,
-      padding: '20px 12px 6px',
+      padding: '18px 12px 5px',
     }}>
       {label}
     </p>
@@ -23,14 +36,14 @@ function SectionLabel({ label }: { label: string }) {
 }
 
 function NavItem({
-  href, label, sub, icon: Icon, exact = false, color,
+  href, label, icon: Icon, exact = false, color, indent = false,
 }: {
   href: string
   label: string
-  sub?: string
   icon: React.ElementType
   exact?: boolean
   color?: string
+  indent?: boolean
 }) {
   const pathname = usePathname()
   const active = exact ? pathname === href : pathname === href || pathname.startsWith(href + '/')
@@ -39,11 +52,10 @@ function NavItem({
   return (
     <Link
       href={href}
-      className="group flex items-center gap-3 rounded-lg transition-all duration-150"
+      className="flex items-center gap-3 rounded-lg transition-all duration-150"
       style={{
-        padding: '9px 10px 9px 10px',
+        padding: indent ? '7px 10px 7px 14px' : '8px 10px',
         marginBottom: '1px',
-        position: 'relative',
         background: active ? `${accentColor}12` : 'transparent',
         color: active ? '#ffffff' : 'var(--muted)',
         textDecoration: 'none',
@@ -51,30 +63,64 @@ function NavItem({
       }}
     >
       <Icon
-        size={15}
-        style={{
-          flexShrink: 0,
-          color: active ? accentColor : 'inherit',
-          transition: 'color 0.15s',
-        }}
+        size={indent ? 13 : 15}
+        style={{ flexShrink: 0, color: active ? accentColor : 'inherit', transition: 'color 0.15s' }}
       />
-      <div style={{ minWidth: 0, flex: 1 }}>
-        <p style={{ fontSize: 13, fontWeight: active ? 600 : 500, lineHeight: 1.3 }}>
-          {label}
-        </p>
-        {sub && (
-          <p style={{
-            fontSize: 10,
-            lineHeight: 1.3,
-            marginTop: 1,
-            color: active ? `${accentColor}99` : 'var(--muted)',
-            opacity: active ? 1 : 0.7,
-          }}>
-            {sub}
-          </p>
-        )}
-      </div>
+      <p style={{ fontSize: indent ? 12 : 13, fontWeight: active ? 600 : 500, lineHeight: 1.3 }}>
+        {label}
+      </p>
     </Link>
+  )
+}
+
+function SkillGroup() {
+  const pathname = usePathname()
+  const isAnyActive = SKILLS.some(s => pathname === s.href || pathname.startsWith(s.href + '/'))
+  const [open, setOpen] = useState(isAnyActive)
+
+  useEffect(() => {
+    if (isAnyActive) setOpen(true)
+  }, [isAnyActive])
+
+  return (
+    <div>
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="flex items-center gap-3 rounded-lg transition-all duration-150"
+        style={{
+          padding: '8px 10px',
+          width: '100%',
+          background: isAnyActive ? 'rgba(255,255,255,0.05)' : 'transparent',
+          border: 'none',
+          borderLeft: isAnyActive ? '3px solid rgba(255,255,255,0.3)' : '3px solid transparent',
+          color: isAnyActive ? '#fff' : 'var(--muted)',
+          cursor: 'pointer',
+          marginBottom: '1px',
+        }}
+      >
+        <Layers size={15} style={{ flexShrink: 0 }} />
+        <span style={{ flex: 1, fontSize: 13, fontWeight: 500, textAlign: 'left' }}>
+          Test Training
+        </span>
+        <ChevronDown
+          size={12}
+          style={{
+            flexShrink: 0,
+            transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
+            transition: 'transform 0.2s',
+            opacity: 0.5,
+          }}
+        />
+      </button>
+
+      {open && (
+        <div style={{ paddingLeft: 8, marginBottom: 2 }}>
+          {SKILLS.map(s => (
+            <NavItem key={s.href} href={s.href} label={s.label} icon={s.icon} color={s.color} indent />
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -92,7 +138,7 @@ export default function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
   return (
     <aside className="flex flex-col shrink-0"
       style={{
-        width: 220,
+        width: 210,
         background: 'var(--card)',
         borderRight: '1px solid var(--card-border)',
         minHeight: '100vh',
@@ -100,14 +146,14 @@ export default function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
       }}>
 
       {/* Brand */}
-      <div style={{ padding: '4px 12px 20px', borderBottom: '1px solid var(--card-border)', marginBottom: 8 }}>
+      <div style={{ padding: '4px 12px 18px', borderBottom: '1px solid var(--card-border)', marginBottom: 6 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <div style={{
-            width: 30, height: 30, borderRadius: 10,
+            width: 28, height: 28, borderRadius: 8,
             background: 'linear-gradient(135deg, var(--accent), #6366f1)',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontWeight: 800, fontSize: 13, color: '#fff',
-            boxShadow: '0 2px 10px rgba(27,82,245,0.35)',
+            fontWeight: 800, fontSize: 12, color: '#fff',
+            boxShadow: '0 2px 8px rgba(27,82,245,0.3)',
             flexShrink: 0,
           }}>T</div>
           <div>
@@ -121,27 +167,21 @@ export default function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
 
         <NavItem href="/dashboard" label={t.nav.dashboard} icon={LayoutDashboard} exact />
 
-        <SectionLabel label={t.nav.sectionPractice} />
+        <SectionLabel label="Vorbereitung" />
 
-        <NavItem href="/listening" label="Listening" sub="Parts 1–4" icon={Headphones} color="#04FF88" />
-        <NavItem href="/reading"   label="Reading"   sub="Parts 5–7" icon={BookOpen}   color="#D5FD44" />
-        <NavItem href="/speaking"  label="Speaking"  sub="Mündlich"  icon={Mic}        color="#fb923c" />
-        <NavItem href="/writing"   label="Writing"   sub="Schriftlich" icon={PenLine}  color="#AE00FF" />
+        <SkillGroup />
+        <NavItem href="/practice/mini-exam" label="Mini-Prüfung" icon={ClipboardList} />
+        <NavItem href="/diagnostic" label={t.nav.diagnostic} icon={Zap} />
 
-        <SectionLabel label={t.nav.sectionInfo} />
+        <SectionLabel label="Fortschritt" />
 
-        <NavItem href="/diagnostic"       label={t.nav.diagnostic} sub={t.nav.diagnosticSub} icon={Zap} />
-        <NavItem href="/progress"         label={t.nav.progress}   icon={BarChart2} />
-        <NavItem href="/study-plan"       label="Lernplan"         sub="Wochenplan"           icon={CalendarDays} />
-        <NavItem href="/achievements"     label="Achievements"     sub="Abzeichen"            icon={Trophy} />
-        <NavItem href="/practice/mini-exam" label="Mini-Prüfung"  sub="15 Min · 11 Fragen"   icon={ClipboardList} />
-        <NavItem href="/guide"            label={t.nav.guide}      icon={Info} />
-        <NavItem href="/settings"         label="Einstellungen"    icon={Settings} />
+        <NavItem href="/progress"     label={t.nav.progress}  icon={BarChart2} />
+        <NavItem href="/settings"     label="Einstellungen"   icon={Settings} />
 
         {isAdmin && (
           <>
             <SectionLabel label="Admin" />
-            <NavItem href="/admin" label="Admin-Bereich" sub="Verwaltung" icon={ShieldAlert} color="#ef4444" exact />
+            <NavItem href="/admin" label="Admin" icon={ShieldAlert} color="#ef4444" exact />
           </>
         )}
 
@@ -157,7 +197,7 @@ export default function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
           onClick={handleSignOut}
           className="flex items-center gap-3 rounded-lg transition-all duration-150"
           style={{
-            padding: '9px 10px',
+            padding: '8px 10px',
             color: 'var(--muted)',
             background: 'none', border: 'none',
             cursor: 'pointer', width: '100%', textAlign: 'left',
