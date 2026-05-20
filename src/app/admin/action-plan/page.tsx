@@ -1,9 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { isAdminEmail } from '@/lib/admin'
-import { CheckCircle2, Circle, Clock, Zap } from 'lucide-react'
+import { CheckCircle2, Circle, Zap, Lightbulb } from 'lucide-react'
 
-type Status = 'done' | 'in-progress' | 'planned'
+type Status = 'done' | 'in-progress' | 'planned' | 'idea'
 type Priority = 'hoch' | 'mittel' | 'niedrig'
 
 interface Task {
@@ -31,16 +31,18 @@ const TASKS: Task[] = [
   { title: 'Streak-Tracking', desc: 'Aktuelle & längste Lernserie berechnen und anzeigen', status: 'done', priority: 'mittel', category: 'Dashboard' },
   { title: 'Wöchentliche Aktivitäts-Heatmap', desc: '7-Tage-Kalender mit täglicher Sitzungsanzahl', status: 'done', priority: 'mittel', category: 'Dashboard' },
   { title: 'Lernziel setzen', desc: 'Ziel-Score eingeben, Fortschritt zum Ziel anzeigen', status: 'done', priority: 'niedrig', category: 'Dashboard' },
+  { title: 'Dashboard Quick-Actions', desc: '3 Schnellzugriff-Cards: Weiter üben, Schwache Parts, Mini-Prüfung', status: 'done', priority: 'mittel', category: 'Dashboard' },
 
   // ── Admin ─────────────────────────────────────────────────────────────────
   { title: 'Admin-Bereich', desc: 'Geschützter Bereich mit ADMIN_EMAILS Env-Variable', status: 'done', priority: 'hoch', category: 'Admin' },
   { title: 'Admin: Nutzer-Übersicht', desc: 'Alle Nutzer mit CEFR, Sitzungen, Prüfungstyp', status: 'done', priority: 'hoch', category: 'Admin' },
   { title: 'Admin: Fragen-Datenbank', desc: 'Aufschlüsselung nach Section und Part', status: 'done', priority: 'hoch', category: 'Admin' },
   { title: 'Admin: Sitzungen', desc: 'Letzte 20 abgeschlossene Sitzungen', status: 'done', priority: 'mittel', category: 'Admin' },
-  { title: 'Admin: Action Plan', desc: 'Diese Seite — Roadmap mit Status-Tracking', status: 'done', priority: 'mittel', category: 'Admin' },
+  { title: 'Admin: Action Plan (Kanban)', desc: 'Diese Seite — Roadmap als Kanban-Board mit Ideen-Spalte', status: 'done', priority: 'mittel', category: 'Admin' },
   { title: 'Admin: Nutzer-Detail', desc: 'Einzelansicht pro Nutzer mit vollständiger History', status: 'done', priority: 'mittel', category: 'Admin' },
   { title: 'Admin: Fragen-Editor', desc: 'Neue Fragen anlegen, bearbeiten, löschen', status: 'done', priority: 'hoch', category: 'Admin' },
   { title: 'Admin: Export (CSV)', desc: 'Nutzer- und Sitzungsdaten als CSV exportieren', status: 'done', priority: 'niedrig', category: 'Admin' },
+  { title: 'Admin: CSV Fragen-Import', desc: 'Bulk-Upload von Fragen via CSV-Datei', status: 'done', priority: 'mittel', category: 'Admin' },
 
   // ── User Settings ─────────────────────────────────────────────────────────
   { title: 'Nutzer-Einstellungen', desc: 'Name, Prüfungstyp und Datum ändern', status: 'done', priority: 'mittel', category: 'Settings' },
@@ -59,7 +61,6 @@ const TASKS: Task[] = [
   { title: 'Achievements / Meilensteine', desc: 'Badges für Streak, Sitzungsanzahl, Genauigkeit', status: 'done', priority: 'mittel', category: 'Practice' },
   { title: 'Vocabulary Flashcards', desc: 'Wichtige TOEIC-Vokabeln wiederholen (Karteikarten)', status: 'done', priority: 'mittel', category: 'Practice' },
   { title: 'Schwache Parts Analyse', desc: '/practice/weak-parts — priorisiert Parts < 60% Genauigkeit', status: 'done', priority: 'mittel', category: 'Practice' },
-  { title: 'Dashboard Quick-Actions', desc: '3 Schnellzugriff-Cards: Weiter üben, Schwache Parts, Mini-Prüfung', status: 'done', priority: 'mittel', category: 'Dashboard' },
 
   // ── Infrastructure ────────────────────────────────────────────────────────
   { title: 'Middleware Auth-Schutz', desc: 'Alle App-Routen erfordern Authentifizierung', status: 'done', priority: 'hoch', category: 'Infra' },
@@ -67,14 +68,26 @@ const TASKS: Task[] = [
   { title: 'Seed-Daten', desc: 'Fragen-Datenbank initial befüllen', status: 'done', priority: 'hoch', category: 'Infra' },
   { title: 'Rate Limiting', desc: 'API-Endpunkte gegen Missbrauch schützen', status: 'done', priority: 'mittel', category: 'Infra' },
   { title: 'Loading Skeletons & Error Boundaries', desc: 'Ladezustände und Fehlerseiten für alle Routen', status: 'done', priority: 'mittel', category: 'Infra' },
-  { title: 'Admin: CSV Fragen-Import', desc: 'Bulk-Upload von Fragen via CSV-Datei', status: 'done', priority: 'mittel', category: 'Infra' },
-  { title: 'E-Mail-Benachrichtigungen', desc: 'Lern-Erinnerungen und Fortschritts-Reports', status: 'planned', priority: 'niedrig', category: 'Infra' },
+
+  // ── Geplant ───────────────────────────────────────────────────────────────
+  { title: 'E-Mail-Benachrichtigungen', desc: 'Lern-Erinnerungen und Fortschritts-Reports via Resend', status: 'planned', priority: 'niedrig', category: 'Infra' },
+
+  // ── Ideen (warten auf Validierung) ────────────────────────────────────────
+  { title: 'Listening Parts 1–4', desc: 'Audio-Player + echte Listening-Fragen für alle 4 Parts; aktuell nur Platzhalter-Seiten', status: 'idea', priority: 'hoch', category: 'Core' },
+  { title: 'Speaking Full Practice', desc: 'Alle 5 Task-Typen (Read Aloud, Describe Picture, Respond, Express Opinion) mit AI-Bewertung', status: 'idea', priority: 'hoch', category: 'Core' },
+  { title: 'TOEIC Score-Schätzer', desc: 'Rechner der aus Übungs-Genauigkeit einen geschätzten TOEIC-Score (0–990) berechnet', status: 'idea', priority: 'mittel', category: 'Dashboard' },
+  { title: 'Streak Freeze', desc: 'Nutzer kann 1× pro Woche einen verpassten Tag "einfrieren" ohne die Streak zu verlieren', status: 'idea', priority: 'niedrig', category: 'Practice' },
+  { title: 'Fortschritts-Report PDF', desc: 'Detaillierter PDF-Export mit CEFR-Verlauf, Genauigkeit pro Part, Achievements', status: 'idea', priority: 'niedrig', category: 'Settings' },
+  { title: 'Spaced-Repetition Vokabeln', desc: 'SM-2-Algorithmus für Flashcards statt zufälliger Reihenfolge — fällige Karten priorisieren', status: 'idea', priority: 'mittel', category: 'Practice' },
+  { title: 'Admin: KPI-Dashboard', desc: 'Tägl. aktive Nutzer, Retention-Kurve, beliebteste Parts — Übersicht für Produktentscheidungen', status: 'idea', priority: 'mittel', category: 'Admin' },
+  { title: 'Onboarding-Tutorial', desc: 'Interaktiver Schritt-für-Schritt-Guide beim ersten Login — zeigt alle Features', status: 'idea', priority: 'niedrig', category: 'Core' },
 ]
 
 const STATUS_CONFIG = {
-  done:        { label: 'Fertig',       icon: CheckCircle2, color: 'var(--success)',  bg: 'rgba(74,222,128,0.12)' },
-  'in-progress': { label: 'In Arbeit',  icon: Zap,          color: '#fbbf24',         bg: 'rgba(251,191,36,0.12)' },
-  planned:     { label: 'Geplant',      icon: Circle,       color: 'var(--muted)',    bg: 'var(--card-border)' },
+  idea:        { label: 'Idee',      icon: Lightbulb,     color: '#a78bfa', bg: 'rgba(167,139,250,0.12)', border: 'rgba(167,139,250,0.3)' },
+  planned:     { label: 'Geplant',   icon: Circle,        color: 'var(--muted)', bg: 'var(--card-border)', border: 'var(--card-border)' },
+  'in-progress': { label: 'In Arbeit', icon: Zap,         color: '#fbbf24', bg: 'rgba(251,191,36,0.12)', border: 'rgba(251,191,36,0.3)' },
+  done:        { label: 'Fertig',    icon: CheckCircle2,  color: 'var(--success)', bg: 'rgba(74,222,128,0.12)', border: 'rgba(74,222,128,0.2)' },
 }
 
 const PRIORITY_COLORS = {
@@ -83,7 +96,39 @@ const PRIORITY_COLORS = {
   niedrig: { color: 'var(--muted)', bg: 'var(--card-border)' },
 }
 
-const CATEGORIES = ['Core', 'Dashboard', 'Admin', 'Settings', 'AI', 'Practice', 'Infra']
+const COLUMNS: { status: Status; label: string; hint?: string }[] = [
+  { status: 'idea',        label: 'Ideen',     hint: 'Vorschläge zur Validierung' },
+  { status: 'planned',     label: 'Geplant',   hint: 'Validiert, noch nicht gestartet' },
+  { status: 'in-progress', label: 'In Arbeit', hint: 'Aktuell in Entwicklung' },
+  { status: 'done',        label: 'Fertig',    hint: 'Implementiert & deployed' },
+]
+
+function TaskCard({ task }: { task: Task }) {
+  const p = PRIORITY_COLORS[task.priority]
+  const s = STATUS_CONFIG[task.status]
+  return (
+    <div style={{
+      background: 'var(--card)',
+      border: `1px solid ${s.border}`,
+      borderRadius: 10,
+      padding: '12px 14px',
+      display: 'flex',
+      flexDirection: 'column',
+      gap: 8,
+    }}>
+      <p className="text-sm font-medium" style={{ lineHeight: 1.4 }}>{task.title}</p>
+      <p className="text-xs" style={{ color: 'var(--muted)', lineHeight: 1.5 }}>{task.desc}</p>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 2 }}>
+        <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 7px', borderRadius: 99, background: p.bg, color: p.color, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          {task.priority}
+        </span>
+        <span style={{ fontSize: 9, fontWeight: 600, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          {task.category}
+        </span>
+      </div>
+    </div>
+  )
+}
 
 export default async function AdminActionPlanPage() {
   const supabase = await createClient()
@@ -93,85 +138,100 @@ export default async function AdminActionPlanPage() {
   const done       = TASKS.filter(t => t.status === 'done').length
   const inProgress = TASKS.filter(t => t.status === 'in-progress').length
   const planned    = TASKS.filter(t => t.status === 'planned').length
-  const total      = TASKS.length
+  const ideas      = TASKS.filter(t => t.status === 'idea').length
+  const total      = TASKS.filter(t => t.status !== 'idea').length
   const pct        = Math.round(done / total * 100)
 
   return (
-    <div style={{ maxWidth: 960, margin: '0 auto' }}>
+    <div style={{ maxWidth: 1400, margin: '0 auto' }}>
       <div style={{ marginBottom: 28 }}>
         <h1 className="text-3xl font-bold" style={{ marginBottom: 6 }}>Action Plan</h1>
-        <p style={{ color: 'var(--muted)', fontSize: 14 }}>Produktroadmap — Implementierungsstand</p>
+        <p style={{ color: 'var(--muted)', fontSize: 14 }}>Produktroadmap als Kanban-Board — Ideen validieren, um sie in die Implementierung zu übernehmen</p>
       </div>
 
       {/* Summary */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 32 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 12, marginBottom: 24 }}>
         {[
-          { label: 'Gesamt', value: total, color: 'var(--accent)', bg: 'var(--accent-subtle)' },
-          { label: 'Fertig', value: done, color: 'var(--success)', bg: 'rgba(74,222,128,0.12)' },
-          { label: 'In Arbeit', value: inProgress, color: '#fbbf24', bg: 'rgba(251,191,36,0.12)' },
+          { label: 'Ideen', value: ideas, color: '#a78bfa', bg: 'rgba(167,139,250,0.1)' },
           { label: 'Geplant', value: planned, color: 'var(--muted)', bg: 'var(--card-border)' },
+          { label: 'In Arbeit', value: inProgress, color: '#fbbf24', bg: 'rgba(251,191,36,0.1)' },
+          { label: 'Fertig', value: done, color: 'var(--success)', bg: 'rgba(74,222,128,0.1)' },
+          { label: 'Fortschritt', value: `${pct}%`, color: 'var(--accent)', bg: 'var(--accent-subtle)' },
         ].map(({ label, value, color, bg }) => (
-          <div key={label} className="card" style={{ padding: '18px 20px' }}>
-            <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color, marginBottom: 8 }}>{label}</p>
-            <p className="text-3xl font-bold">{value}</p>
+          <div key={label} className="card" style={{ padding: '14px 18px' }}>
+            <p style={{ fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color, marginBottom: 6 }}>{label}</p>
+            <p className="text-2xl font-bold">{value}</p>
           </div>
         ))}
       </div>
 
       {/* Progress bar */}
-      <div className="card" style={{ padding: '20px 24px', marginBottom: 36 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-          <p className="font-semibold text-sm">Gesamtfortschritt</p>
-          <p className="font-bold text-xl" style={{ color: 'var(--success)' }}>{pct}%</p>
+      <div className="card" style={{ padding: '14px 20px', marginBottom: 32 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+          <p className="text-sm font-semibold">Implementierungsfortschritt</p>
+          <p className="font-bold" style={{ color: 'var(--success)' }}>{done} / {total} Features</p>
         </div>
-        <div style={{ height: 10, borderRadius: 99, background: 'var(--card-border)', overflow: 'hidden' }}>
-          <div style={{ height: '100%', borderRadius: 99, background: 'var(--success)', width: `${pct}%`, transition: 'width 0.5s' }} />
+        <div style={{ height: 8, borderRadius: 99, background: 'var(--card-border)', overflow: 'hidden' }}>
+          <div style={{ height: '100%', borderRadius: 99, background: 'var(--success)', width: `${pct}%` }} />
         </div>
-        <p className="text-xs" style={{ color: 'var(--muted)', marginTop: 8 }}>{done} von {total} Features implementiert</p>
       </div>
 
-      {/* Tasks by category */}
-      {CATEGORIES.map(category => {
-        const tasks = TASKS.filter(t => t.category === category)
-        if (tasks.length === 0) return null
-        const catDone = tasks.filter(t => t.status === 'done').length
-        return (
-          <div key={category} style={{ marginBottom: 32 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-              <h2 className="text-base font-semibold">{category}</h2>
-              <span style={{ fontSize: 11, color: 'var(--muted)' }}>{catDone}/{tasks.length} fertig</span>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {tasks.map(task => {
-                const s = STATUS_CONFIG[task.status]
-                const p = PRIORITY_COLORS[task.priority]
-                const Icon = s.icon
-                return (
-                  <div key={task.title} className="card" style={{
-                    padding: '14px 18px',
-                    display: 'flex', alignItems: 'center', gap: 14,
-                    opacity: task.status === 'planned' ? 0.7 : 1,
-                  }}>
-                    <Icon size={18} style={{ color: s.color, flexShrink: 0 }} />
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <p className="font-medium text-sm" style={{ marginBottom: 2 }}>{task.title}</p>
-                      <p className="text-xs" style={{ color: 'var(--muted)' }}>{task.desc}</p>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-                      <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 99, background: p.bg, color: p.color, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                        {task.priority}
-                      </span>
-                      <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 99, background: s.bg, color: s.color, textTransform: 'uppercase', letterSpacing: '0.04em', whiteSpace: 'nowrap' }}>
-                        {s.label}
-                      </span>
-                    </div>
+      {/* Kanban Board */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, alignItems: 'start' }}>
+        {COLUMNS.map(col => {
+          const tasks = TASKS.filter(t => t.status === col.status)
+          const s = STATUS_CONFIG[col.status]
+          const Icon = s.icon
+          return (
+            <div key={col.status}>
+              {/* Column header */}
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12,
+                padding: '10px 14px', borderRadius: 10,
+                background: s.bg, border: `1px solid ${s.border}`,
+              }}>
+                <Icon size={14} style={{ color: s.color, flexShrink: 0 }} />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p className="text-sm font-semibold" style={{ color: s.color }}>{col.label}</p>
+                  {col.hint && <p style={{ fontSize: 10, color: 'var(--muted)', marginTop: 1 }}>{col.hint}</p>}
+                </div>
+                <span style={{
+                  fontSize: 11, fontWeight: 700, minWidth: 22, height: 22,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  borderRadius: 99, background: s.bg, color: s.color,
+                  border: `1px solid ${s.border}`,
+                }}>
+                  {tasks.length}
+                </span>
+              </div>
+
+              {/* Cards */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {tasks.length === 0 ? (
+                  <div style={{ padding: '20px 14px', textAlign: 'center', borderRadius: 10, border: '1px dashed var(--card-border)' }}>
+                    <p style={{ fontSize: 12, color: 'var(--muted)' }}>Leer</p>
                   </div>
-                )
-              })}
+                ) : (
+                  tasks.map(task => <TaskCard key={task.title} task={task} />)
+                )}
+              </div>
             </div>
-          </div>
-        )
-      })}
+          )
+        })}
+      </div>
+
+      {/* Idea validation hint */}
+      <div style={{ marginTop: 32, padding: '16px 20px', borderRadius: 12, background: 'rgba(167,139,250,0.07)', border: '1px solid rgba(167,139,250,0.25)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+          <Lightbulb size={15} style={{ color: '#a78bfa' }} />
+          <p className="text-sm font-semibold" style={{ color: '#a78bfa' }}>Ideen validieren</p>
+        </div>
+        <p className="text-xs" style={{ color: 'var(--muted)', lineHeight: 1.7 }}>
+          Ideen in der linken Spalte sind Vorschläge von Claude. Um eine Idee zu implementieren, sage einfach
+          &ldquo;Implementiere <em>[Feature-Name]</em>&rdquo; — Claude plant und setzt es automatisch um.
+          Um den Status einer Idee auf &ldquo;Geplant&rdquo; oder &ldquo;In Arbeit&rdquo; zu ändern, genügt eine kurze Nachricht.
+        </p>
+      </div>
     </div>
   )
 }
