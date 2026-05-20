@@ -16,6 +16,12 @@ Der User arbeitet mit einem GitHub Codespace, das den Dev-Server auf Port 3000 a
 PAT="<token>" && git remote set-url origin "https://${PAT}@github.com/marcelkurrek/toeic-mvp.git" && git push origin main && git remote set-url origin "https://github.com/marcelkurrek/toeic-mvp.git"
 ```
 
+**Wenn Änderungen nicht sichtbar sind — Diagnose:**
+1. Codespace ist auf falschem Branch → `git checkout main && rm -rf .next && git pull origin main && npm run dev`
+2. `.next` Cache blockiert Pull → zuerst `rm -rf .next`
+3. `.env.local` fehlt nach Pull → neu anlegen (nie in git tracken)
+4. Dev-Server läuft auf anderem Port → Port aus Terminal-Output nehmen (3001–3006)
+
 ## Projekt-Kontext
 
 - **Stack:** Next.js 14 App Router, Prisma, Supabase Auth, TypeScript
