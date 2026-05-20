@@ -62,12 +62,26 @@ export default async function DashboardPage() {
   const bestPart       = bestPartEntry ? { part: bestPartEntry.part, pct: Math.round(bestPartEntry.accuracy * 100) } : null
 
   const scoreTarget    = (dbUser as { scoreTarget?: number | null } | null)?.scoreTarget ?? null
-  const cefrToScore: Record<string, number> = { A1: 100, A2: 180, B1: 280, B2: 400, C1: 490, C2: 495 }
   const levels         = dbUser?.levels ?? []
-  const estimatedScore = levels.length
-    ? levels.reduce((sum, l) => sum + (cefrToScore[l.cefr] ?? 0), 0)
+
+  // L+R score estimation from accuracy per section (5–495 each, total 10–990)
+  const listeningParts = [1, 2, 3, 4]
+  const readingParts   = [5, 6, 7]
+  const listeningProgress = (dbUser?.progress ?? []).filter(p => listeningParts.includes(p.part))
+  const readingProgress   = (dbUser?.progress ?? []).filter(p => readingParts.includes(p.part))
+  const listeningAccuracy = listeningProgress.length
+    ? listeningProgress.reduce((s, p) => s + p.accuracy, 0) / listeningProgress.length
     : null
-  const goalPct        = scoreTarget && estimatedScore !== null
+  const readingAccuracy = readingProgress.length
+    ? readingProgress.reduce((s, p) => s + p.accuracy, 0) / readingProgress.length
+    : null
+  const lScore = listeningAccuracy !== null ? Math.round(5 + listeningAccuracy * 490) : null
+  const rScore = readingAccuracy   !== null ? Math.round(5 + readingAccuracy   * 490) : null
+  const estimatedScore = lScore !== null && rScore !== null
+    ? lScore + rScore
+    : lScore ?? rScore ?? null
+
+  const goalPct = scoreTarget && estimatedScore !== null
     ? Math.min(100, Math.round(estimatedScore / scoreTarget * 100))
     : null
 
@@ -351,35 +365,66 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* ── Lernziel ───────────────────────────────────────────────────── */}
-      {scoreTarget && (
+      {/* ── Geschätzter TOEIC-Score L+R ───────────────────────────────── */}
+      {(lScore !== null || rScore !== null || scoreTarget) && (
         <div className="card" style={{ padding: '16px 20px', marginBottom: 20 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <Target size={14} style={{ color: '#fbbf24' }} />
-              <p className="text-sm font-semibold">Lernziel: {scoreTarget} Punkte</p>
+              <p className="text-sm font-semibold">Geschätzter TOEIC-Score</p>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              {goalPct !== null && (
-                <span className="font-bold text-sm" style={{ color: goalPct >= 100 ? 'var(--success)' : '#fbbf24' }}>
-                  {goalPct}%
-                </span>
+            <Link href="/settings" style={{ fontSize: 11, color: 'var(--muted)' }}>Ziel ändern</Link>
+          </div>
+
+          {/* L + R score tiles */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 12 }}>
+            {[
+              { label: 'Listening (L)', score: lScore, color: '#04FF88', max: 495 },
+              { label: 'Reading (R)',   score: rScore, color: '#D5FD44', max: 495 },
+              { label: 'Gesamt',        score: estimatedScore, color: '#fbbf24', max: 990, bold: true },
+            ].map(({ label, score, color, max, bold }) => (
+              <div key={label} style={{
+                padding: '12px 14px', borderRadius: 12,
+                background: score !== null ? `${color}12` : 'var(--card-border)',
+                border: `1px solid ${score !== null ? `${color}30` : 'transparent'}`,
+                textAlign: 'center',
+              }}>
+                <p style={{ fontSize: 10, fontWeight: 600, color: 'var(--muted)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</p>
+                <p style={{ fontSize: bold ? 22 : 20, fontWeight: 800, color: score !== null ? color : 'var(--muted)' }}>
+                  {score !== null ? score : '—'}
+                </p>
+                <p style={{ fontSize: 10, color: 'var(--muted)' }}>/ {max}</p>
+              </div>
+            ))}
+          </div>
+
+          {scoreTarget && (
+            <>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                <p style={{ fontSize: 12, color: 'var(--muted)' }}>Ziel: {scoreTarget} Punkte</p>
+                {goalPct !== null && (
+                  <span style={{ fontSize: 12, fontWeight: 700, color: goalPct >= 100 ? 'var(--success)' : '#fbbf24' }}>
+                    {goalPct}%
+                  </span>
+                )}
+              </div>
+              <div style={{ height: 6, borderRadius: 99, background: 'var(--card-border)', overflow: 'hidden' }}>
+                <div style={{
+                  height: '100%', borderRadius: 99,
+                  background: goalPct !== null && goalPct >= 100 ? 'var(--success)' : 'linear-gradient(90deg,#fbbf24,#f59e0b)',
+                  width: `${goalPct ?? 0}%`, transition: 'width 0.5s',
+                }} />
+              </div>
+              {estimatedScore !== null && scoreTarget > estimatedScore && (
+                <p className="text-xs" style={{ color: 'var(--muted)', marginTop: 6 }}>
+                  Noch {scoreTarget - estimatedScore} Punkte bis zum Ziel
+                </p>
               )}
-              <Link href="/settings" style={{ fontSize: 11, color: 'var(--muted)' }}>ändern</Link>
-            </div>
-          </div>
-          <div style={{ height: 6, borderRadius: 99, background: 'var(--card-border)', overflow: 'hidden' }}>
-            <div style={{
-              height: '100%', borderRadius: 99,
-              background: goalPct !== null && goalPct >= 100 ? 'var(--success)' : 'linear-gradient(90deg,#fbbf24,#f59e0b)',
-              width: `${goalPct ?? 0}%`, transition: 'width 0.5s',
-            }} />
-          </div>
-          {estimatedScore !== null && scoreTarget > estimatedScore && (
-            <p className="text-xs" style={{ color: 'var(--muted)', marginTop: 6 }}>
-              Geschätzter Score: {estimatedScore} · noch {scoreTarget - estimatedScore} Punkte bis zum Ziel
-            </p>
+            </>
           )}
+          <p style={{ fontSize: 10, color: 'var(--muted)', marginTop: 8, fontStyle: 'italic' }}>
+            Schätzung basiert auf deiner Übungsgenauigkeit. Echter TOEIC-Score erfordert offizielle Prüfung.
+          </p>
         </div>
       )}
 

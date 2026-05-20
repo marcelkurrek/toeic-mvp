@@ -233,15 +233,36 @@ function QuestionCard({ question, opts, letters, selected, submitted, correctLet
   isLast: boolean
   t: { passage: string; explanation: string; correct: string; incorrect: string; submitBtn: string; nextBtn: string; resultsBtn: string }
 }) {
-  const content = question.content as { question: string; passage?: string }
+  const content = question.content as {
+    question: string
+    passage?: string
+    passages?: { title?: string; label?: string; text: string }[]
+  }
+  const [activePassage, setActivePassage] = useState(0)
+  const passages = content.passages?.map((p, i) => ({ label: p.title ?? p.label ?? `Dokument ${i + 1}`, text: p.text }))
+    ?? (content.passage ? [{ label: 'Text', text: content.passage }] : [])
 
   return (
     <div className="card" style={{ padding: '28px 28px 24px' }}>
-      {content.passage && (
-        <div className="rounded-lg text-sm leading-relaxed"
-          style={{ background: 'var(--background)', borderLeft: '3px solid var(--accent)', color: 'var(--foreground)', padding: '16px 18px', marginBottom: 22 }}>
-          <p className="text-xs font-medium" style={{ color: 'var(--muted)', marginBottom: 8 }}>{t.passage}</p>
-          <p className="whitespace-pre-wrap">{content.passage}</p>
+      {passages.length > 0 && (
+        <div style={{ marginBottom: 22 }}>
+          {passages.length > 1 && (
+            <div style={{ display: 'flex', gap: 6, marginBottom: 10, flexWrap: 'wrap' }}>
+              {passages.map((p, i) => (
+                <button key={i} onClick={() => setActivePassage(i)} style={{
+                  fontSize: 11, fontWeight: 600, padding: '4px 12px', borderRadius: 99, border: '1.5px solid',
+                  borderColor: activePassage === i ? 'var(--accent)' : 'var(--card-border)',
+                  background: activePassage === i ? 'var(--accent-subtle)' : 'transparent',
+                  color: activePassage === i ? 'var(--accent)' : 'var(--muted)', cursor: 'pointer',
+                }}>{p.label}</button>
+              ))}
+            </div>
+          )}
+          <div className="rounded-lg text-sm leading-relaxed"
+            style={{ background: 'var(--background)', borderLeft: '3px solid var(--accent)', color: 'var(--foreground)', padding: '16px 18px' }}>
+            {passages.length === 1 && <p className="text-xs font-medium" style={{ color: 'var(--muted)', marginBottom: 8 }}>{t.passage}</p>}
+            <p className="whitespace-pre-wrap">{passages[activePassage]?.text}</p>
+          </div>
         </div>
       )}
 
