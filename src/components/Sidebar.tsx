@@ -1,13 +1,11 @@
 'use client'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import {
   LayoutDashboard, BarChart2, LogOut, Zap,
   Headphones, BookOpen, Mic, PenLine,
-  Settings, ChevronDown, Layers,
-  ClipboardList, ShieldAlert,
+  Settings, ClipboardList, ShieldAlert,
 } from 'lucide-react'
 import { useLang } from '@/lib/i18n/client'
 import LanguageSwitcher from './LanguageSwitcher'
@@ -36,14 +34,13 @@ function SectionLabel({ label }: { label: string }) {
 }
 
 function NavItem({
-  href, label, icon: Icon, exact = false, color, indent = false,
+  href, label, icon: Icon, exact = false, color,
 }: {
   href: string
   label: string
   icon: React.ElementType
   exact?: boolean
   color?: string
-  indent?: boolean
 }) {
   const pathname = usePathname()
   const active = exact ? pathname === href : pathname === href || pathname.startsWith(href + '/')
@@ -54,7 +51,7 @@ function NavItem({
       href={href}
       className="flex items-center gap-3 rounded-lg transition-all duration-150"
       style={{
-        padding: indent ? '7px 10px 7px 14px' : '8px 10px',
+        padding: '8px 10px',
         marginBottom: '1px',
         background: active ? `${accentColor}12` : 'transparent',
         color: active ? '#ffffff' : 'var(--muted)',
@@ -63,64 +60,13 @@ function NavItem({
       }}
     >
       <Icon
-        size={indent ? 13 : 15}
+        size={15}
         style={{ flexShrink: 0, color: active ? accentColor : 'inherit', transition: 'color 0.15s' }}
       />
-      <p style={{ fontSize: indent ? 12 : 13, fontWeight: active ? 600 : 500, lineHeight: 1.3 }}>
+      <p style={{ fontSize: 13, fontWeight: active ? 600 : 500, lineHeight: 1.3 }}>
         {label}
       </p>
     </Link>
-  )
-}
-
-function SkillGroup() {
-  const pathname = usePathname()
-  const isAnyActive = SKILLS.some(s => pathname === s.href || pathname.startsWith(s.href + '/'))
-  const [open, setOpen] = useState(isAnyActive)
-
-  useEffect(() => {
-    if (isAnyActive) setOpen(true)
-  }, [isAnyActive])
-
-  return (
-    <div>
-      <button
-        onClick={() => setOpen(o => !o)}
-        className="flex items-center gap-3 rounded-lg transition-all duration-150"
-        style={{
-          padding: '8px 10px',
-          width: '100%',
-          background: isAnyActive ? 'rgba(255,255,255,0.05)' : 'transparent',
-          border: 'none',
-          borderLeft: isAnyActive ? '3px solid rgba(255,255,255,0.3)' : '3px solid transparent',
-          color: isAnyActive ? '#fff' : 'var(--muted)',
-          cursor: 'pointer',
-          marginBottom: '1px',
-        }}
-      >
-        <Layers size={15} style={{ flexShrink: 0 }} />
-        <span style={{ flex: 1, fontSize: 13, fontWeight: 500, textAlign: 'left' }}>
-          Test Training
-        </span>
-        <ChevronDown
-          size={12}
-          style={{
-            flexShrink: 0,
-            transform: open ? 'rotate(180deg)' : 'rotate(0deg)',
-            transition: 'transform 0.2s',
-            opacity: 0.5,
-          }}
-        />
-      </button>
-
-      {open && (
-        <div style={{ paddingLeft: 8, marginBottom: 2 }}>
-          {SKILLS.map(s => (
-            <NavItem key={s.href} href={s.href} label={s.label} icon={s.icon} color={s.color} indent />
-          ))}
-        </div>
-      )}
-    </div>
   )
 }
 
@@ -167,9 +113,14 @@ export default function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
 
         <NavItem href="/dashboard" label={t.nav.dashboard} icon={LayoutDashboard} exact />
 
-        <SectionLabel label="Vorbereitung" />
+        <SectionLabel label="Test Training" />
 
-        <SkillGroup />
+        {SKILLS.map(s => (
+          <NavItem key={s.href} href={s.href} label={s.label} icon={s.icon} color={s.color} />
+        ))}
+
+        <SectionLabel label="Prüfung" />
+
         <NavItem href="/practice/mini-exam" label="Mini-Prüfung" icon={ClipboardList} />
         <NavItem href="/diagnostic" label={t.nav.diagnostic} icon={Zap} />
 
