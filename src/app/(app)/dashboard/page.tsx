@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import {
   BookOpen, Clock, TrendingUp, Headphones, PenLine, Mic,
-  AlertCircle, Zap, ChevronRight, Sparkles, FileEdit, Target, Flame,
+  AlertCircle, Zap, ChevronRight, Target, Flame, ArrowRight,
 } from 'lucide-react'
 import { getServerTranslations } from '@/lib/i18n/server'
 import { computeStreak } from '@/lib/streak'
@@ -17,22 +17,17 @@ const SECTION_COLORS: Record<Section, string> = {
   SPEAKING:  '#fb923c',
   WRITING:   '#a78bfa',
 }
-const SECTION_SUBTLES: Record<Section, string> = {
-  LISTENING: 'rgba(34,211,238,0.12)',
-  READING:   'rgba(74,222,128,0.12)',
-  SPEAKING:  'rgba(251,146,60,0.12)',
-  WRITING:   'rgba(167,139,250,0.12)',
-}
+
 const CEFR_COLORS: Record<string, string> = {
   A1: '#f87171', A2: '#fb923c', B1: '#fbbf24',
   B2: '#4ade80', C1: '#22d3ee', C2: '#a78bfa',
 }
 
-const PART_META = [
-  { part: 5 as const, href: '/practice/part5', icon: Sparkles, color: '#22d3ee', subtle: 'rgba(34,211,238,0.12)' },
-  { part: 6 as const, href: '/practice/part6', icon: FileEdit,  color: '#4ade80', subtle: 'rgba(74,222,128,0.12)' },
-  { part: 7 as const, href: '/practice/part7', icon: BookOpen,  color: '#fb923c', subtle: 'rgba(251,146,60,0.12)' },
-]
+const PART_HREFS: Record<number, string> = {
+  5: '/practice/part5',
+  6: '/practice/part6',
+  7: '/practice/part7',
+}
 
 export default async function DashboardPage() {
   const t = await getServerTranslations()
@@ -49,504 +44,329 @@ export default async function DashboardPage() {
     },
   })
 
-  const totalSessions = dbUser?.sessions.length ?? 0
-  const avgAccuracy   = dbUser?.progress.length
+  const allSessions    = await prisma.session.findMany({ where: { userId: dbUser?.id ?? '' }, orderBy: { createdAt: 'desc' }, select: { createdAt: true } })
+  const totalSessions  = dbUser?.sessions.length ?? 0
+  const avgAccuracy    = dbUser?.progress.length
     ? Math.round(dbUser.progress.reduce((s, p) => s + p.accuracy, 0) / dbUser.progress.length * 100)
     : null
-  const daysUntilExam = dbUser?.examDate
+  const daysUntilExam  = dbUser?.examDate
     ? Math.ceil((new Date(dbUser.examDate).getTime() - Date.now()) / 86400000)
     : null
-  const streak = computeStreak((dbUser?.sessions ?? []).map(s => s.createdAt))
+  const streak         = computeStreak(allSessions.map(s => s.createdAt))
 
-  // ── Goal progress ──────────────────────────────────────────────────────────
-  const scoreTarget = (dbUser as { scoreTarget?: number | null } | null)?.scoreTarget ?? null
+  const scoreTarget    = (dbUser as { scoreTarget?: number | null } | null)?.scoreTarget ?? null
   const cefrToScore: Record<string, number> = { A1: 100, A2: 180, B1: 280, B2: 400, C1: 490, C2: 495 }
-  const levels = dbUser?.levels ?? []
+  const levels         = dbUser?.levels ?? []
   const estimatedScore = levels.length
     ? levels.reduce((sum, l) => sum + (cefrToScore[l.cefr] ?? 0), 0)
     : null
-  const goalPct = scoreTarget && estimatedScore !== null
+  const goalPct        = scoreTarget && estimatedScore !== null
     ? Math.min(100, Math.round(estimatedScore / scoreTarget * 100))
     : null
 
-  const examType = dbUser?.examType ?? null
+  const examType       = dbUser?.examType ?? null
   const relevantSections: Section[] = examType === 'LISTENING_READING'
     ? ['LISTENING', 'READING']
     : examType === 'SPEAKING_WRITING'
       ? ['SPEAKING', 'WRITING']
       : ['LISTENING', 'READING', 'SPEAKING', 'WRITING']
 
-  const levelMap  = Object.fromEntries((dbUser?.levels ?? []).map(l => [l.section, l]))
+  const levelMap   = Object.fromEntries((dbUser?.levels   ?? []).map(l => [l.section, l]))
   const progByPart = Object.fromEntries((dbUser?.progress ?? []).map(p => [p.part, p]))
 
   // ── Smart recommendation ──────────────────────────────────────────────────
-  type Rec = {
-    href: string
-    label: string
-    partLabel: string
-    reason: string
-    accuracy: number | null
-    cta: string
-    color: string
-  }
-
-  let recommendation: Rec | null = null
+  type Rec = { href: string; title: string; reason: string; color: string; cta: string; badge?: string }
+  let rec: Rec
 
   if (!dbUser?.diagnosticDone) {
-    recommendation = {
-      href: '/diagnostic',
-      label: t.dashboard.recommendation.ctaDiagnostic,
-      partLabel: t.nav.diagnostic,
-      reason: t.dashboard.recommendation.doDiagnostic,
-      accuracy: null,
-      cta: t.dashboard.recommendation.ctaDiagnostic,
-      color: '#fb923c',
+    rec = {
+      href:   '/diagnostic',
+      title:  'Einstufungstest starten',
+      reason: 'Dein Sprachniveau ist noch unbekannt. Der 10-minütige Test legt den Grundstein für deinen personalisierten Lernplan.',
+      color:  '#fb923c',
+      cta:    'Jetzt einstufen',
     }
   } else {
     const practicedParts = ([5, 6, 7] as const).filter(p => progByPart[p])
+
     if (practicedParts.length === 0) {
-      recommendation = {
-        href: '/practice/part5',
-        label: t.dashboard.parts[5].label,
-        partLabel: t.dashboard.parts[5].part,
-        reason: t.dashboard.recommendation.startFirst,
-        accuracy: null,
-        cta: t.dashboard.recommendation.ctaPractice,
-        color: '#22d3ee',
+      rec = {
+        href:   '/practice/part5',
+        title:  'Erste Übung starten',
+        reason: 'Du hast noch keine Reading-Übungen abgeschlossen. Starte mit Part 5 — Grammatik & Wortschatz.',
+        color:  '#22d3ee',
+        cta:    'Part 5 starten',
       }
     } else {
-      const weakest = [...practicedParts].sort(
-        (a, b) => (progByPart[a]?.accuracy ?? 0) - (progByPart[b]?.accuracy ?? 0)
-      )[0]
-      const meta = PART_META.find(m => m.part === weakest)!
-      recommendation = {
-        href: meta.href,
-        label: t.dashboard.parts[weakest].label,
-        partLabel: t.dashboard.parts[weakest].part,
-        reason: practicedParts.every(p => (progByPart[p]?.accuracy ?? 0) >= 0.80)
-          ? t.dashboard.recommendation.keepGoing
-          : t.dashboard.recommendation.weakest,
-        accuracy: progByPart[weakest] ? Math.round(progByPart[weakest].accuracy * 100) : null,
-        cta: t.dashboard.recommendation.ctaPractice,
-        color: meta.color,
+      const allStrong = practicedParts.every(p => (progByPart[p]?.accuracy ?? 0) >= 0.80)
+
+      if (allStrong) {
+        rec = {
+          href:   '/practice/mini-exam',
+          title:  'Mini-Prüfung — du bist bereit',
+          reason: 'Alle geübten Parts liegen über 80% Genauigkeit. Teste dich unter echten Prüfungsbedingungen.',
+          color:  '#a78bfa',
+          cta:    'Mini-Prüfung starten',
+          badge:  '🎯 Stark!',
+        }
+      } else {
+        const weakest = [...practicedParts].sort(
+          (a, b) => (progByPart[a]?.accuracy ?? 0) - (progByPart[b]?.accuracy ?? 0)
+        )[0]
+        const pct  = Math.round((progByPart[weakest]?.accuracy ?? 0) * 100)
+        const href = PART_HREFS[weakest]
+        const names: Record<number, string> = { 5: 'Part 5 · Grammatik & Wortschatz', 6: 'Part 6 · Textergänzung', 7: 'Part 7 · Leseverständnis' }
+        rec = {
+          href,
+          title:  names[weakest] ?? `Part ${weakest} üben`,
+          reason: `Dein schwächster Bereich liegt bei ${pct}% Genauigkeit. Gezieltes Training hier bringt dich am schnellsten voran.`,
+          color:  pct < 60 ? '#ef4444' : '#fbbf24',
+          cta:    'Jetzt üben',
+          badge:  `${pct}%`,
+        }
       }
     }
   }
 
   const firstName = dbUser?.name?.split(' ')[0] ?? user.email?.split('@')[0] ?? ''
 
+  const SectionIcon = (s: Section) =>
+    s === 'LISTENING' ? Headphones : s === 'WRITING' ? PenLine : s === 'SPEAKING' ? Mic : BookOpen
+
   return (
-    <div style={{ maxWidth: 900, margin: '0 auto' }}>
+    <div style={{ maxWidth: 860, margin: '0 auto' }}>
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
-      <div style={{ marginBottom: 28 }}>
-        <h1 className="text-3xl font-bold" style={{ marginBottom: 6 }}>
-          {t.dashboard.greeting}, {firstName} 👋
+      <div style={{ marginBottom: 24 }}>
+        <h1 className="text-3xl font-bold" style={{ marginBottom: 4 }}>
+          Hallo, {firstName} 👋
         </h1>
         <p style={{ color: 'var(--muted)', fontSize: 14 }}>
           {daysUntilExam !== null && daysUntilExam > 0
-            ? `${t.dashboard.stats.daysToExam}: noch ${daysUntilExam} Tage`
+            ? `Noch ${daysUntilExam} Tage bis zur Prüfung`
             : daysUntilExam === 0
-              ? t.dashboard.stats.examToday
-              : t.dashboard.readyToPractice}
+              ? '🎓 Prüfungstag!'
+              : 'Kein Prüfungsdatum gesetzt — in den Einstellungen ändern'}
         </p>
       </div>
 
       {/* ── Diagnostic banner ──────────────────────────────────────────── */}
       {!dbUser?.diagnosticDone && (
         <div style={{
-          padding: '18px 22px', marginBottom: 24, borderRadius: 12,
-          border: '1px solid rgba(251,146,60,0.4)',
-          background: 'rgba(251,146,60,0.07)',
+          padding: '16px 20px', marginBottom: 20, borderRadius: 12,
+          border: '1px solid rgba(251,146,60,0.4)', background: 'rgba(251,146,60,0.07)',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16,
         }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-            <AlertCircle size={18} style={{ color: '#fb923c', flexShrink: 0, marginTop: 2 }} />
-            <div>
-              <p className="font-semibold text-sm" style={{ marginBottom: 3 }}>{t.dashboard.diagnosticBanner.title}</p>
-              <p className="text-sm" style={{ color: 'var(--muted)', lineHeight: 1.5 }}>{t.dashboard.diagnosticBanner.desc}</p>
-            </div>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+            <AlertCircle size={16} style={{ color: '#fb923c', flexShrink: 0, marginTop: 2 }} />
+            <p className="text-sm" style={{ lineHeight: 1.5 }}>
+              <span className="font-semibold">Sprachniveau unbekannt</span>
+              <span style={{ color: 'var(--muted)' }}> — Mach den Einstufungstest, damit das System dir den richtigen Inhalt zeigt.</span>
+            </p>
           </div>
           <Link href="/diagnostic" className="btn-primary" style={{ whiteSpace: 'nowrap', flexShrink: 0, fontSize: 13 }}>
-            {t.dashboard.diagnosticBanner.cta}
+            Jetzt einstufen
           </Link>
         </div>
       )}
 
-      {/* ── TODAY'S RECOMMENDATION ─────────────────────────────────────── */}
-      {recommendation && (
-        <Link href={recommendation.href} style={{ textDecoration: 'none', display: 'block', marginBottom: 28 }}>
-          <div style={{
-            padding: '22px 26px',
-            borderRadius: 14,
-            background: `linear-gradient(135deg, ${recommendation.color}18 0%, ${recommendation.color}08 100%)`,
-            border: `1px solid ${recommendation.color}35`,
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20,
-            transition: 'border-color 0.15s',
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-              <div style={{
-                width: 48, height: 48, borderRadius: 12, flexShrink: 0,
-                background: `${recommendation.color}20`,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
+      {/* ── Nächster Schritt (Hero) ─────────────────────────────────────── */}
+      <Link href={rec.href} style={{ textDecoration: 'none', display: 'block', marginBottom: 24 }}>
+        <div style={{
+          padding: '24px 28px', borderRadius: 16,
+          background: `linear-gradient(135deg, ${rec.color}18 0%, ${rec.color}06 100%)`,
+          border: `1.5px solid ${rec.color}40`,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20,
+        }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: rec.color, marginBottom: 6 }}>
+              Nächster Schritt
+            </p>
+            <p className="font-bold" style={{ fontSize: 18, marginBottom: 6, lineHeight: 1.3 }}>{rec.title}</p>
+            <p className="text-sm" style={{ color: 'var(--muted)', lineHeight: 1.6, maxWidth: 520 }}>{rec.reason}</p>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexShrink: 0 }}>
+            {rec.badge && (
+              <span style={{
+                fontSize: 15, fontWeight: 800, padding: '6px 14px', borderRadius: 10,
+                background: `${rec.color}20`, color: rec.color,
               }}>
-                <Target size={22} style={{ color: recommendation.color }} />
-              </div>
-              <div>
-                <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: recommendation.color, marginBottom: 3 }}>
-                  {t.dashboard.recommendation.heading}
-                </p>
-                <p className="font-bold" style={{ fontSize: 16, marginBottom: 4 }}>{recommendation.label}</p>
-                <p className="text-sm" style={{ color: 'var(--muted)', lineHeight: 1.5, maxWidth: 480 }}>
-                  {recommendation.reason}
-                </p>
-              </div>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16, flexShrink: 0 }}>
-              {recommendation.accuracy !== null && (
-                <div style={{ textAlign: 'right' }}>
-                  <p style={{ fontSize: 10, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 2 }}>
-                    {t.dashboard.recommendation.accuracyLabel}
-                  </p>
-                  <p className="font-bold text-xl" style={{
-                    color: recommendation.accuracy >= 80 ? 'var(--success)' : recommendation.accuracy >= 60 ? '#fbbf24' : 'var(--error)',
-                  }}>
-                    {recommendation.accuracy}%
-                  </p>
-                </div>
-              )}
-              <div className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, padding: '8px 18px' }}>
-                {recommendation.cta} <ChevronRight size={14} />
-              </div>
+                {rec.badge}
+              </span>
+            )}
+            <div className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, padding: '10px 20px' }}>
+              {rec.cta} <ArrowRight size={14} />
             </div>
           </div>
-        </Link>
-      )}
+        </div>
+      </Link>
 
-      {/* ── Quick-Action Cards ─────────────────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 32 }}>
+      {/* ── Aktivität & Status ─────────────────────────────────────────── */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
         {[
           {
-            href:  recommendation?.href ?? '/practice/part5',
-            icon:  <Zap size={18} style={{ color: '#fbbf24' }} />,
-            bg:    'rgba(251,191,36,0.12)',
-            label: 'Weiter üben',
-            sub:   recommendation?.partLabel ?? 'Part 5 · Reading',
-          },
-          {
-            href:  '/practice/weak-parts',
-            icon:  <TrendingUp size={18} style={{ color: 'var(--error)' }} />,
-            bg:    'rgba(248,113,113,0.1)',
-            label: 'Schwache Parts',
-            sub:   dbUser?.progress?.length ? `${dbUser.progress.filter(p => p.accuracy < 0.6).length} Part(s) < 60%` : 'Analyse starten',
-          },
-          {
-            href:  '/practice/mini-exam',
-            icon:  <Clock size={18} style={{ color: '#a78bfa' }} />,
-            bg:    'rgba(167,139,250,0.12)',
-            label: 'Mini-Prüfung',
-            sub:   '15 Min · 11 Fragen',
-          },
-        ].map(({ href, icon, bg, label, sub }) => (
-          <Link key={href} href={href} style={{ textDecoration: 'none' }}>
-            <div className="card" style={{
-              padding: '16px 18px', cursor: 'pointer',
-              display: 'flex', alignItems: 'center', gap: 12,
-              transition: 'border-color 0.15s',
-            }}>
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                {icon}
-              </div>
-              <div style={{ minWidth: 0 }}>
-                <p className="font-semibold text-sm" style={{ marginBottom: 2 }}>{label}</p>
-                <p style={{ fontSize: 11, color: 'var(--muted)', lineHeight: 1.3 }}>{sub}</p>
-              </div>
-              <ChevronRight size={14} style={{ color: 'var(--muted)', marginLeft: 'auto', flexShrink: 0 }} />
-            </div>
-          </Link>
-        ))}
-      </div>
-
-      {/* ── Stats row ──────────────────────────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 32 }}>
-        {[
-          {
-            icon: <BookOpen size={16} style={{ color: 'var(--accent)' }} />,
-            bg: 'var(--accent-subtle)',
-            label: t.dashboard.stats.sessions,
-            value: totalSessions || '0',
-            sub: totalSessions === 1 ? 'Sitzung' : 'Sitzungen',
-          },
-          {
-            icon: <TrendingUp size={16} style={{ color: 'var(--green)' }} />,
-            bg: 'var(--green-subtle)',
-            label: t.dashboard.stats.avgAccuracy,
-            value: avgAccuracy !== null ? `${avgAccuracy}%` : '—',
-            sub: avgAccuracy !== null ? (avgAccuracy >= 75 ? '🎯 Gut!' : 'Weiter üben') : 'Noch keine Daten',
-          },
-          {
-            icon: <Flame size={16} style={{ color: '#fb923c' }} />,
+            icon: <Flame size={15} style={{ color: '#fb923c' }} />,
             bg: 'rgba(251,146,60,0.12)',
             label: 'Streak',
             value: streak.current > 0 ? `${streak.current}🔥` : '0',
-            sub: streak.current > 0 ? `Längste Serie: ${streak.longest}d` : 'Heute starten!',
+            sub: streak.current > 0 ? `Längste: ${streak.longest}d` : 'Heute starten',
           },
           {
-            icon: <Clock size={16} style={{ color: 'var(--purple)' }} />,
-            bg: 'var(--purple-subtle)',
-            label: t.dashboard.stats.daysToExam,
-            value: daysUntilExam !== null ? (daysUntilExam > 0 ? daysUntilExam : '🎓') : '—',
-            sub: daysUntilExam !== null && daysUntilExam > 0 ? 'Tage bis zur Prüfung' : daysUntilExam === 0 ? 'Heute!' : 'Kein Datum gesetzt',
+            icon: <BookOpen size={15} style={{ color: 'var(--accent)' }} />,
+            bg: 'var(--accent-subtle)',
+            label: 'Sitzungen',
+            value: String(totalSessions),
+            sub: totalSessions === 1 ? '1 abgeschlossen' : `${totalSessions} abgeschlossen`,
+          },
+          {
+            icon: <TrendingUp size={15} style={{ color: 'var(--success)' }} />,
+            bg: 'rgba(74,222,128,0.12)',
+            label: 'Genauigkeit',
+            value: avgAccuracy !== null ? `${avgAccuracy}%` : '—',
+            sub: avgAccuracy !== null ? (avgAccuracy >= 75 ? 'Gut!' : 'Weiter üben') : 'Noch keine Daten',
+          },
+          {
+            icon: <Clock size={15} style={{ color: '#a78bfa' }} />,
+            bg: 'rgba(167,139,250,0.12)',
+            label: 'Prüfung',
+            value: daysUntilExam !== null ? (daysUntilExam > 0 ? `${daysUntilExam}d` : '🎓') : '—',
+            sub: daysUntilExam !== null && daysUntilExam > 0 ? 'verbleibend' : daysUntilExam === 0 ? 'Heute!' : 'Kein Datum',
           },
         ].map(({ icon, bg, label, value, sub }) => (
-          <div key={label} className="card" style={{ padding: '18px 20px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
-              <div style={{ width: 32, height: 32, borderRadius: 8, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <div key={label} className="card" style={{ padding: '14px 16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+              <div style={{ width: 28, height: 28, borderRadius: 7, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 {icon}
               </div>
               <span className="text-xs font-medium" style={{ color: 'var(--muted)' }}>{label}</span>
             </div>
-            <p className="text-3xl font-bold" style={{ marginBottom: 4 }}>{value}</p>
+            <p className="text-2xl font-bold" style={{ marginBottom: 2 }}>{value}</p>
             <p className="text-xs" style={{ color: 'var(--muted)' }}>{sub}</p>
           </div>
         ))}
       </div>
 
-      {/* ── CEFR Levels ────────────────────────────────────────────────── */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-        <h2 className="text-base font-semibold">{t.dashboard.ceflLevels}</h2>
-        {!dbUser?.diagnosticDone && (
-          <Link href="/diagnostic" className="text-xs font-medium" style={{ color: 'var(--accent)' }}>
-            <Zap size={12} style={{ display: 'inline', marginRight: 4 }} />
-            {t.dashboard.diagnosticBanner.cta} →
-          </Link>
-        )}
-      </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 12, marginBottom: 32 }}>
-        {relevantSections.map(sec => {
-          const level    = levelMap[sec]
-          const color    = SECTION_COLORS[sec]
-          const subtle   = SECTION_SUBTLES[sec]
-          const cefrColor = level ? (CEFR_COLORS[level.cefr] ?? color) : 'var(--card-border)'
-          const SectionIcon = sec === 'LISTENING' ? Headphones : sec === 'WRITING' ? PenLine : sec === 'SPEAKING' ? Mic : BookOpen
-
-          return (
-            <div key={sec} className="card" style={{ padding: '18px 22px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: level ? 12 : 0 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                  <div style={{ width: 34, height: 34, borderRadius: 8, background: subtle, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <SectionIcon size={16} style={{ color }} />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-sm">{t.dashboard.sections[sec]}</p>
-                    {!level && (
-                      <p className="text-xs" style={{ color: 'var(--muted)', marginTop: 2 }}>{t.dashboard.notAssessed}</p>
-                    )}
-                  </div>
-                </div>
-                <span className="font-bold text-2xl" style={{ color: level ? cefrColor : 'var(--card-border)' }}>
+      {/* ── Sprachniveau (kompakt) ─────────────────────────────────────── */}
+      <div className="card" style={{ padding: '16px 20px', marginBottom: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+          <p className="text-sm font-semibold">Aktuelles Sprachniveau</p>
+          {!dbUser?.diagnosticDone && (
+            <Link href="/diagnostic" style={{ fontSize: 12, color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <Zap size={11} /> Einstufen
+            </Link>
+          )}
+        </div>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          {relevantSections.map(sec => {
+            const level = levelMap[sec]
+            const color = SECTION_COLORS[sec]
+            const Icon  = SectionIcon(sec)
+            const cefrColor = level ? (CEFR_COLORS[level.cefr] ?? color) : undefined
+            return (
+              <div key={sec} style={{
+                display: 'flex', alignItems: 'center', gap: 8,
+                padding: '8px 14px', borderRadius: 10,
+                background: level ? `${cefrColor}12` : 'var(--card-border)',
+                border: `1px solid ${level ? `${cefrColor}30` : 'transparent'}`,
+                flex: '1 1 auto', minWidth: 120,
+              }}>
+                <Icon size={13} style={{ color: level ? cefrColor : 'var(--muted)', flexShrink: 0 }} />
+                <span className="text-xs font-medium" style={{ color: 'var(--muted)' }}>{t.dashboard.sections[sec]}</span>
+                <span className="font-bold text-sm" style={{ marginLeft: 'auto', color: level ? cefrColor : 'var(--muted)' }}>
                   {level ? level.cefr : '?'}
                 </span>
               </div>
-              {level && (
-                <>
-                  <div style={{ height: 4, borderRadius: 99, background: 'var(--card-border)', marginBottom: 8, overflow: 'hidden' }}>
-                    <div style={{ height: '100%', borderRadius: 99, background: color, width: `${level.score * 100}%` }} />
-                  </div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <p className="text-xs" style={{ color: 'var(--muted)' }}>
-                      {CEFR_COLORS[level.cefr] ? `${level.cefr} · ${Math.round(level.score * 100)}%` : ''}
-                    </p>
-                    {sec === 'READING' && (
-                      <Link href="/practice/part5" className="text-xs font-medium" style={{ color: 'var(--accent)' }}>
-                        {t.dashboard.practiceNow} →
-                      </Link>
-                    )}
-                  </div>
-                </>
-              )}
-              {!level && (
-                <Link href="/diagnostic" className="text-xs font-medium" style={{ color: 'var(--muted)', display: 'block', marginTop: 8 }}>
-                  → Einstufung starten
-                </Link>
-              )}
-            </div>
-          )
-        })}
+            )
+          })}
+        </div>
       </div>
 
-      {/* ── Goal progress ──────────────────────────────────────────────── */}
+      {/* ── Lernziel ───────────────────────────────────────────────────── */}
       {scoreTarget && (
-        <div className="card" style={{ padding: '20px 24px', marginBottom: 32 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(251,191,36,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Target size={15} style={{ color: '#fbbf24' }} />
-              </div>
-              <div>
-                <p className="font-semibold text-sm">Lernziel</p>
-                <p className="text-xs" style={{ color: 'var(--muted)' }}>
-                  {estimatedScore !== null
-                    ? `Geschätzter Score: ${estimatedScore} / ${scoreTarget} Punkte`
-                    : `Ziel: ${scoreTarget} Punkte`}
-                </p>
-              </div>
+        <div className="card" style={{ padding: '16px 20px', marginBottom: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <Target size={14} style={{ color: '#fbbf24' }} />
+              <p className="text-sm font-semibold">Lernziel: {scoreTarget} Punkte</p>
             </div>
-            <div style={{ textAlign: 'right' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               {goalPct !== null && (
-                <p className="font-bold text-xl" style={{ color: goalPct >= 100 ? 'var(--success)' : '#fbbf24' }}>
+                <span className="font-bold text-sm" style={{ color: goalPct >= 100 ? 'var(--success)' : '#fbbf24' }}>
                   {goalPct}%
-                </p>
+                </span>
               )}
-              <Link href="/settings" className="text-xs" style={{ color: 'var(--muted)' }}>Ziel ändern →</Link>
+              <Link href="/settings" style={{ fontSize: 11, color: 'var(--muted)' }}>ändern</Link>
             </div>
           </div>
-          <div style={{ height: 8, borderRadius: 99, background: 'var(--card-border)', overflow: 'hidden' }}>
+          <div style={{ height: 6, borderRadius: 99, background: 'var(--card-border)', overflow: 'hidden' }}>
             <div style={{
-              height: '100%', borderRadius: 99, transition: 'width 0.5s',
-              background: goalPct !== null && goalPct >= 100 ? 'var(--success)' : 'linear-gradient(90deg, #fbbf24, #f59e0b)',
-              width: `${goalPct ?? 0}%`,
+              height: '100%', borderRadius: 99,
+              background: goalPct !== null && goalPct >= 100 ? 'var(--success)' : 'linear-gradient(90deg,#fbbf24,#f59e0b)',
+              width: `${goalPct ?? 0}%`, transition: 'width 0.5s',
             }} />
           </div>
-          {goalPct !== null && goalPct >= 100 && (
-            <p className="text-xs" style={{ color: 'var(--success)', marginTop: 8, fontWeight: 600 }}>
-              🎯 Ziel erreicht! Bereit für die Prüfung.
-            </p>
-          )}
-          {goalPct !== null && goalPct < 100 && estimatedScore !== null && (
-            <p className="text-xs" style={{ color: 'var(--muted)', marginTop: 8 }}>
-              Noch {scoreTarget - estimatedScore} Punkte bis zum Ziel — weiter üben!
+          {estimatedScore !== null && scoreTarget > estimatedScore && (
+            <p className="text-xs" style={{ color: 'var(--muted)', marginTop: 6 }}>
+              Geschätzter Score: {estimatedScore} · noch {scoreTarget - estimatedScore} Punkte bis zum Ziel
             </p>
           )}
         </div>
       )}
 
-      {/* ── Practice cards ─────────────────────────────────────────────── */}
-      {(examType === 'LISTENING_READING' || examType === 'FULL_CERTIFICATE' || !examType) && (
-        <>
-          <h2 className="text-base font-semibold" style={{ marginBottom: 14 }}>{t.dashboard.practiceByPart}</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 32 }}>
-            {PART_META.map(({ part, href, icon: Icon, color, subtle }) => {
-              const info = t.dashboard.parts[part]
-              const prog = progByPart[part]
-              const pct  = prog ? Math.round(prog.accuracy * 100) : null
-              return (
-                <Link key={part} href={href} style={{ textDecoration: 'none', display: 'block' }}>
-                  <div className="card" style={{
-                    padding: '20px',
-                    height: '100%',
-                    transition: 'border-color 0.15s',
-                    cursor: 'pointer',
-                    borderColor: 'var(--card-border)',
-                  }}
-                  >
-                    {/* Icon + badge */}
-                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 14 }}>
-                      <div style={{ width: 38, height: 38, borderRadius: 10, background: subtle, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Icon size={18} style={{ color }} />
-                      </div>
-                      {pct !== null && (
-                        <span style={{
-                          fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99,
-                          background: pct >= 80 ? 'rgba(74,222,128,0.15)' : pct >= 60 ? 'rgba(251,191,36,0.15)' : 'rgba(248,113,113,0.15)',
-                          color: pct >= 80 ? 'var(--success)' : pct >= 60 ? '#fbbf24' : 'var(--error)',
-                        }}>{pct}%</span>
-                      )}
-                    </div>
-
-                    {/* Title + meta */}
-                    <p className="font-semibold text-sm" style={{ marginBottom: 2 }}>{info.label}</p>
-                    <p style={{ fontSize: 10, color, fontWeight: 600, marginBottom: 6, letterSpacing: '0.04em' }}>{info.part}</p>
-                    <p className="text-xs" style={{ color: 'var(--muted)', lineHeight: 1.5, marginBottom: 14 }}>{info.desc}</p>
-
-                    {/* Progress */}
-                    {prog ? (
-                      <>
-                        <div style={{ height: 4, borderRadius: 99, background: 'var(--card-border)', marginBottom: 6, overflow: 'hidden' }}>
-                          <div style={{ height: '100%', borderRadius: 99, background: color, width: `${prog.accuracy * 100}%` }} />
-                        </div>
-                        <p style={{ fontSize: 10, color: 'var(--muted)' }}>{prog.sampleSize} {t.dashboard.questionsAnswered}</p>
-                      </>
-                    ) : (
-                      <p style={{ fontSize: 10, color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 4 }}>
-                        {t.dashboard.notStarted} · {info.count}
-                      </p>
-                    )}
-                  </div>
-                </Link>
-              )
-            })}
-          </div>
-        </>
-      )}
-
-      {/* ── Recent activity ────────────────────────────────────────────── */}
+      {/* ── Letzte Sitzungen ───────────────────────────────────────────── */}
       {dbUser && dbUser.sessions.length > 0 && (
         <div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-            <h2 className="text-base font-semibold">{t.dashboard.recentSessions}</h2>
-            <Link href="/progress" className="text-xs font-medium" style={{ color: 'var(--accent)' }}>
-              {t.dashboard.practiceNow} →
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <p className="text-sm font-semibold">Letzte Sitzungen</p>
+            <Link href="/progress" style={{ fontSize: 12, color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: 4 }}>
+              Alle ansehen <ChevronRight size={12} />
             </Link>
           </div>
           <div className="card" style={{ overflow: 'hidden' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13 }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid var(--card-border)' }}>
-                  {[t.dashboard.table.part, t.dashboard.table.accuracy, t.dashboard.table.score, t.dashboard.table.duration, t.dashboard.table.date].map(h => (
-                    <th key={h} style={{ padding: '12px 18px', textAlign: 'left', color: 'var(--muted)', fontWeight: 600, fontSize: 11, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                      {h}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {dbUser.sessions.map((s, i) => {
-                  const pct = s.score != null && s.maxScore ? Math.round(s.score / s.maxScore * 100) : null
-                  const partLabel = s.parts.length > 0
-                    ? s.parts.map(p => {
-                        const info = t.dashboard.parts[p as 5 | 6 | 7]
-                        return info ? info.shortLabel ?? info.label : `Part ${p}`
-                      }).join(', ')
-                    : s.mode
-                  return (
-                    <tr key={s.id} style={{ borderBottom: i < dbUser.sessions.length - 1 ? '1px solid var(--card-border)' : 'none' }}>
-                      <td style={{ padding: '12px 18px', fontWeight: 500 }}>{partLabel}</td>
-                      <td style={{ padding: '12px 18px' }}>
-                        {pct !== null ? (
-                          <span style={{
-                            fontWeight: 700,
-                            color: pct >= 80 ? 'var(--success)' : pct >= 60 ? '#fbbf24' : 'var(--error)',
-                          }}>{pct}%</span>
-                        ) : '—'}
-                      </td>
-                      <td style={{ padding: '12px 18px', color: 'var(--muted)' }}>
-                        {s.score ?? '—'}/{s.maxScore ?? '—'}
-                      </td>
-                      <td style={{ padding: '12px 18px', color: 'var(--muted)' }}>
-                        {s.durationSec ? `${Math.floor(s.durationSec / 60)}m ${s.durationSec % 60}s` : '—'}
-                      </td>
-                      <td style={{ padding: '12px 18px', color: 'var(--muted)' }}>
-                        {new Date(s.createdAt).toLocaleDateString()}
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
+            {dbUser.sessions.map((s, i) => {
+              const pct = s.score != null && s.maxScore ? Math.round(s.score / s.maxScore * 100) : null
+              const partLabel = s.parts.length > 0
+                ? s.parts.map(p => {
+                    const info = t.dashboard.parts[p as 5 | 6 | 7]
+                    return info ? (info.shortLabel ?? info.label) : `Part ${p}`
+                  }).join(', ')
+                : s.mode
+              return (
+                <div key={s.id} style={{
+                  display: 'flex', alignItems: 'center', gap: 14, padding: '12px 18px',
+                  borderBottom: i < dbUser.sessions.length - 1 ? '1px solid var(--card-border)' : 'none',
+                }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p className="text-sm font-medium">{partLabel}</p>
+                    <p className="text-xs" style={{ color: 'var(--muted)', marginTop: 1 }}>
+                      {new Date(s.createdAt).toLocaleDateString()}
+                      {s.durationSec ? ` · ${Math.floor(s.durationSec / 60)}m` : ''}
+                    </p>
+                  </div>
+                  {pct !== null && (
+                    <span style={{
+                      fontSize: 13, fontWeight: 700,
+                      color: pct >= 80 ? 'var(--success)' : pct >= 60 ? '#fbbf24' : 'var(--error)',
+                    }}>
+                      {pct}%
+                    </span>
+                  )}
+                </div>
+              )
+            })}
           </div>
         </div>
       )}
 
-      {/* Empty state */}
+      {/* ── Empty state ────────────────────────────────────────────────── */}
       {(!dbUser || dbUser.sessions.length === 0) && dbUser?.diagnosticDone && (
-        <div className="card" style={{ padding: 40, textAlign: 'center' }}>
-          <BookOpen size={36} style={{ color: 'var(--muted)', margin: '0 auto 16px' }} />
-          <h3 className="font-semibold" style={{ marginBottom: 8 }}>{t.dashboard.noSessions.title}</h3>
-          <p className="text-sm" style={{ color: 'var(--muted)', marginBottom: 22, lineHeight: 1.6 }}>
-            {t.dashboard.noSessions.desc}
+        <div className="card" style={{ padding: '36px 32px', textAlign: 'center' }}>
+          <BookOpen size={32} style={{ color: 'var(--muted)', margin: '0 auto 14px' }} />
+          <p className="font-semibold" style={{ marginBottom: 6 }}>Noch keine Übungen</p>
+          <p className="text-sm" style={{ color: 'var(--muted)', marginBottom: 20, lineHeight: 1.6 }}>
+            Starte deine erste Übungseinheit — das System wählt den besten Einstiegspunkt für dich.
           </p>
-          <Link href="/practice/part5" className="btn-primary">{t.dashboard.noSessions.cta}</Link>
+          <Link href={rec.href} className="btn-primary">{rec.cta}</Link>
         </div>
       )}
     </div>
