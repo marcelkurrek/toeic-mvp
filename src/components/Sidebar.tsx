@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { LayoutDashboard, BarChart2, LogOut, Info, Zap, Headphones, BookOpen, Mic, PenLine, Settings, CalendarDays, Trophy, ClipboardList } from 'lucide-react'
+import { LayoutDashboard, BarChart2, LogOut, Info, Zap, Headphones, BookOpen, Mic, PenLine, Settings, CalendarDays, Trophy, ClipboardList, BookMarked } from 'lucide-react'
 import { useLang } from '@/lib/i18n/client'
 import LanguageSwitcher from './LanguageSwitcher'
 import ThemeSwitcher from './ThemeSwitcher'
@@ -106,6 +106,7 @@ export default function Sidebar() {
         <NavItem href="/study-plan" label="Lernplan" sub="Wochenplan" icon={CalendarDays} />
         <NavItem href="/achievements" label="Achievements" sub="Abzeichen" icon={Trophy} />
         <NavItem href="/practice/mini-exam" label="Mini-Prüfung" sub="15 Min · 11 Fragen" icon={ClipboardList} />
+        <NavItem href="/vocabulary" label="Vokabeln" sub="Flashcards" icon={BookMarked} />
         <NavItem href="/guide" label={t.nav.guide} icon={Info} />
         <NavItem href="/settings" label="Einstellungen" icon={Settings} />
 

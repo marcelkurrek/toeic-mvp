@@ -223,6 +223,50 @@ export default async function DashboardPage() {
         </Link>
       )}
 
+      {/* ── Quick-Action Cards ─────────────────────────────────────────── */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 32 }}>
+        {[
+          {
+            href:  recommendation?.href ?? '/practice/part5',
+            icon:  <Zap size={18} style={{ color: '#fbbf24' }} />,
+            bg:    'rgba(251,191,36,0.12)',
+            label: 'Weiter üben',
+            sub:   recommendation?.partLabel ?? 'Part 5 · Reading',
+          },
+          {
+            href:  '/practice/weak-parts',
+            icon:  <TrendingUp size={18} style={{ color: 'var(--error)' }} />,
+            bg:    'rgba(248,113,113,0.1)',
+            label: 'Schwache Parts',
+            sub:   dbUser?.progress?.length ? `${dbUser.progress.filter(p => p.accuracy < 0.6).length} Part(s) < 60%` : 'Analyse starten',
+          },
+          {
+            href:  '/practice/mini-exam',
+            icon:  <Clock size={18} style={{ color: '#a78bfa' }} />,
+            bg:    'rgba(167,139,250,0.12)',
+            label: 'Mini-Prüfung',
+            sub:   '15 Min · 11 Fragen',
+          },
+        ].map(({ href, icon, bg, label, sub }) => (
+          <Link key={href} href={href} style={{ textDecoration: 'none' }}>
+            <div className="card" style={{
+              padding: '16px 18px', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: 12,
+              transition: 'border-color 0.15s',
+            }}>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                {icon}
+              </div>
+              <div style={{ minWidth: 0 }}>
+                <p className="font-semibold text-sm" style={{ marginBottom: 2 }}>{label}</p>
+                <p style={{ fontSize: 11, color: 'var(--muted)', lineHeight: 1.3 }}>{sub}</p>
+              </div>
+              <ChevronRight size={14} style={{ color: 'var(--muted)', marginLeft: 'auto', flexShrink: 0 }} />
+            </div>
+          </Link>
+        ))}
+      </div>
+
       {/* ── Stats row ──────────────────────────────────────────────────── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 32 }}>
         {[

@@ -57,7 +57,9 @@ const TASKS: Task[] = [
   // ── Practice ──────────────────────────────────────────────────────────────
   { title: 'Mini-Exam (Timed Practice)', desc: 'Prüfungssimulation mit Timer — alle Reading Parts in Folge', status: 'done', priority: 'hoch', category: 'Practice' },
   { title: 'Achievements / Meilensteine', desc: 'Badges für Streak, Sitzungsanzahl, Genauigkeit', status: 'done', priority: 'mittel', category: 'Practice' },
-  { title: 'Vocabulary Flashcards', desc: 'Wichtige TOEIC-Vokabeln wiederholen (Karteikarten)', status: 'planned', priority: 'mittel', category: 'Practice' },
+  { title: 'Vocabulary Flashcards', desc: 'Wichtige TOEIC-Vokabeln wiederholen (Karteikarten)', status: 'done', priority: 'mittel', category: 'Practice' },
+  { title: 'Schwache Parts Analyse', desc: '/practice/weak-parts — priorisiert Parts < 60% Genauigkeit', status: 'done', priority: 'mittel', category: 'Practice' },
+  { title: 'Dashboard Quick-Actions', desc: '3 Schnellzugriff-Cards: Weiter üben, Schwache Parts, Mini-Prüfung', status: 'done', priority: 'mittel', category: 'Dashboard' },
 
   // ── Infrastructure ────────────────────────────────────────────────────────
   { title: 'Middleware Auth-Schutz', desc: 'Alle App-Routen erfordern Authentifizierung', status: 'done', priority: 'hoch', category: 'Infra' },
