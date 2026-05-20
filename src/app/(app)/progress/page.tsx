@@ -2,8 +2,10 @@ import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { ChevronRight } from 'lucide-react'
+import { ChevronRight, Flame, Trophy, Target } from 'lucide-react'
 import { getServerTranslations } from '@/lib/i18n/server'
+import { computeStreak } from '@/lib/streak'
+import WeeklyHeatmap from '@/components/WeeklyHeatmap'
 
 export default async function ProgressPage() {
   const t = await getServerTranslations()
@@ -27,6 +29,15 @@ export default async function ProgressPage() {
   const progress = dbUser?.progress ?? []
   const sessions = dbUser?.sessions ?? []
 
+  const streak = computeStreak(sessions.map(s => s.createdAt))
+  const totalAnswered = sessions.reduce((sum, s) => sum + s.totalQuestions, 0)
+  const overallPct = progress.length
+    ? Math.round(progress.reduce((s, p) => s + p.accuracy, 0) / progress.length * 100)
+    : null
+  const bestPart = progress.length
+    ? progress.reduce((best, p) => p.accuracy > best.accuracy ? p : best)
+    : null
+
   const PART_META = ([5, 6, 7] as const).map(part => ({
     part,
     label: t.progress.parts[part].label,
@@ -39,9 +50,36 @@ export default async function ProgressPage() {
     <div style={{ maxWidth: 768, margin: '0 auto' }}>
 
       {/* Page header */}
-      <div style={{ marginBottom: 36 }}>
+      <div style={{ marginBottom: 28 }}>
         <h1 className="text-3xl font-bold" style={{ marginBottom: 8 }}>{t.progress.heading}</h1>
         <p style={{ color: 'var(--muted)', fontSize: 15 }}>{t.progress.subheading}</p>
+      </div>
+
+      {/* Summary stats */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 36 }}>
+        {[
+          { icon: <Flame size={16} style={{ color: '#fb923c' }} />, bg: 'rgba(251,146,60,0.12)', label: 'Streak', value: streak.current > 0 ? `${streak.current}🔥` : '0', sub: `Längste: ${streak.longest}d` },
+          { icon: <Trophy size={16} style={{ color: '#fbbf24' }} />, bg: 'rgba(251,191,36,0.12)', label: 'Ø Genauigkeit', value: overallPct !== null ? `${overallPct}%` : '—', sub: overallPct !== null ? (overallPct >= 80 ? 'Ausgezeichnet' : overallPct >= 60 ? 'Gut' : 'Weiter üben') : 'Noch keine Daten' },
+          { icon: <Target size={16} style={{ color: 'var(--accent)' }} />, bg: 'var(--accent-subtle)', label: 'Fragen beantwortet', value: totalAnswered, sub: `${sessions.length} Sitzungen` },
+          { icon: <Trophy size={16} style={{ color: 'var(--green)' }} />, bg: 'var(--green-subtle)', label: 'Bester Part', value: bestPart ? `Part ${bestPart.part}` : '—', sub: bestPart ? `${Math.round(bestPart.accuracy * 100)}% Genauigkeit` : 'Noch keine Daten' },
+        ].map(({ icon, bg, label, value, sub }) => (
+          <div key={label} className="card" style={{ padding: '18px 20px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+              <div style={{ width: 32, height: 32, borderRadius: 8, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                {icon}
+              </div>
+              <span className="text-xs font-medium" style={{ color: 'var(--muted)' }}>{label}</span>
+            </div>
+            <p className="text-3xl font-bold" style={{ marginBottom: 4 }}>{value}</p>
+            <p className="text-xs" style={{ color: 'var(--muted)' }}>{sub}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Weekly heatmap */}
+      <div className="card" style={{ padding: '20px 24px', marginBottom: 36 }}>
+        <p className="font-semibold text-sm" style={{ marginBottom: 16 }}>Aktivität — letzte 4 Wochen</p>
+        <WeeklyHeatmap sessionDates={sessions.map(s => s.createdAt.toISOString())} />
       </div>
 
       {/* Per-part accuracy */}

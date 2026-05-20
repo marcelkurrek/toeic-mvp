@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { LayoutDashboard, BarChart2, LogOut, Info, Zap, Headphones, BookOpen, Mic, PenLine } from 'lucide-react'
+import { LayoutDashboard, BarChart2, LogOut, Info, Zap, Headphones, BookOpen, Mic, PenLine, Settings, CalendarDays, Trophy, ClipboardList, ShieldAlert } from 'lucide-react'
 import { useLang } from '@/lib/i18n/client'
 import LanguageSwitcher from './LanguageSwitcher'
 import ThemeSwitcher from './ThemeSwitcher'
@@ -61,7 +61,7 @@ function NavItem({
   )
 }
 
-export default function Sidebar() {
+export default function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
   const router = useRouter()
   const supabase = createClient()
   const { t } = useLang()
@@ -103,7 +103,18 @@ export default function Sidebar() {
         <SectionLabel label={t.nav.sectionInfo} />
         <NavItem href="/diagnostic" label={t.nav.diagnostic} sub={t.nav.diagnosticSub} icon={Zap} />
         <NavItem href="/progress" label={t.nav.progress} icon={BarChart2} />
-        <NavItem href="/guide" label={t.nav.guide} icon={Info} />
+        <NavItem href="/study-plan" label="Lernplan" sub="Wochenplan" icon={CalendarDays} />
+        <NavItem href="/achievements" label="Achievements" sub="Abzeichen" icon={Trophy} />
+        <NavItem href="/practice/mini-exam" label="Mini-Prüfung" sub="15 Min · 11 Fragen" icon={ClipboardList} />
+<NavItem href="/guide" label={t.nav.guide} icon={Info} />
+        <NavItem href="/settings" label="Einstellungen" icon={Settings} />
+
+        {isAdmin && (
+          <>
+            <SectionLabel label="Admin" />
+            <NavItem href="/admin" label="Admin-Bereich" sub="Verwaltung" icon={ShieldAlert} exact />
+          </>
+        )}
 
       </nav>
 

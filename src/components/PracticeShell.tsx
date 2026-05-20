@@ -3,7 +3,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useExamStore } from '@/store/exam'
 import { useRouter } from 'next/navigation'
 import type { Question } from '@/types'
-import { CheckCircle, XCircle, ChevronRight, RotateCcw } from 'lucide-react'
+import { CheckCircle, XCircle, ChevronRight, RotateCcw, Zap } from 'lucide-react'
 import { useLang } from '@/lib/i18n/client'
 
 interface PracticeShellProps {
@@ -16,18 +16,22 @@ export default function PracticeShell({ part }: PracticeShellProps) {
   const { questions, currentIndex, answers, isFinished, setQuestions, submitAnswer, nextQuestion, reset } = useExamStore()
   const [selected, setSelected] = useState<string | null>(null)
   const [submitted, setSubmitted] = useState(false)
-  const [sessionId, setSessionId] = useState<string | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [saving, setSaving] = useState(false)
+  const [sessionId, setSessionId]   = useState<string | null>(null)
+  const [loading, setLoading]       = useState(true)
+  const [saving, setSaving]         = useState(false)
+  const [adaptiveInfo, setAdaptiveInfo] = useState<{ difficulty: { min: number; max: number }; accuracy: number | null } | null>(null)
 
   const partInfo = t.practice.parts[part]
 
   const loadQuestions = useCallback(async () => {
     setLoading(true)
     reset()
-    const res = await fetch(`/api/questions?part=${part}`)
+    const res = await fetch(`/api/questions?part=${part}&adaptive=true&limit=10`)
     const data = await res.json()
     setQuestions(data.questions)
+    if (data.adaptive && data.difficulty) {
+      setAdaptiveInfo({ difficulty: data.difficulty, accuracy: data.accuracy ?? null })
+    }
 
     const sessionRes = await fetch('/api/sessions', {
       method: 'POST',
@@ -172,7 +176,19 @@ export default function PracticeShell({ part }: PracticeShellProps) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
         <div>
           <h1 className="text-2xl font-bold" style={{ marginBottom: 6 }}>{partInfo.title}</h1>
-          <p className="text-sm" style={{ color: 'var(--muted)' }}>{partInfo.desc}</p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <p className="text-sm" style={{ color: 'var(--muted)' }}>{partInfo.desc}</p>
+            {adaptiveInfo && (
+              <span style={{
+                display: 'inline-flex', alignItems: 'center', gap: 4,
+                fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 99,
+                background: 'var(--accent-subtle)', color: 'var(--accent)',
+                textTransform: 'uppercase', letterSpacing: '0.06em',
+              }}>
+                <Zap size={9} /> Adaptiv · Level {adaptiveInfo.difficulty.min}–{adaptiveInfo.difficulty.max}
+              </span>
+            )}
+          </div>
         </div>
         <div className="text-sm font-medium rounded-full"
           style={{ padding: '4px 14px', background: 'var(--card-border)', whiteSpace: 'nowrap', flexShrink: 0 }}>

@@ -8,8 +8,14 @@ export default async function ListeningPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id } })
-  const hasDiagnostic = !!(dbUser as any)?.diagnosticDone
+  const dbUser = await prisma.user.findUnique({
+    where: { supabaseId: user.id },
+    include: { progress: { where: { section: 'LISTENING' } } },
+  })
+
+  const partAccuracy = Object.fromEntries(
+    (dbUser?.progress ?? []).map(p => [p.part, { accuracy: p.accuracy, sampleSize: p.sampleSize }])
+  )
 
   return (
     <SkillLandingPage
@@ -18,12 +24,13 @@ export default async function ListeningPage() {
       description="Trainiere dein Hörverständnis für den TOEIC Test"
       color="#22d3ee"
       icon="🎧"
-      hasDiagnostic={hasDiagnostic}
+      hasDiagnostic={!!dbUser?.diagnosticDone}
+      partAccuracy={partAccuracy}
       tasks={[
-        { id: 'part1', label: 'Part 1', sub: 'Fotos beschreiben', href: '/practice/part1' },
-        { id: 'part2', label: 'Part 2', sub: 'Frage & Antwort', href: '/practice/part2' },
-        { id: 'part3', label: 'Part 3', sub: 'Gespräche', href: '/practice/part3' },
-        { id: 'part4', label: 'Part 4', sub: 'Monologe', href: '/practice/part4' },
+        { id: 'part1', label: 'Part 1', sub: 'Fotos beschreiben', href: '/practice/part1', part: 1 },
+        { id: 'part2', label: 'Part 2', sub: 'Frage & Antwort', href: '/practice/part2', part: 2 },
+        { id: 'part3', label: 'Part 3', sub: 'Gespräche', href: '/practice/part3', part: 3 },
+        { id: 'part4', label: 'Part 4', sub: 'Monologe', href: '/practice/part4', part: 4 },
       ]}
     />
   )

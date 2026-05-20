@@ -3,7 +3,7 @@ import { prisma } from '@/lib/prisma'
 import { createClient } from '@/lib/supabase/server'
 import { Section, QuestionType } from '@prisma/client'
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
@@ -12,11 +12,12 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     const dbUser = await prisma.user.findUnique({ where: { supabaseId: user.id } })
     if (!dbUser) return NextResponse.json({ error: 'User not found' }, { status: 404 })
 
+    const { id } = await params
     const body = await request.json()
     const { score, maxScore, durationSec, answers } = body
 
     const session = await prisma.session.update({
-      where: { id: params.id },
+      where: { id },
       data: { score, maxScore, durationSec, completedAt: new Date() },
     })
 
@@ -25,7 +26,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
         data: answers.map((a: {
           questionId: string; userAnswer: string; isCorrect: boolean; timeSpentSec: number
         }) => ({
-          sessionId:  params.id,
+          sessionId:  id,
           questionId: a.questionId,
           userAnswer: a.userAnswer,
           isCorrect:  a.isCorrect,
