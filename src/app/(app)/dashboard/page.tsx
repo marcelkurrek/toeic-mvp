@@ -5,7 +5,7 @@ import Link from 'next/link'
 import {
   BookOpen, TrendingUp, Headphones, PenLine, Mic,
   Zap, ChevronRight, Target, Flame, ArrowRight, Star,
-  HelpCircle,
+  HelpCircle, PlayCircle,
 } from 'lucide-react'
 import { getServerTranslations } from '@/lib/i18n/server'
 import { computeStreak } from '@/lib/streak'
@@ -135,6 +135,50 @@ export default async function DashboardPage() {
     }
   }
 
+  // ── Daily Mission ──────────────────────────────────────────────────────────
+  type MissionStep = { label: string; href: string; count: string; color: string; icon: string }
+  const mission: MissionStep[] = []
+
+  const PART_CONFIGS = [
+    { part: 1, label: 'Listening Part 1', href: '/practice/part1', color: '#04FF88', icon: '🎧' },
+    { part: 2, label: 'Listening Part 2', href: '/practice/part2', color: '#04FF88', icon: '🎧' },
+    { part: 3, label: 'Listening Part 3', href: '/practice/part3', color: '#04FF88', icon: '🎧' },
+    { part: 4, label: 'Listening Part 4', href: '/practice/part4', color: '#04FF88', icon: '🎧' },
+    { part: 5, label: 'Reading Part 5',   href: '/practice/part5', color: '#D5FD44', icon: '📖' },
+    { part: 6, label: 'Reading Part 6',   href: '/practice/part6', color: '#D5FD44', icon: '📖' },
+    { part: 7, label: 'Reading Part 7',   href: '/practice/part7', color: '#D5FD44', icon: '📖' },
+  ]
+
+  if (!dbUser?.diagnosticDone) {
+    mission.push({ label: 'Einstufungstest', href: '/diagnostic', count: '~15 Min', color: '#fb923c', icon: '⚡' })
+  } else {
+    const practiced = PART_CONFIGS.filter(pc => progByPart[pc.part])
+    const unpracticed = PART_CONFIGS.filter(pc => !progByPart[pc.part])
+    const weak = practiced.filter(pc => (progByPart[pc.part]?.accuracy ?? 1) < 0.65)
+      .sort((a, b) => (progByPart[a.part]?.accuracy ?? 1) - (progByPart[b.part]?.accuracy ?? 1))
+
+    // Add weakest practiced parts first
+    weak.slice(0, 2).forEach(pc => {
+      const acc = Math.round((progByPart[pc.part]?.accuracy ?? 0) * 100)
+      mission.push({ label: pc.label, href: pc.href, count: `10 Fragen · ${acc}% bisher`, color: pc.color, icon: pc.icon })
+    })
+    // Add one unpracticed part if exists
+    if (unpracticed.length > 0 && mission.length < 3) {
+      const next = unpracticed[0]
+      mission.push({ label: next.label, href: next.href, count: 'Neu · 6 Fragen', color: next.color, icon: next.icon })
+    }
+    // Fallback: strongest part for warm-up
+    if (mission.length === 0 && practiced.length > 0) {
+      const best = practiced.sort((a, b) => (progByPart[b.part]?.accuracy ?? 0) - (progByPart[a.part]?.accuracy ?? 0))[0]
+      mission.push({ label: best.label, href: best.href, count: '10 Fragen · Auffrischung', color: best.color, icon: best.icon })
+    }
+    if (mission.length < 3) {
+      mission.push({ label: 'Mini-Prüfung', href: '/practice/mini-exam', count: '15 Min · Alle Parts', color: '#6366f1', icon: '🎯' })
+    }
+  }
+
+  const totalMissionMins = mission.reduce((sum, s) => sum + (s.count.includes('Min') ? parseInt(s.count) : 8), 0)
+
   const firstName = dbUser?.name?.split(' ')[0] ?? user.email?.split('@')[0] ?? ''
 
   const SectionIcon = (s: Section) =>
@@ -187,6 +231,39 @@ export default async function DashboardPage() {
           </div>
         </div>
       </Link>
+
+      {/* ── Daily Mission ─────────────────────────────────────────────── */}
+      {mission.length > 0 && (
+        <div className="card" style={{ padding: '20px 24px', marginBottom: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+            <div>
+              <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: 3 }}>Heutige Mission</p>
+              <p className="font-semibold text-sm">~{totalMissionMins} Min · {mission.length} Einheiten</p>
+            </div>
+            <Link href={mission[0].href}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: 10, background: 'var(--accent)', color: '#fff', fontSize: 13, fontWeight: 600 }}>
+                <PlayCircle size={14} /> Starten
+              </div>
+            </Link>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {mission.map((step, i) => (
+              <Link key={i} href={step.href} style={{ textDecoration: 'none' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '10px 14px', borderRadius: 10, background: step.color + '0D', border: `1px solid ${step.color}25`, transition: 'border-color 0.15s' }}>
+                  <span style={{ fontSize: 18, flexShrink: 0 }}>{step.icon}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--fg)', marginBottom: 2 }}>{step.label}</p>
+                    <p style={{ fontSize: 11, color: 'var(--muted)' }}>{step.count}</p>
+                  </div>
+                  <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99, background: step.color + '20', color: step.color }}>
+                    {i + 1}
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ── Stat Cards ────────────────────────────────────────────────── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
