@@ -352,7 +352,7 @@ Echte Talk-Formate die im TOEIC vorkommen:
 
 ### Überblick Reading
 
-- **Part 5 — Incomplete Sentences:** 30 Fragen, 13 Skill-Kategorien (Grammar + Vocabulary)
+- **Part 5 — Incomplete Sentences:** 30 Fragen, 21 Skill-Kategorien (Grammar + Vocabulary)
 - **Part 6 — Text Completion:** 16 Fragen, 4 Textpassagen à 4 Lücken — Kontext der ganzen Passage entscheidet
 - **Part 7 — Reading Comprehension:** 54 Fragen — 29 Single Passages + 25 Multiple Passages (2–3 Texte gleichzeitig)
 
@@ -405,7 +405,143 @@ Zeitsignal-Wörter erkennen und passendes Tempus wählen:
 - **Simple Future:** tomorrow, next week, soon, in the future, will, be going to
 - **Past Perfect:** before + Simple Past; after + Past Perfect (Reihenfolge in Vergangenheit)
 
-#### Skill 7 — Comparisons
+#### Skill 7 — Prepositions of Time, Place, Movement
+
+**Zeit-Präpositionen:**
+- **in**: Monate (in March), Jahre (in 2024), Tageszeiten (in the morning/afternoon/evening)
+- **on**: Wochentage (on Monday), Datum (on March 5th), Feiertage (on New Year's Day)
+- **at**: genaue Uhrzeiten (at 3:00), Tagesmarken (at noon, at midnight, at night)
+
+**Ort-Präpositionen:**
+- **in**: abgeschlossene Räume (in the room, in the building, in the city)
+- **on**: Oberflächen (on the table, on the floor, on the wall, on the street)
+- **at**: spezifische Orte/Treffpunkte (at the office, at the station, at the airport, at home)
+
+**Bewegungs-Präpositionen:**
+- **to**: Richtung zu einem Ziel (go to the store, travel to Tokyo)
+- **into**: Eintritt in Innenraum (walk into the room, move into the office)
+- **onto**: auf eine Fläche hinauf (put it onto the shelf, get onto the bus)
+
+TIP: In/on/at folgen einer Hierarchie: in (große Bereiche) → on (Flächen/Linien) → at (Punkte)
+
+#### Skill 8 — Prepositions with Verbs and Adjectives (Collocations)
+
+**Verb + Preposition (häufige Kollokationen):**
+- arrive **at** (specific place) / arrive **in** (city/country)
+- participate **in**, result **in**, consist **of**, apply **for**, account **for**
+- agree **with** (person) / agree **on** (topic), comply **with**, deal **with**
+- look **at**, look **for**, look **after**, look **forward to**
+- depend **on**, rely **on**, insist **on**, concentrate **on**
+- object **to**, respond **to**, refer **to**, lead **to**
+
+**Adjective + Preposition (häufige Kollokationen):**
+- responsible **for**, capable **of**, aware **of**, fond **of**, proud **of**
+- interested **in**, experienced **in**, skilled **in**, successful **in**
+- familiar **with**, satisfied **with**, pleased **with**, associated **with**
+- different **from**, absent **from**, separate **from**
+- good **at**, efficient **at**, present **at**, surprised **at/by**
+- similar **to**, opposed **to**, related **to**
+
+TIP: Kollokationen müssen auswendig gelernt werden — keine logische Regel, Kontext bestätigt.
+
+#### Skill 9 — Coordinating Conjunctions
+
+Verbinden gleichwertige grammatische Elemente (Wörter, Phrasen, Hauptsätze):
+
+| Konjunktion | Bedeutung | Beispiel |
+|-------------|-----------|---------|
+| **and** | Ergänzung | She is smart and hardworking. |
+| **but / yet** | Kontrast | He tried, but he failed. / She is young, yet experienced. |
+| **or** | Alternative | You can call or email. |
+| **either ... or** | Entweder-oder | Either you confirm or we cancel. |
+| **neither ... nor** | Weder-noch (beide negativ) | Neither the manager nor the staff was informed. |
+| **for** | Grund (formell) | He left early, for he had a meeting. |
+| **so** | Ergebnis | It rained, so we stayed inside. |
+| **not only ... but also** | Steigerung | She is not only smart but also creative. |
+
+TIP: `neither ... nor` → Verb richtet sich nach dem NÄHEREN Subjekt (nor-Regel).
+
+#### Skill 10 — Parallel Structure
+
+Alle Elemente einer Liste oder Paarung müssen DIESELBE grammatikalische Form haben:
+
+- **Korrekt:** "She likes *swimming*, *running*, and *hiking*." (alle Gerundien)
+- **Falsch:** "She likes *swimming*, *running*, and *to hike*."
+- **Korrekt:** "He is *hard-working*, *dedicated*, and *efficient*." (alle Adjektive)
+- **Korrekt:** "We will *analyze*, *plan*, and *implement* the strategy." (alle Basisformen)
+- **Korrekt:** "He enjoys both *reading* and *traveling*." (Gerundien nach both...and)
+- **Korrekt:** "She can either *call* or *email* us." (Basisformen nach either...or)
+
+TIP: Parallelstruktur prüfen bei: and / or / but / both-and / either-or / neither-nor / not only-but also
+
+#### Skill 11 — Subordinating Conjunctions
+
+**Grund (Reason):** because / as / since
+- "She left early **because** she had an appointment."
+- "**Since** the meeting was canceled, we went home."
+
+**Kontrast (Contrast):** although / though / even though / while / whereas
+- "**Although** he worked hard, he didn't get promoted."
+- "**While** some prefer email, others prefer phone calls."
+
+**Zeit (Time):** when / while / before / after / as soon as / until / as
+- "**When** the director arrives, the meeting will start."
+- "**After** she finishes the report, she will send it."
+- "Please wait **until** the results are ready."
+
+TIP: Subordinating Conjunctions = Nebensatz-Einleiter. Der Nebensatz kann VOR oder NACH dem Hauptsatz stehen. Wenn Nebensatz zuerst → Komma nach Nebensatz.
+
+#### Skill 12 — Future Time Clauses
+
+**KRITISCHE REGEL:** In Zeitnebensätzen wird die Zukunft durch PRESENT TENSE ausgedrückt — NICHT durch will/shall!
+
+Zeit-Konjunktionen: **when / before / after / as soon as / until / once / by the time**
+
+- "**When** I **arrive**, I **will call** you." (NICHT: when I will arrive)
+- "**After** she **finishes** the report, we **will review** it." (NICHT: after she will finish)
+- "Please notify me **as soon as** the package **is delivered**." (NICHT: will be delivered)
+- "**Before** he **leaves**, he **will hand over** all documents."
+
+TIP: Zeit-Konjunktion → Präsens! Hauptsatz → will/be going to.
+
+#### Skill 13 — Real Conditionals
+
+**Muster:** If + Present Simple, will/can/should + Verb (Basisform)
+
+**Typ 1 — Habit (Gewohnheit/Regel):**
+- "If it rains, **we cancel** the event." → allgemeine Wahrheit, immer wahr
+
+**Typ 2 — Future (Zukunft):**
+- "If it rains tomorrow, **we will cancel** the event." → mögliche zukünftige Situation
+
+**Typ 3 — Command/Suggestion (Befehl/Empfehlung):**
+- "If you feel sick, **please call** the doctor immediately."
+- "If you have questions, **let** me know."
+
+TIP: Real Conditionals = echte, mögliche Bedingungen. If + Präsens → Future/Imperativ im Hauptsatz. NIEMALS "If + will" im Nebensatz.
+
+#### Skill 14 — Unreal Conditionals
+
+**Present Unreal** (Gegenwart — unwirklich/hypothetisch):
+Muster: If + **Past Simple**, would/could/might + **Verb**
+- "If I **were** rich, I **would travel** the world." (NICHT: if I was)
+- "If he **had** more time, he **could** finish the project."
+- WICHTIG: `be` → immer **were** (nicht was) bei Unreal Conditionals!
+
+**Past Unreal** (Vergangenheit — nicht geschehen):
+Muster: If + **Past Perfect (had + Past Participle)**, would have + **Past Participle**
+- "If I **had known**, I **would have told** you."
+- "If you **had paid** for parking elsewhere, I **would have reimbursed** you."
+- "If I **had walked** to work, I **wouldn't have parked** in your space."
+
+| Typ | If-Satz | Hauptsatz |
+|-----|---------|-----------|
+| Present Unreal | Past Simple (were/had/knew) | would/could/might + base |
+| Past Unreal | Past Perfect (had + PP) | would/could + have + PP |
+
+TIP: Schlüsselwörter im TOEIC: "had known / were / would have" → immer Past Unreal. Keine echte Möglichkeit mehr.
+
+#### Skill 15 — Comparisons
 Drei Steigerungsgrade: Positiv / Komparativ / Superlativ
 
 **Ein- und zweisilbige Adjektive & Adverbien** (Endung `-er`/`-est`):
@@ -429,7 +565,7 @@ Drei Steigerungsgrade: Positiv / Komparativ / Superlativ
 TIP: Superlative werden IMMER von `the` begleitet.
 TIP: Zweier-Vergleich → Komparativ + `than`; Dreier+ → Superlativ + `the`
 
-#### Skill 8 — Pronouns
+#### Skill 16 — Pronouns
 Pronomen stimmt in Person und Numerus mit seinem Antezedens überein:
 
 | Subject | Object | Possessive Adj | Possessive Pronoun | Reflexive |
@@ -443,7 +579,7 @@ Pronomen stimmt in Person und Numerus mit seinem Antezedens überein:
 
 TIP: Antezedens identifizieren → Person und Numerus bestimmen → passendes Pronomen wählen
 
-#### Skill 9 — Subject Relative Pronouns
+#### Skill 17 — Subject Relative Pronouns
 
 **Restrictive Clauses** (notwendig zur Identifikation — keine Kommas):
 | Antecedent | Relative Pronoun |
@@ -466,7 +602,7 @@ Beispiele:
 
 TIP: Der Adjektivsatz folgt DIREKT dem Antezedens.
 
-#### Skill 10 — Object Relative Pronouns
+#### Skill 18 — Object Relative Pronouns
 
 **Restrictive Clauses** — wenn Relativpronomen das Objekt des Relativsatzes ist:
 | Antecedent | Relative Pronoun |
@@ -488,7 +624,7 @@ Beispiele:
 
 TIP: Wenn das Relativpronomen das Subjekt des Relativsatzes ist → Subject Relative Pronoun verwenden. Wenn es das Objekt ist → Object Relative Pronoun. Für `whose` immer Object Pronoun nutzen.
 
-#### Skill 11 — Passive Voice
+#### Skill 19 — Passive Voice
 Passiv = Subjekt empfängt die Handlung (Agens unbekannt/unwichtig)
 Bildung: **be** (in beliebigem Tempus) + **Past Participle**
 
@@ -509,14 +645,14 @@ Wenn der Agens genannt wird → mit `by`: "The letter **was signed by** the acco
 
 TIP: Prüfe ob Subjekt die Handlung AUSFÜHRT (aktiv) oder EMPFÄNGT (passiv).
 
-#### Skill 12 — Word Meaning
+#### Skill 20 — Word Meaning
 Richtiges Vokabular aus Kontext erschließen:
 - Nie nur die Lücke selbst betrachten — UMLIEGENDE Sätze geben die Bedeutung vor
 - Beispiel: Workshop-Ankündigung → Leute die teilnehmen = **participants** (nicht consultants/customers/reviewers)
 - Beispiel: Schwieriger Arzttermin → Person die einen Termin bekommt = **fortunate** (nicht wise/necessary/persistent)
 - Strategie: Was beschreibt der ganze Kontext? Welches Wort passt zur Gesamtsituation?
 
-#### Skill 13 — Sentence Choice
+#### Skill 21 — Sentence Choice
 Beim Einfügen eines ganzen Satzes in eine Passage:
 - TIP: Identifiziere BOTH the TOPIC and the PURPOSE of the passage
 - Der einzufügende Satz muss THEMA UND ZWECK der Passage widerspiegeln
@@ -569,6 +705,11 @@ Nach Präpositionen IMMER Gerund (nicht Infinitiv):
 **Aufbau:** 29 Single Passage + 25 Multiple Passage (2–3 Texte gleichzeitig)
 Jeder Passagen-Set hat 2–5 Fragen.
 
+**Multiple Passage Struktur:**
+- **Double Passage**: 2 Texte (z.B. Email + Announcement, Memo + Form) → 5 Fragen; einige Fragen verlangen Infos aus BEIDEN Texten
+- **Triple Passage**: 3 Texte (z.B. Email-Kette + Formular + Tabelle) → 5 Fragen; mind. 1 Frage verknüpft alle 3 Texte
+- Strategie: Jede Passage einzeln lesen, dann Verbindungen zwischen Texten suchen (z.B. "According to the email AND the table...")
+
 #### PSRA Strategy (vollständig)
 
 **P — Predict:**
@@ -586,13 +727,24 @@ Jeder Passagen-Set hat 2–5 Fragen.
 - Lies den Text schnell — du weißt schon was du suchst
 - Bestätige deine Predictions durch Lesen
 - Beantworte zuerst alle einfachen Fragen, fang dann mit dem Rest an
-- Markiere NICHT auf dem Antwortbogen bis du alle Fragen zur Passage bearbeitet hast
+- Markiere NICHT auf dem Antwortbogen bis du Prediction + Scan GEMACHT hast
+- Die Antworten folgen der Reihenfolge des Textes: Frage 1 → aus dem 1. Abschnitt, Frage 2 → aus dem 2. Abschnitt
 
 **A — Answer:**
 - Jetzt markieren auf dem Antwortbogen
-- Für jede Frage: Key Words suchen, ähnliche Bedeutungen suchen
-- Wenn du keine Antwort weißt: RATE (kein Abzug im TOEIC)
-- Antwortoptionen folgen der Sequenz des Textes — erste Frage meist aus erstem Textabschnitt
+- Für jede Frage: Key Words suchen, ähnliche Bedeutungen / Synonyme suchen
+- Wenn du keine Antwort weißt: RATE (kein Abzug im TOEIC) — NIEMALS leer lassen!
+- Noch unsicher: nochmal Passage scannen, nach Key Words suchen, dann raten
+
+**PSRA-Praxisbeispiel (Memorandum aus Barron's p.164-165):**
+- Memo: To: Lafite/Purchasing — From: Clement/Personnel — Betreff: Equipment
+- Inhalt: desktop computers für Office, fax machines für shipping, answering machines für consultants, **tablet computers für alle** (last piece of hardware, can be used in a variety of ways)
+- Frage: "Which equipment has multiple uses?"
+- Key Words in Frage: equipment, multiple uses
+- Scan Answer Options: Desktop / Fax / Answering machines / Tablet computers
+- Scan Text: "last piece of hardware" = tablet computers → "can be used in a variety of ways"
+- Antwort: (D) Tablet computers
+- Falle: "first" lautet die Antwort (D), NICHT (A) Desktop — "last" im Text ≠ "first" Option
 
 #### Part 7 — Fragetypen
 
