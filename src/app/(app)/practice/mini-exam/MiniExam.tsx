@@ -16,16 +16,48 @@ interface Question {
 interface Answer { questionId: string; userAnswer: string; isCorrect: boolean; timeSpentSec: number }
 
 const EXAM_CONFIG = {
-  parts: [5, 6, 7] as const,
-  questionsPerPart: { 5: 5, 6: 3, 7: 3 } as const,
-  totalTime: 15 * 60, // 15 minutes
-  partNames: { 5: 'Part 5 — Incomplete Sentence', 6: 'Part 6 — Text Completion', 7: 'Part 7 — Reading Comprehension' } as const,
-  partColors: { 5: '#D5FD44', 6: '#D5FD44', 7: '#D5FD44' } as const,
+  parts: [1, 2, 3, 4, 5, 6, 7] as const,
+  questionsPerPart: { 1: 2, 2: 2, 3: 2, 4: 2, 5: 5, 6: 3, 7: 3 } as const,
+  totalTime: 20 * 60, // 20 minutes
+  partNames: {
+    1: 'Part 1 — Photographs',
+    2: 'Part 2 — Question-Response',
+    3: 'Part 3 — Short Conversations',
+    4: 'Part 4 — Short Talks',
+    5: 'Part 5 — Incomplete Sentence',
+    6: 'Part 6 — Text Completion',
+    7: 'Part 7 — Reading Comprehension',
+  } as const,
+  partColors: { 1: '#04FF88', 2: '#04FF88', 3: '#04FF88', 4: '#04FF88', 5: '#D5FD44', 6: '#D5FD44', 7: '#D5FD44' } as const,
 }
 
 const LETTERS = ['A', 'B', 'C', 'D']
 
 type Phase = 'intro' | 'exam' | 'results'
+
+function getListeningContent(content: { question?: string; passage?: string; text?: string }, part: number): { audioText: string | null; mainQuestion: string | null } {
+  const c = content as Record<string, unknown>
+  if (part === 1) {
+    const transcript = c.transcript as string[] | undefined
+    return { audioText: transcript ? transcript.map((t, i) => `${['A','B','C','D'][i]}. ${t}`).join('\n') : null, mainQuestion: 'Welche Aussage beschreibt das Foto?' }
+  }
+  if (part === 2) {
+    const q = c.question as string | undefined
+    const responses = c.responses as string[] | undefined
+    const responseText = responses ? responses.map((r, i) => `${['A','B','C'][i]}. ${r}`).join('\n') : null
+    return { audioText: responseText ? `Frage: ${q}\n\n${responseText}` : q ?? null, mainQuestion: q ?? null }
+  }
+  if (part === 3 || part === 4) {
+    const dialogue = c.dialogue as { speaker: string; line: string }[] | undefined
+    const transcript = c.transcript as string | undefined
+    const talk = c.talk as string | undefined
+    const audioText = dialogue
+      ? dialogue.map(d => `${d.speaker}: ${d.line}`).join('\n')
+      : (transcript ?? talk ?? null)
+    return { audioText, mainQuestion: null }
+  }
+  return { audioText: null, mainQuestion: content.question ?? content.text ?? null }
+}
 
 export default function MiniExam() {
   const router = useRouter()
@@ -138,8 +170,8 @@ export default function MiniExam() {
               <Clock size={20} style={{ color: '#fbbf24' }} />
             </div>
             <div>
-              <p className="font-semibold">15 Minuten · {Object.values(EXAM_CONFIG.questionsPerPart).reduce((a, b) => a + b, 0)} Fragen</p>
-              <p className="text-xs" style={{ color: 'var(--muted)' }}>Reading Parts 5, 6 und 7 kombiniert</p>
+              <p className="font-semibold">20 Minuten · {Object.values(EXAM_CONFIG.questionsPerPart).reduce((a, b) => a + b, 0)} Fragen</p>
+              <p className="text-xs" style={{ color: 'var(--muted)' }}>Listening Parts 1–4 + Reading Parts 5–7</p>
             </div>
           </div>
 
@@ -295,7 +327,7 @@ export default function MiniExam() {
       {/* Header bar */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 12, fontWeight: 600, color: EXAM_CONFIG.partColors[q.part as 5|6|7] }}>
+          <span style={{ fontSize: 12, fontWeight: 600, color: EXAM_CONFIG.partColors[q.part as 1|2|3|4|5|6|7] }}>
             Part {q.part}
           </span>
           <span style={{ color: 'var(--card-border)' }}>·</span>
@@ -320,6 +352,18 @@ export default function MiniExam() {
 
       {/* Question card */}
       <div className="card" style={{ padding: '24px 28px' }}>
+        {/* Listening audio content (shown as text in exam mode) */}
+        {[1, 2, 3, 4].includes(q.part) && (() => {
+          const { audioText } = getListeningContent(content, q.part)
+          return audioText ? (
+            <div style={{ padding: '12px 16px', marginBottom: 16, borderRadius: 8, background: 'rgba(4,255,136,0.06)', border: '1px solid rgba(4,255,136,0.25)' }}>
+              <p style={{ fontSize: 10, fontWeight: 700, color: '#04FF88', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+                🎧 Im echten TOEIC wird dieser Text vorgelesen
+              </p>
+              <p style={{ fontSize: 13, lineHeight: 1.7, whiteSpace: 'pre-wrap', color: 'var(--fg)' }}>{audioText}</p>
+            </div>
+          ) : null
+        })()}
         {content.passage && (
           <div style={{ padding: '14px 18px', marginBottom: 18, borderRadius: 8, background: 'var(--background)', borderLeft: '3px solid var(--accent)' }}>
             <p className="text-xs font-medium" style={{ color: 'var(--muted)', marginBottom: 6 }}>Passage</p>
@@ -327,7 +371,9 @@ export default function MiniExam() {
           </div>
         )}
         <p style={{ fontSize: 15, fontWeight: 500, lineHeight: 1.6, marginBottom: 20 }}>
-          {content.question ?? content.text ?? `Frage ${currentIdx + 1}`}
+          {[1, 2, 3, 4].includes(q.part)
+            ? (getListeningContent(content, q.part).mainQuestion ?? content.question ?? content.text ?? `Frage ${currentIdx + 1}`)
+            : (content.question ?? content.text ?? `Frage ${currentIdx + 1}`)}
         </p>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 9, marginBottom: 20 }}>
