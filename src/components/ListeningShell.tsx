@@ -538,6 +538,41 @@ function Part2View({ question, onAnswer, submitted, selected }: Part2Props) {
   )
 }
 
+function FiveWReflection({ color }: { color: string }) {
+  const [open, setOpen] = useState(false)
+  const items = [
+    { q: 'Who', label: 'Wer spricht / ist beteiligt?', example: 'z.B. Zwei Kollegen, ein Hotelgast, ein Pilot…' },
+    { q: 'What', label: 'Worüber sprechen / berichten sie?', example: 'z.B. Terminverschiebung, Produktbestellung, Wetterbericht…' },
+    { q: 'Where', label: 'Wo findet das Gespräch / der Talk statt?', example: 'z.B. Büro, Flughafen, Restaurant, Telefonanruf…' },
+    { q: 'When', label: 'Wann passiert es?', example: 'z.B. Morgen, nächste Woche, um 3 Uhr…' },
+    { q: 'Why', label: 'Warum sprechen / berichten sie?', example: 'z.B. Problem lösen, Infos weitergeben, etwas bestellen…' },
+  ]
+  return (
+    <div style={{ marginTop: 14, borderRadius: 8, background: `${color}08`, border: `1px solid ${color}30`, borderLeft: `3px solid ${color}` }}>
+      <button onClick={() => setOpen(v => !v)} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}>
+        <span style={{ fontSize: 12, fontWeight: 700, color }}>💭 5W-Reflexion — Vertiefe dein Verständnis</span>
+        <span style={{ fontSize: 11, color, fontWeight: 600 }}>{open ? '▲' : '▼'}</span>
+      </button>
+      {open && (
+        <div style={{ padding: '0 14px 14px' }}>
+          <p style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 10, lineHeight: 1.5 }}>Beantworte diese Fragen im Kopf bevor du weitermachst:</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {items.map(item => (
+              <div key={item.q} style={{ display: 'flex', gap: 10, padding: '7px 10px', borderRadius: 7, background: `${color}10` }}>
+                <span style={{ fontSize: 12, fontWeight: 800, color, minWidth: 42, flexShrink: 0 }}>{item.q}</span>
+                <div>
+                  <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--fg)', lineHeight: 1.4 }}>{item.label}</p>
+                  <p style={{ fontSize: 11, color: 'var(--muted)', lineHeight: 1.4 }}>{item.example}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 interface MultiQProps {
   question: Question
   part: 3 | 4
@@ -730,6 +765,7 @@ function MultiQuestionView({ question, part, onAnswers, submitted, selected }: M
           <p style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.6 }}>{question.explanation}</p>
         </div>
       )}
+      {submitted && <FiveWReflection color={color} />}
       {submitted && (dialogue || transcriptText) && (
         <div style={{ marginTop: 12 }}>
           <button onClick={() => setShowTranscript(v => !v)}

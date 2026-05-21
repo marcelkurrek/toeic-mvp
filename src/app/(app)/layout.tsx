@@ -1,4 +1,4 @@
-import Sidebar from '@/components/Sidebar'
+import AppLayoutClient from '@/components/AppLayoutClient'
 import { createClient } from '@/lib/supabase/server'
 import { isAdminEmail } from '@/lib/admin'
 
@@ -8,11 +8,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const isAdmin = isAdminEmail(user?.email)
 
   return (
-    <div className="flex min-h-screen">
-      <Sidebar isAdmin={isAdmin} />
-      <main className="flex-1 overflow-auto" style={{ padding: '40px' }}>
-        {children}
-      </main>
-    </div>
+    <AppLayoutClient isAdmin={isAdmin}>
+      {children}
+    </AppLayoutClient>
   )
 }

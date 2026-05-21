@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { LayoutDashboard, LogOut, BookOpenCheck, GraduationCap, Settings, ShieldAlert, Trophy } from 'lucide-react'
+import { LayoutDashboard, LogOut, BookOpenCheck, GraduationCap, Settings, ShieldAlert, Trophy, XCircle, X } from 'lucide-react'
 import { useLang } from '@/lib/i18n/client'
 import LanguageSwitcher from './LanguageSwitcher'
 import ThemeSwitcher from './ThemeSwitcher'
@@ -19,6 +19,13 @@ const NAV = [
     href: '/achievements',
     label: 'Achievements',
     icon: Trophy,
+    exact: true,
+    activeFor: [] as string[],
+  },
+  {
+    href: '/practice/wrong-answers',
+    label: 'Meine Fehler',
+    icon: XCircle,
     exact: true,
     activeFor: [] as string[],
   },
@@ -78,7 +85,15 @@ function NavItem({
   )
 }
 
-export default function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
+export default function Sidebar({
+  isAdmin = false,
+  mobileOpen = false,
+  onClose,
+}: {
+  isAdmin?: boolean
+  mobileOpen?: boolean
+  onClose?: () => void
+}) {
   const router = useRouter()
   const supabase = createClient()
   const { t } = useLang()
@@ -90,7 +105,7 @@ export default function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
   }
 
   return (
-    <aside className="flex flex-col shrink-0"
+    <aside className="flex flex-col shrink-0 sidebar-root"
       style={{
         width: 210,
         background: 'var(--card)',
@@ -98,6 +113,36 @@ export default function Sidebar({ isAdmin = false }: { isAdmin?: boolean }) {
         minHeight: '100vh',
         padding: '20px 8px 16px',
       }}>
+      <style>{`
+        @media (max-width: 767px) {
+          .sidebar-root {
+            position: fixed !important;
+            top: 0;
+            left: ${mobileOpen ? '0' : '-220px'};
+            height: 100vh;
+            z-index: 1000;
+            transition: left 0.25s ease;
+            min-height: 100vh;
+          }
+          .sidebar-close-btn { display: flex !important; }
+        }
+        @media (min-width: 768px) {
+          .sidebar-close-btn { display: none !important; }
+        }
+      `}</style>
+      <button
+        onClick={onClose}
+        aria-label="Close menu"
+        className="sidebar-close-btn"
+        style={{
+          display: 'none',
+          position: 'absolute', top: 10, right: 10,
+          background: 'none', border: 'none', cursor: 'pointer',
+          color: 'var(--muted)', padding: 4, borderRadius: 6,
+        }}
+      >
+        <X size={18} />
+      </button>
 
       {/* Brand */}
       <div style={{ padding: '4px 12px 18px', borderBottom: '1px solid var(--card-border)', marginBottom: 10 }}>

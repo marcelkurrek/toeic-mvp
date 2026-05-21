@@ -69,14 +69,18 @@ export default async function DashboardPage() {
   // Must filter by section to avoid collision with SPEAKING parts 1-4
   const listeningProgress = (dbUser?.progress ?? []).filter(p => p.section === 'LISTENING')
   const readingProgress   = (dbUser?.progress ?? []).filter(p => p.section === 'READING')
-  const listeningAccuracy = listeningProgress.length
-    ? listeningProgress.reduce((s, p) => s + p.accuracy, 0) / listeningProgress.length
+  const L_WEIGHTS: Record<number, number> = { 1: 6, 2: 25, 3: 39, 4: 30 }
+  const R_WEIGHTS: Record<number, number> = { 5: 30, 6: 16, 7: 54 }
+  const lWeightedAcc = listeningProgress.length
+    ? listeningProgress.reduce((s, p) => s + p.accuracy * (L_WEIGHTS[p.part] ?? 1), 0)
+      / listeningProgress.reduce((s, p) => s + (L_WEIGHTS[p.part] ?? 1), 0)
     : null
-  const readingAccuracy = readingProgress.length
-    ? readingProgress.reduce((s, p) => s + p.accuracy, 0) / readingProgress.length
+  const rWeightedAcc = readingProgress.length
+    ? readingProgress.reduce((s, p) => s + p.accuracy * (R_WEIGHTS[p.part] ?? 1), 0)
+      / readingProgress.reduce((s, p) => s + (R_WEIGHTS[p.part] ?? 1), 0)
     : null
-  const lScore = listeningAccuracy !== null ? accuracyToListeningScore(listeningAccuracy) : null
-  const rScore = readingAccuracy   !== null ? accuracyToReadingScore(readingAccuracy)   : null
+  const lScore = lWeightedAcc !== null ? accuracyToListeningScore(lWeightedAcc) : null
+  const rScore = rWeightedAcc !== null ? accuracyToReadingScore(rWeightedAcc)   : null
   const estimatedScore = lScore !== null && rScore !== null
     ? lScore + rScore
     : lScore ?? rScore ?? null
@@ -231,6 +235,8 @@ export default async function DashboardPage() {
 
   const totalMissionMins = mission.reduce((sum, s) => sum + (s.count.includes('Min') ? parseInt(s.count) : 8), 0)
 
+  const practicedToday = allSessions.some(s => new Date(s.createdAt).toDateString() === new Date().toDateString())
+
   const firstName = dbUser?.name?.split(' ')[0] ?? user.email?.split('@')[0] ?? ''
 
   const currPct = dbUser?.sessions[0]?.score != null && dbUser?.sessions[0]?.maxScore
@@ -246,6 +252,22 @@ export default async function DashboardPage() {
 
   return (
     <div>
+
+      {streak.current > 0 && !practicedToday && (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 14, padding: '12px 18px', borderRadius: 12, background: 'rgba(251,146,60,0.12)', border: '1px solid rgba(251,146,60,0.35)', marginBottom: 20 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: 18 }}>🔥</span>
+            <p style={{ fontSize: 13, fontWeight: 600, color: '#fb923c' }}>
+              Dein {streak.current}-Tage Streak endet heute! Übe jetzt um ihn zu erhalten.
+            </p>
+          </div>
+          <Link href="/test-training" style={{ textDecoration: 'none', whiteSpace: 'nowrap' }}>
+            <div style={{ padding: '7px 14px', borderRadius: 8, background: 'rgba(251,146,60,0.2)', border: '1px solid rgba(251,146,60,0.5)', color: '#fb923c', fontSize: 12, fontWeight: 700 }}>
+              Jetzt üben
+            </div>
+          </Link>
+        </div>
+      )}
 
       {/* ── Trainingsweg ──────────────────────────────────────────────── */}
       {(() => {
