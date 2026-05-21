@@ -3,8 +3,38 @@ import { useEffect, useState, useCallback } from 'react'
 import { useExamStore } from '@/store/exam'
 import { useRouter } from 'next/navigation'
 import type { Question } from '@/types'
-import { CheckCircle, XCircle, ChevronRight, RotateCcw, Zap } from 'lucide-react'
+import { CheckCircle, XCircle, ChevronRight, RotateCcw, Zap, Lightbulb, X } from 'lucide-react'
 import { useLang } from '@/lib/i18n/client'
+
+const READING_STRATEGY: Record<5 | 6 | 7, { title: string; tips: string[] }> = {
+  5: {
+    title: 'Part 5 Strategie — Lückentexte (Grammatik & Wortschatz)',
+    tips: [
+      'Bestimme zuerst die fehlende Wortart: Verb, Adjektiv, Substantiv oder Adverb?',
+      'Eliminiere alle Optionen der falschen Wortart — oft bleiben 1-2 übrig.',
+      'Prüfe dann: Zeitform, Aktiv/Passiv, Singular/Plural.',
+      'Bei Wortschatz-Fragen: Kontext des gesamten Satzes entscheidet, nicht Übersetzung.',
+    ],
+  },
+  6: {
+    title: 'Part 6 Strategie — Textergänzung',
+    tips: [
+      'Lese den gesamten Text ZUERST für Gesamtkontext, dann fülle Lücken.',
+      'Zeitkohärenz: Alle Verben im Text folgen einer Zeitlinie — erkenne sie.',
+      'Verbindungswörter (however, therefore, moreover): achte auf logische Verbindung zum Vorhergehenden.',
+      'Satzeinfügungs-Optionen: nur eine passt logisch zum Absatz davor UND danach.',
+    ],
+  },
+  7: {
+    title: 'Part 7 Strategie — Leseverständnis',
+    tips: [
+      'ZUERST die Fragen lesen, DANN im Text nach Antworten suchen (kein vollständiges Lesen).',
+      'NOT-Fragen und INFERENCE-Fragen markieren und am Ende beantworten.',
+      'Multi-Passage: notiere mental welche Info in welchem Dokument steht.',
+      'Wortbedeutungs-Fragen (closest in meaning): suche das Wort im Kontext, nicht isoliert.',
+    ],
+  },
+}
 
 interface PracticeShellProps {
   part: 5 | 6 | 7
@@ -20,6 +50,7 @@ export default function PracticeShell({ part }: PracticeShellProps) {
   const [loading, setLoading]       = useState(true)
   const [saving, setSaving]         = useState(false)
   const [adaptiveInfo, setAdaptiveInfo] = useState<{ difficulty: { min: number; max: number }; accuracy: number | null } | null>(null)
+  const [strategyDismissed, setStrategyDismissed] = useState(false)
 
   const partInfo = t.practice.parts[part]
 
@@ -200,6 +231,34 @@ export default function PracticeShell({ part }: PracticeShellProps) {
         <div className="h-full rounded-full transition-all duration-300"
           style={{ width: `${(currentIndex / questions.length) * 100}%`, background: 'var(--accent)' }} />
       </div>
+
+      {/* Strategy hint — shown before first question, dismissible */}
+      {currentIndex === 0 && !strategyDismissed && !submitted && (() => {
+        const s = READING_STRATEGY[part as 5 | 6 | 7]
+        return s ? (
+          <div style={{ padding: '16px 18px', borderRadius: 12, background: 'rgba(213,253,68,0.06)', border: '1px solid rgba(213,253,68,0.25)', marginBottom: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <Lightbulb size={16} style={{ color: '#D5FD44', flexShrink: 0, marginTop: 1 }} />
+                <div>
+                  <p style={{ fontSize: 12, fontWeight: 700, color: '#D5FD44', marginBottom: 8 }}>{s.title}</p>
+                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    {s.tips.map((tip, i) => (
+                      <li key={i} style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.5, paddingLeft: 14, position: 'relative' }}>
+                        <span style={{ position: 'absolute', left: 0, color: '#D5FD44' }}>›</span>
+                        {tip}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+              <button onClick={() => setStrategyDismissed(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', flexShrink: 0, padding: 2 }}>
+                <X size={14} />
+              </button>
+            </div>
+          </div>
+        ) : null
+      })()}
 
       <QuestionCard
         question={question}

@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/prisma'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
-import { ChevronRight, Flame, Trophy, Target } from 'lucide-react'
+import { ChevronRight, Flame, Trophy, Target, AlertTriangle, BookOpen } from 'lucide-react'
 import { getServerTranslations } from '@/lib/i18n/server'
 import { computeStreak } from '@/lib/streak'
 import WeeklyHeatmap from '@/components/WeeklyHeatmap'
@@ -22,7 +22,7 @@ export default async function ProgressPage() {
         where: { completedAt: { not: null } },
         orderBy: { createdAt: 'desc' },
         take: 20,
-        include: { answers: { include: { question: { select: { part: true } } } } },
+        include: { answers: { include: { question: { select: { part: true, tags: true, section: true } } } } },
       },
     },
   })
@@ -38,6 +38,24 @@ export default async function ProgressPage() {
   const bestPart = progress.length
     ? progress.reduce((best, p) => p.accuracy > best.accuracy ? p : best)
     : null
+
+  // Grammar pattern error analysis (Part 5 tags)
+  const tagMap: Record<string, { wrong: number; total: number }> = {}
+  for (const session of sessions) {
+    for (const answer of session.answers) {
+      const q = answer.question as { part: number; tags: string[]; section: string }
+      if (q.part !== 5) continue
+      for (const tag of (q.tags ?? [])) {
+        if (!tagMap[tag]) tagMap[tag] = { wrong: 0, total: 0 }
+        tagMap[tag].total++
+        if (!answer.isCorrect) tagMap[tag].wrong++
+      }
+    }
+  }
+  const tagStats = Object.entries(tagMap)
+    .filter(([, v]) => v.total >= 2)
+    .map(([tag, v]) => ({ tag, wrong: v.wrong, total: v.total, errorRate: v.wrong / v.total }))
+    .sort((a, b) => b.errorRate - a.errorRate)
 
   const PART_META = [
     { part: 1, label: 'Listening · Part 1', desc: 'Fotos beschreiben (4 Aussagen)',                href: '/practice/part1', color: '#04FF88', subtle: 'rgba(4,255,136,0.10)' },
@@ -102,6 +120,54 @@ export default async function ProgressPage() {
         <p className="font-semibold text-sm" style={{ marginBottom: 16 }}>Aktivität — letzte 4 Wochen</p>
         <WeeklyHeatmap sessionDates={sessions.map(s => s.createdAt.toISOString())} />
       </div>
+
+      {/* Grammar Pattern Error Analysis */}
+      {tagStats.length > 0 && (
+        <div className="card" style={{ padding: '20px 24px', marginBottom: 36 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+            <AlertTriangle size={16} style={{ color: '#fbbf24' }} />
+            <p className="font-semibold text-sm">Grammatik-Schwachstellen (Part 5)</p>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {tagStats.slice(0, 8).map(({ tag, wrong, total, errorRate }) => {
+              const pct = Math.round(errorRate * 100)
+              const barColor = pct >= 60 ? '#ef4444' : pct >= 35 ? '#fbbf24' : 'var(--success)'
+              return (
+                <div key={tag}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontSize: 12, fontWeight: 600, padding: '2px 9px', borderRadius: 99, background: 'rgba(213,253,68,0.12)', color: '#D5FD44', border: '1px solid rgba(213,253,68,0.25)' }}>{tag}</span>
+                      {pct >= 50 && (
+                        <span style={{ fontSize: 11, color: '#ef4444', fontWeight: 600 }}>Schwachstelle</span>
+                      )}
+                    </div>
+                    <span style={{ fontSize: 12, color: 'var(--muted)' }}>{wrong}/{total} falsch ({pct}%)</span>
+                  </div>
+                  <div style={{ height: 6, borderRadius: 99, background: 'var(--card-border)', overflow: 'hidden' }}>
+                    <div style={{ height: '100%', borderRadius: 99, width: `${pct}%`, background: barColor, transition: 'width 0.4s' }} />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+          {tagStats.some(t => t.errorRate >= 0.5) && (
+            <div style={{ marginTop: 14, padding: '10px 14px', borderRadius: 8, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)' }}>
+              <p style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.5 }}>
+                <span style={{ color: '#ef4444', fontWeight: 600 }}>Empfehlung: </span>
+                Fokussiere Part 5 — Muster{' '}
+                <strong style={{ color: '#D5FD44' }}>{tagStats.filter(t => t.errorRate >= 0.5).map(t => t.tag).join(', ')}</strong>
+                {' '}machen die meisten Fehler aus. Übe gezielte Grammatik-Sätze für diese Muster.
+              </p>
+            </div>
+          )}
+          <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <BookOpen size={13} style={{ color: 'var(--muted)' }} />
+            <Link href="/practice/part5" style={{ fontSize: 12, color: 'var(--accent)', fontWeight: 600 }}>
+              Part 5 gezielt üben →
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* Per-part accuracy */}
       <h2 className="text-lg font-semibold" style={{ marginBottom: 16 }}>{t.progress.accuracyByPart}</h2>

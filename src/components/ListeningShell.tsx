@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Play, Volume2, ChevronRight, CheckCircle, XCircle, RotateCcw, Eye, EyeOff, TrendingUp } from 'lucide-react'
+import { Play, Volume2, ChevronRight, CheckCircle, XCircle, RotateCcw, Eye, EyeOff, TrendingUp, ChevronDown, ChevronUp, Lightbulb, X } from 'lucide-react'
 
 type ListeningPart = 1 | 2 | 3 | 4
 type Phase = 'loading' | 'prereading' | 'ready' | 'playing' | 'answering' | 'submitted' | 'finished'
@@ -65,6 +65,45 @@ function useTimer(initialSecs: number, running: boolean, onEnd: () => void) {
   return remaining
 }
 
+const PART_STRATEGY: Record<number, { title: string; tips: string[] }> = {
+  1: {
+    title: 'Part 1 Strategie — Fotos beschreiben',
+    tips: [
+      'Schaue das Foto an bevor die Aussagen beginnen: Personen, Objekte, Ort.',
+      'Richtige Antwort beschreibt genau was zu sehen ist — keine Vermutungen.',
+      'Eliminiere Aussagen mit Details die NICHT auf dem Foto sind.',
+      'Achte auf Verb-Zeitformen: is being (aktiv jetzt) vs. has been (abgeschlossen).',
+    ],
+  },
+  2: {
+    title: 'Part 2 Strategie — Frage & Antwort',
+    tips: [
+      'Identifiziere sofort das Fragewort: Who/What/When/Where/Why/How.',
+      'Richtige Antwort PASST zur Frage — oft indirekt (kein direktes "Yes/No" bei W-Fragen).',
+      'Achtung: Antworten mit ähnlich klingenden Wörtern (sound-alikes) sind Fallen.',
+      'Bei "or"-Fragen: Antwort wählt eine Option oder sagt "neither/both".',
+    ],
+  },
+  3: {
+    title: 'Part 3 Strategie — Gespräche',
+    tips: [
+      'ZUERST alle 3 Fragen lesen, DANN erst das Audio starten.',
+      'Fokus beim Hören: Wer spricht (Rolle/Beziehung), Problem, Lösung/nächster Schritt.',
+      'Grafik-Fragen: Scanne die Tabelle vor dem Audio für Orientierung.',
+      'Letzte Frage fragt oft nach nächster Handlung ("What will the man do next?").',
+    ],
+  },
+  4: {
+    title: 'Part 4 Strategie — Monologe',
+    tips: [
+      'ZUERST alle 3 Fragen lesen — so weißt du worauf du achten musst.',
+      'Erste Sätze nennen oft: Sprecher-Rolle, Thema, Ort/Kontext.',
+      'Zahlen, Namen, Daten mental notieren — sie werden abgefragt.',
+      'Grafik-Fragen: Scanne vor dem Audio, suche dann den passenden Wert.',
+    ],
+  },
+}
+
 // Build TTS script for each part type
 function buildScript(question: Question, part: ListeningPart): string {
   const c = question.content as Record<string, unknown>
@@ -106,6 +145,7 @@ function Part1View({ question, onAnswer, submitted, selected }: Part1Props) {
   const [showTranscript, setShowTranscript] = useState(false)
   const transcript = (c.transcript as string[]) ?? []
   const correct = question.answer
+  const letters = ['A', 'B', 'C', 'D']
 
   const handlePlay = () => {
     setPlayed(true)
@@ -156,6 +196,30 @@ function Part1View({ question, onAnswer, submitted, selected }: Part1Props) {
           <p style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.6 }}>{question.explanation}</p>
         </div>
       )}
+      {submitted && transcript.length > 0 && (
+        <div style={{ marginTop: 12 }}>
+          <button onClick={() => setShowTranscript(v => !v)}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#04FF88', background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontWeight: 600 }}>
+            {showTranscript ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+            {showTranscript ? 'Transkript ausblenden' : 'Transkript anzeigen'}
+          </button>
+          {showTranscript && (
+            <div style={{ marginTop: 10, padding: '12px 16px', borderRadius: 10, background: 'rgba(4,255,136,0.06)', border: '1px solid rgba(4,255,136,0.25)' }}>
+              {transcript.map((line, i) => {
+                const letter = letters[i]
+                const isCorrect = correct === letter
+                return (
+                  <div key={i} style={{ display: 'flex', gap: 10, marginBottom: i < transcript.length - 1 ? 8 : 0 }}>
+                    <span style={{ fontWeight: 700, fontSize: 12, color: isCorrect ? '#04FF88' : 'var(--muted)', flexShrink: 0 }}>{letter}.</span>
+                    <span style={{ fontSize: 12, lineHeight: 1.5, color: isCorrect ? '#04FF88' : 'var(--muted)', fontWeight: isCorrect ? 600 : 400 }}>{line}</span>
+                    {isCorrect && <CheckCircle size={13} style={{ color: '#04FF88', flexShrink: 0, marginTop: 2 }} />}
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
@@ -165,9 +229,11 @@ function Part2View({ question, onAnswer, submitted, selected }: Part2Props) {
   const c = question.content as Record<string, unknown>
   const { speak, speaking } = useTTS()
   const [phase, setPhase] = useState<'ready' | 'playing' | 'answering'>('ready')
+  const [showTranscript, setShowTranscript] = useState(false)
   const opts = question.options as string[]
   const responses = (c.responses as string[]) ?? opts
   const correct = question.answer
+  const letters = ['A', 'B', 'C']
 
   const handlePlay = () => {
     setPhase('playing')
@@ -223,6 +289,37 @@ function Part2View({ question, onAnswer, submitted, selected }: Part2Props) {
           <p style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.6 }}>{question.explanation}</p>
         </div>
       )}
+      {submitted && (
+        <div style={{ marginTop: 12 }}>
+          <button onClick={() => setShowTranscript(v => !v)}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#D5FD44', background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontWeight: 600 }}>
+            {showTranscript ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+            {showTranscript ? 'Transkript ausblenden' : 'Transkript anzeigen'}
+          </button>
+          {showTranscript && (
+            <div style={{ marginTop: 10, padding: '12px 16px', borderRadius: 10, background: 'rgba(213,253,68,0.06)', border: '1px solid rgba(213,253,68,0.25)' }}>
+              <div style={{ marginBottom: 8 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Frage</span>
+                <p style={{ fontSize: 12, lineHeight: 1.5, marginTop: 3, color: 'var(--fg)' }}>{(c.question as string) ?? '—'}</p>
+              </div>
+              <div>
+                <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Antworten</span>
+                {responses.map((line, i) => {
+                  const letter = letters[i]
+                  const isCorrect = correct === letter
+                  return (
+                    <div key={i} style={{ display: 'flex', gap: 10, marginTop: 4 }}>
+                      <span style={{ fontWeight: 700, fontSize: 12, color: isCorrect ? '#D5FD44' : 'var(--muted)', flexShrink: 0 }}>{letter}.</span>
+                      <span style={{ fontSize: 12, lineHeight: 1.5, color: isCorrect ? '#D5FD44' : 'var(--muted)', fontWeight: isCorrect ? 600 : 400 }}>{line}</span>
+                      {isCorrect && <CheckCircle size={13} style={{ color: '#D5FD44', flexShrink: 0, marginTop: 2 }} />}
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
@@ -238,11 +335,14 @@ function MultiQuestionView({ question, part, onAnswers, submitted, selected }: M
   const c = question.content as Record<string, unknown>
   const { speak, speaking } = useTTS()
   const [phase, setPhase] = useState<'prereading' | 'ready' | 'playing' | 'answering'>('prereading')
+  const [showTranscript, setShowTranscript] = useState(false)
   const prereadSecs = 30
   const remaining = useTimer(prereadSecs, phase === 'prereading', () => setPhase('ready'))
   const questions = (c.questions as { stem: string; options: string[]; answer: string }[]) ?? []
   const graphic   = c.graphic as { type: string; title: string; headers?: string[]; rows: (string[])[] } | undefined
   const color = part === 3 ? '#fb923c' : '#AE00FF'
+  const transcriptText = (c.transcript as string) ?? (c.talk as string) ?? ''
+  const dialogue = c.dialogue as { speaker: string; line: string }[] | undefined
 
   const handlePlay = () => {
     setPhase('playing')
@@ -341,6 +441,29 @@ function MultiQuestionView({ question, part, onAnswers, submitted, selected }: M
           <p style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.6 }}>{question.explanation}</p>
         </div>
       )}
+      {submitted && (dialogue || transcriptText) && (
+        <div style={{ marginTop: 12 }}>
+          <button onClick={() => setShowTranscript(v => !v)}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontWeight: 600 }}>
+            {showTranscript ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+            {showTranscript ? 'Transkript ausblenden' : 'Vollständiges Transkript anzeigen'}
+          </button>
+          {showTranscript && (
+            <div style={{ marginTop: 10, padding: '14px 16px', borderRadius: 10, background: `${color}08`, border: `1px solid ${color}30` }}>
+              {dialogue ? (
+                dialogue.map((d, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 10, marginBottom: i < dialogue.length - 1 ? 8 : 0 }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color, flexShrink: 0, minWidth: 60 }}>{d.speaker}</span>
+                    <span style={{ fontSize: 12, lineHeight: 1.6, color: 'var(--fg)' }}>{d.line}</span>
+                  </div>
+                ))
+              ) : (
+                <p style={{ fontSize: 12, lineHeight: 1.8, color: 'var(--fg)', whiteSpace: 'pre-wrap' }}>{transcriptText}</p>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }
@@ -360,6 +483,7 @@ export default function ListeningShell({ part }: ListeningShellProps) {
   const [loading, setLoading] = useState(true)
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [finished, setFinished] = useState(false)
+  const [strategyDismissed, setStrategyDismissed] = useState(false)
   const startTime = useRef(Date.now())
 
   const PART_META: Record<number, { label: string; color: string; desc: string }> = {
@@ -543,6 +667,34 @@ export default function ListeningShell({ part }: ListeningShellProps) {
           LISTENING
         </span>
       </div>
+
+      {/* Strategy hint — shown before first question, dismissible */}
+      {currentIndex === 0 && !strategyDismissed && !submitted && (() => {
+        const s = PART_STRATEGY[part]
+        return s ? (
+          <div style={{ padding: '16px 18px', borderRadius: 12, background: `${meta.color}08`, border: `1px solid ${meta.color}30`, marginBottom: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+              <div style={{ display: 'flex', gap: 10 }}>
+                <Lightbulb size={16} style={{ color: meta.color, flexShrink: 0, marginTop: 1 }} />
+                <div>
+                  <p style={{ fontSize: 12, fontWeight: 700, color: meta.color, marginBottom: 8 }}>{s.title}</p>
+                  <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                    {s.tips.map((tip, i) => (
+                      <li key={i} style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.5, paddingLeft: 14, position: 'relative' }}>
+                        <span style={{ position: 'absolute', left: 0, color: meta.color }}>›</span>
+                        {tip}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+              <button onClick={() => setStrategyDismissed(true)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted)', flexShrink: 0, padding: 2 }}>
+                <X size={14} />
+              </button>
+            </div>
+          </div>
+        ) : null
+      })()}
 
       {/* Question view */}
       <div className="card" style={{ padding: '20px 24px', marginBottom: 16 }}>
