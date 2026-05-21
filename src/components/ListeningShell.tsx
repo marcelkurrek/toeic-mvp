@@ -1,7 +1,31 @@
 'use client'
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Play, Volume2, ChevronRight, CheckCircle, XCircle, RotateCcw, Eye, EyeOff, TrendingUp, ChevronDown, ChevronUp, Lightbulb, X } from 'lucide-react'
+import { Play, Volume2, ChevronRight, CheckCircle, XCircle, RotateCcw, Eye, EyeOff, TrendingUp, ChevronDown, ChevronUp, Lightbulb, X, AlertTriangle } from 'lucide-react'
+
+function ExitDialog({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: () => void }) {
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+      <div style={{ background: 'var(--card)', border: '1px solid var(--card-border)', borderRadius: 16, padding: '28px 32px', maxWidth: 360, width: '90%', boxShadow: '0 20px 60px rgba(0,0,0,0.4)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+          <AlertTriangle size={18} style={{ color: '#fbbf24', flexShrink: 0 }} />
+          <p style={{ fontWeight: 700, fontSize: 15 }}>Session abbrechen?</p>
+        </div>
+        <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.6, marginBottom: 20 }}>
+          Dein Fortschritt in dieser Session wird <strong style={{ color: 'var(--fg)' }}>nicht gespeichert</strong>. Beantwortete Fragen gehen verloren.
+        </p>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button onClick={onCancel} style={{ flex: 1, padding: '10px 16px', borderRadius: 10, background: 'var(--card)', border: '1px solid var(--card-border)', color: 'var(--fg)', cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>
+            Weitermachen
+          </button>
+          <button onClick={onConfirm} style={{ flex: 1, padding: '10px 16px', borderRadius: 10, background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.4)', color: '#ef4444', cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>
+            Abbrechen
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 type ListeningPart = 1 | 2 | 3 | 4
 type Phase = 'loading' | 'prereading' | 'ready' | 'playing' | 'answering' | 'submitted' | 'finished'
@@ -484,7 +508,24 @@ export default function ListeningShell({ part }: ListeningShellProps) {
   const [sessionId, setSessionId] = useState<string | null>(null)
   const [finished, setFinished] = useState(false)
   const [strategyDismissed, setStrategyDismissed] = useState(false)
+  const [showExitDialog, setShowExitDialog] = useState(false)
+  const [exitTarget, setExitTarget] = useState<string | null>(null)
   const startTime = useRef(Date.now())
+
+  const sessionActive = !loading && !finished && answers.length > 0
+
+  useEffect(() => {
+    if (!sessionActive) return
+    const handler = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = '' }
+    window.addEventListener('beforeunload', handler)
+    return () => window.removeEventListener('beforeunload', handler)
+  }, [sessionActive])
+
+  const guardedNavigate = (href: string) => {
+    if (!sessionActive) { router.push(href); return }
+    setExitTarget(href)
+    setShowExitDialog(true)
+  }
 
   const PART_META: Record<number, { label: string; color: string; desc: string }> = {
     1: { label: 'Part 1 – Fotos beschreiben', color: '#04FF88', desc: 'Wähle die Aussage, die das Foto am besten beschreibt.' },
@@ -678,6 +719,12 @@ export default function ListeningShell({ part }: ListeningShellProps) {
 
   return (
     <div style={{ maxWidth: 640, margin: '0 auto' }}>
+      {showExitDialog && (
+        <ExitDialog
+          onConfirm={() => { setShowExitDialog(false); if (exitTarget) router.push(exitTarget) }}
+          onCancel={() => { setShowExitDialog(false); setExitTarget(null) }}
+        />
+      )}
       {/* Header */}
       <div style={{ marginBottom: 20 }}>
         <h1 className="text-2xl font-bold" style={{ marginBottom: 4 }}>{meta.label}</h1>

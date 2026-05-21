@@ -3,8 +3,32 @@ import { useEffect, useState, useCallback } from 'react'
 import { useExamStore } from '@/store/exam'
 import { useRouter } from 'next/navigation'
 import type { Question } from '@/types'
-import { CheckCircle, XCircle, ChevronRight, RotateCcw, Zap, Lightbulb, X } from 'lucide-react'
+import { CheckCircle, XCircle, ChevronRight, RotateCcw, Zap, Lightbulb, X, AlertTriangle } from 'lucide-react'
 import { useLang } from '@/lib/i18n/client'
+
+function ExitDialog({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: () => void }) {
+  return (
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+      <div style={{ background: 'var(--card)', border: '1px solid var(--card-border)', borderRadius: 16, padding: '28px 32px', maxWidth: 360, width: '90%', boxShadow: '0 20px 60px rgba(0,0,0,0.4)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+          <AlertTriangle size={18} style={{ color: '#fbbf24', flexShrink: 0 }} />
+          <p style={{ fontWeight: 700, fontSize: 15 }}>Session abbrechen?</p>
+        </div>
+        <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.6, marginBottom: 20 }}>
+          Dein Fortschritt in dieser Session wird <strong style={{ color: 'var(--fg)' }}>nicht gespeichert</strong>. Beantwortete Fragen gehen verloren.
+        </p>
+        <div style={{ display: 'flex', gap: 10 }}>
+          <button onClick={onCancel} style={{ flex: 1, padding: '10px 16px', borderRadius: 10, background: 'var(--card)', border: '1px solid var(--card-border)', color: 'var(--fg)', cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>
+            Weitermachen
+          </button>
+          <button onClick={onConfirm} style={{ flex: 1, padding: '10px 16px', borderRadius: 10, background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.4)', color: '#ef4444', cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>
+            Abbrechen
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 const READING_STRATEGY: Record<5 | 6 | 7, { title: string; tips: string[] }> = {
   5: {
@@ -51,6 +75,23 @@ export default function PracticeShell({ part }: PracticeShellProps) {
   const [saving, setSaving]         = useState(false)
   const [adaptiveInfo, setAdaptiveInfo] = useState<{ difficulty: { min: number; max: number }; accuracy: number | null } | null>(null)
   const [strategyDismissed, setStrategyDismissed] = useState(false)
+  const [showExitDialog, setShowExitDialog] = useState(false)
+  const [exitTarget, setExitTarget] = useState<string | null>(null)
+
+  const sessionActive = !loading && !isFinished && answers.length > 0
+
+  useEffect(() => {
+    if (!sessionActive) return
+    const handler = (e: BeforeUnloadEvent) => { e.preventDefault(); e.returnValue = '' }
+    window.addEventListener('beforeunload', handler)
+    return () => window.removeEventListener('beforeunload', handler)
+  }, [sessionActive])
+
+  const guardedNavigate = (href: string) => {
+    if (!sessionActive) { router.push(href); return }
+    setExitTarget(href)
+    setShowExitDialog(true)
+  }
 
   const partInfo = t.practice.parts[part]
 
@@ -258,6 +299,12 @@ export default function PracticeShell({ part }: PracticeShellProps) {
 
   return (
     <div style={{ maxWidth: 768, margin: '0 auto' }}>
+      {showExitDialog && (
+        <ExitDialog
+          onConfirm={() => { setShowExitDialog(false); if (exitTarget) router.push(exitTarget) }}
+          onCancel={() => { setShowExitDialog(false); setExitTarget(null) }}
+        />
+      )}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
         <div>
           <h1 className="text-2xl font-bold" style={{ marginBottom: 6 }}>{partInfo.title}</h1>
