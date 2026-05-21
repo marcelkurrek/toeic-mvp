@@ -169,15 +169,44 @@ Antwort ablehnend: I'm sorry, I can't / Regretfully, no / Not at all, I'd be gla
 - Typische Fragmente: Right. / Got it. / Fine with me. / Sure. / Of course.
 - Tip: Kontext nutzen um die vollständige Bedeutung zu verstehen
 
-### Part 4 — Alle 8 Fragetypen
-1. Questions About Events and Facts — Was ist passiert / wird passieren?
-2. Questions About Reasons — Warum? Wozu?
-3. Questions About Numbers — Welche Zahl/Datum/Betrag wurde genannt?
-4. Questions About Main Topics — Worum geht es hauptsächlich?
-5. Paraphrases — Was bedeutet dieser Satz aus dem Talk (in anderen Worten)?
-6. Graphic — Tabelle/Grafik + Talk kombinieren
-7. Implied Meaning — Was impliziert der Sprecher ohne es direkt zu sagen?
-8. Multiple Accents — Sprecher mit verschiedenen Akzenten (britisch, australisch, etc.)
+### Part 4 — Alle 8 Fragetypen (vollständig)
+
+**Skill 1 — Events and Facts (WHAT):**
+- Fragephrasen: What is the talk mainly about? What event will take place next week? What are the tickets for? What will the speaker do after the meeting? What will happen after the program?
+- Antwort-Typen: A parade, A job fair, A concert, The annual banquet, The budget, Plans for next year, She will sign books, He will answer questions, There will be a festival, Furniture will go on sale
+
+**Skill 2 — Reasons (WHY):**
+- Fragephrasen: Why will the bus be late? Why has the schedule been changed? Why does the speaker want to have a meeting? Why does the speaker need to change the appointment? Why is there a sale this week? Why did the speaker make the call? What was the cause of the delay?
+- Antwort-Typen: The weather is bad, The director is away, Traffic is heavy, She wants to discuss the project, He has to go out of town, The store is closing, To ask for help
+
+**Skill 3 — Numbers (HOW MANY / HOW MUCH / HOW LONG / WHAT TIME / WHEN):**
+- Ähnlich klingende Zahlen (FALLE): 7/11, 13/30, 14/40, 15/50, 16/60, 17/70, 18/80, 19/90, 50/60
+- Zahlen die wie andere Wörter klingen: 2=to/too, 3=free, 4=for/forget, 6=picks/sick, 8=ate/wait, 9=fine/time, 10=then/when, 20=plenty
+- Nützliche Mengenphrasen: over 20=more than 20, under 20=fewer than 20, at least 20=20 or more, up to 20=no more than 20
+
+**Skill 4 — Main Topics (AUDIENCE / PURPOSE / LOCATION):**
+- Fragephrasen: What is this talk about? Who is this information for? Who would be interested in this announcement? What is the purpose of this message? Where would you hear this talk?
+- Antwort: Rolle/Gruppe (a client, a ticket clerk, airline passengers, colleagues), Ortstyp (at a convention, at an airport, in an office), Thema (new machinery, environmental responsibility), Zweck (to change an appointment, to advertise, to introduce a speaker)
+
+**Skill 5 — Paraphrases:**
+- Antwort ist eine Umformulierung mit Synonymen, nie ein direktes Zitat
+- Beispiele: "Temperatures will be high today" → "It will be a warm day" / "Please remain seated" → "Please stay in your seats" / "Mr. Johnson has written several books" → "Mr. Johnson is an author" / "Houses in this neighborhood don't cost a great deal" → "It isn't expensive to live in this area"
+- Falsche Antworten nutzen ähnlich klingende Wörter (thirty/thirteen, later/ladder)
+
+**Skill 6 — Graphic:**
+- Grafik-Typen: Timetable (train schedule), Pie chart (budget percentages), Bar chart (units by region), Map/Floor plan (rooms/areas), Hotel directory (floors and departments), Price table (size + coverage/price)
+- Strategie: Grafik VORHER scannen, Schlüsselwörter merken, im Talk nach diesen Wörtern hören
+
+**Skill 7 — Implied Meaning:**
+- Sprecher sagt etwas, meint aber mehr: "They were a bit disappointed by the turnout" → "They expected more people to be there"
+- "I don't know if we're going on the right track" → speaker thinks things aren't going well
+- "Let's get back to the basics" → current approach is wrong
+- Tipp: Bedeutung ergibt sich aus dem KONTEXT des Talks, nicht nur aus dem Satz
+
+**Skill 8 — Multiple Accents:**
+- Akzente im echten TOEIC: American, British, Australian, South African, Canadian, Indian
+- Du musst den Akzent NICHT erkennen
+- Tipp: Hör Nachrichten aus USA, UK, Australien, Kanada, Neuseeland, Indien — gewöhne dich an natürliche Variationen
 
 ### Part-spezifische Strategien (Zusammenfassung)
 **Part 1:** 6-Dimensions-Framework → Number/Gender/Location/Description/Activity/Occupation. Präpositionen genau prüfen. Keine Aussagen mit nicht sichtbaren Details.
@@ -197,6 +226,46 @@ Nicht nur: "Was passiert gerade?" — sondern auch: "Was ist passiert BEVOR das 
 ### Vokabular im Kontext > Auswendiglernen
 Wörter die im Kontext (Satz/Dialog) gelernt werden bleiben besser haften als isolierte Listen.
 → Session-Vokabular soll immer mit dem Originalsatz gezeigt werden, in dem das Wort auftrat.
+
+### Mini-Test Struktur (TOEIC-Format)
+Der echte TOEIC läuft als kontinuierlicher Test — nicht Teil-für-Teil. Das Barron's-Buch verwendet Mini-Tests die alle 4 Listening-Parts kombinieren:
+- Part 1: 4 Photos
+- Part 2: 12 Question-Response
+- Part 3: 9 Conversations (3 Gespräche × 3 Fragen)
+- Part 4: 15 Talks (5 Talks × 3 Fragen)
+→ **Produktimplikation:** Mini-Test-Modus in App implementieren (alle 4 Parts nacheinander, kein Unterbrechen)
+
+### Grafik-Typen im echten Kontext (Part 3/4)
+Aus den echten Mini-Test-Beispielen:
+- **Floor Plan**: Room A/B/C/D + Ticket Office + Stairs — Frage: "Look at the graphic. Where is the gift shop?"
+- **Hotel Directory**: Hildamire Hotel — Ground=Lobby/Restaurant/Pool, First=Conference/Banquet, Third=Administrative Offices, Fourth-Tenth=Guest Rooms — Frage: "Where is Ms. Jones's office?"
+- **Price Table (Paint)**: Main Street Paints — Size vs. Coverage (1-liter/6sqm, 2-liter/12sqm, 5-liter/30sqm, 25-liter-bucket/150sqm) — Frage: "Which size will they buy?" (aus Konversation ableitbar)
+- **Store Sale Table**: Springer's Office Store — 10% off paper/pens, 15% off electronics, 20% off furniture, 25% off coffeemakers — Frage: "How much discount?"
+
+### Antwort-Erklärungs-Struktur (Distractor-Analyse)
+Aus den Erklärungsseiten des Buchs — Struktur wie man falsche Antworten erklärt:
+1. Richtige Antwort: direkte Zitat/Paraphrase nennen
+2. Falsche Antwort A: warum falsch — Distractor-Typ benennen (Related Word / Similar Sound / Context Swap / Partial Truth)
+3. Für jede Option: Erklärung WARUM es eine Falle ist
+→ In App: Nach jeder Aufgabe diese Erklärungsstruktur zeigen
+
+### Part 4 Talk-Typen (authentische Beispiele)
+Echte Talk-Formate die im TOEIC vorkommen:
+1. **Welcome/Introduction**: "Good evening and welcome to tonight's presentation..."
+2. **Weather Forecast**: "Here is the weather outlook for the weekend. We will have cloudy skies all day Saturday. Expect rain to begin late Saturday evening..."
+3. **Phone Menu**: "Thank you for calling [Company]. To check order status, press one. For shipping information, press two. To speak with a customer service representative, press three..."
+4. **Store Announcement**: "Attention shoppers. We will be closing the store in ten minutes. If you are purchasing ten items or fewer, you may use the express checkout lane..."
+5. **Tour/Event Announcement**: "The tour will begin in just a few minutes. Please line up by the main entrance. If you don't have a ticket, you can purchase one in the gift shop."
+
+### TOEIC Prüfungs-Tipps (Barron's Premium 10th Edition — Lerngrundlage)
+
+**Part 1:** Analysiere Personen (Anzahl, Geschlecht, Beruf, Aktion) + Objekte + Ort. Eliminiere Aussagen mit nicht sichtbaren Details.
+**Part 2:** Sound-alikes, Synonyme, Homonyme sind Fallen. Erkenne Vorschläge/Angebote/Bitten. "Or"-Fragen: Antwort wählt eine Option oder sagt neither/both.
+**Part 3/4:** Erkenne Fragentypen (Person, Beruf, Ort, Zeit, Handlung, Setting). Antworten sind oft Paraphrasen. Implizite Bedeutung wichtig. Grafik: erst scannen, dann hören.
+**Part 5/6:** Unterscheide ähnliche Wortformen, Verbformen, Adjektiv/Adverb, Präpositionen.
+**Part 7:** PRSA-Strategie: Predict → Read → Scan → Answer. Antworten sind Paraphrasen des Textes.
+
+**Distractor-Qualität:** Falsche Antworten sollen Wörter aus dem Text/Dialog nutzen (Sound-alike-Trap), Zeit/Ort/Person verwechseln (Context-Swap) oder partiell wahr sein (Partial-Truth-Trap).
 
 ## Produkt-Prinzipien
 
