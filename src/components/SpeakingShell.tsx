@@ -188,7 +188,7 @@ function SelfAssessmentPanel({ audioUrl, onReRecord, onSubmit, loading }: {
   )
 }
 
-function ReadAloudTask({ question, onNext, isLast }: { question: Question; onNext: () => void; isLast: boolean }) {
+function ReadAloudTask({ question, onNext, isLast }: { question: Question; onNext: (score?: number) => void; isLast: boolean }) {
   const content = question.content as { text: string; prepSeconds: number; speakSeconds: number }
   const [phase, setPhase] = useState<Phase>('idle')
   const [feedback, setFeedback] = useState<FeedbackResult | null>(null)
@@ -226,14 +226,14 @@ function ReadAloudTask({ question, onNext, isLast }: { question: Question; onNex
         loading
           ? <p style={{ color: 'var(--muted)' }}>Feedback wird erstellt…</p>
           : feedback
-            ? <SpeakingFeedback feedback={feedback} transcript={transcript} onNext={onNext} isLast={isLast} questionType="READ_ALOUD" modelAnswer={content.text} />
+            ? <SpeakingFeedback feedback={feedback} transcript={transcript} onNext={() => onNext(feedback?.completenessPercent ?? undefined)} isLast={isLast} questionType="READ_ALOUD" modelAnswer={content.text} />
             : <p style={{ color: '#ef4444', fontSize: 13 }}>Feedback konnte nicht geladen werden.</p>
       )}
     </div>
   )
 }
 
-function DescribeTask({ question, onNext, isLast }: { question: Question; onNext: () => void; isLast: boolean }) {
+function DescribeTask({ question, onNext, isLast }: { question: Question; onNext: (score?: number) => void; isLast: boolean }) {
   const content = question.content as { imageUrl: string; prompt: string; prepSeconds: number; speakSeconds: number; hints: string[] }
   const [phase, setPhase] = useState<Phase>('idle')
   const [feedback, setFeedback] = useState<FeedbackResult | null>(null)
@@ -276,14 +276,14 @@ function DescribeTask({ question, onNext, isLast }: { question: Question; onNext
         loading
           ? <p style={{ color: 'var(--muted)' }}>Feedback wird erstellt…</p>
           : feedback
-            ? <SpeakingFeedback feedback={feedback} transcript={transcript} onNext={onNext} isLast={isLast} questionType="DESCRIBE_PICTURE" />
+            ? <SpeakingFeedback feedback={feedback} transcript={transcript} onNext={() => onNext(feedback?.completenessPercent ?? undefined)} isLast={isLast} questionType="DESCRIBE_PICTURE" />
             : <p style={{ color: '#ef4444', fontSize: 13 }}>Feedback konnte nicht geladen werden.</p>
       )}
     </div>
   )
 }
 
-function RespondDocTask({ question, onNext, isLast }: { question: Question; onNext: () => void; isLast: boolean }) {
+function RespondDocTask({ question, onNext, isLast }: { question: Question; onNext: (score?: number) => void; isLast: boolean }) {
   const content = question.content as {
     document: { type: string; title: string; rows: { label: string; value: string }[] }
     scenario: string
@@ -309,7 +309,7 @@ function RespondDocTask({ question, onNext, isLast }: { question: Question; onNe
   const prepRemaining = useTimer(subQ?.prepSeconds ?? 3, phase === 'prep', handlePrepEnd)
   const recRemaining = useTimer(subQ?.speakSeconds ?? 15, phase === 'recording', handleRecordEnd)
   useEffect(() => { if (phase === 'recording') { startSR(); startRecording(); startTimeRef.current = Date.now() } }, [phase, startSR, startRecording])
-  function handleNextSub() { clearAudio(); if (subIndex + 1 >= content.questions.length) { onNext() } else { setSubIndex(i => i + 1); setPhase('idle') } }
+  function handleNextSub(fb?: FeedbackResult) { clearAudio(); if (subIndex + 1 >= content.questions.length) { onNext(fb?.completenessPercent ?? undefined) } else { setSubIndex(i => i + 1); setPhase('idle') } }
   if (!subQ) return null
   return (
     <div className="card" style={{ padding: '28px 28px 24px' }}>
@@ -341,14 +341,14 @@ function RespondDocTask({ question, onNext, isLast }: { question: Question; onNe
         loading
           ? <p style={{ color: 'var(--muted)' }}>Feedback wird erstellt…</p>
           : feedbacks[subIndex]
-            ? <SpeakingFeedback feedback={feedbacks[subIndex]} transcript={transcript} onNext={handleNextSub} isLast={subIndex + 1 >= content.questions.length && isLast} questionType="RESPOND_FREE" />
+            ? <SpeakingFeedback feedback={feedbacks[subIndex]} transcript={transcript} onNext={() => handleNextSub(feedbacks[subIndex])} isLast={subIndex + 1 >= content.questions.length && isLast} questionType="RESPOND_FREE" />
             : <p style={{ color: '#ef4444', fontSize: 13 }}>Feedback konnte nicht geladen werden.</p>
       )}
     </div>
   )
 }
 
-function OpinionTask({ question, onNext, isLast }: { question: Question; onNext: () => void; isLast: boolean }) {
+function OpinionTask({ question, onNext, isLast }: { question: Question; onNext: (score?: number) => void; isLast: boolean }) {
   const content = question.content as { prompt: string; prepSeconds: number; speakSeconds: number; structure?: string[] }
   const [phase, setPhase] = useState<Phase>('idle')
   const [feedback, setFeedback] = useState<FeedbackResult | null>(null)
@@ -391,14 +391,14 @@ function OpinionTask({ question, onNext, isLast }: { question: Question; onNext:
         loading
           ? <p style={{ color: 'var(--muted)' }}>Feedback wird erstellt…</p>
           : feedback
-            ? <SpeakingFeedback feedback={feedback} transcript={transcript} onNext={onNext} isLast={isLast} questionType="EXPRESS_OPINION" />
+            ? <SpeakingFeedback feedback={feedback} transcript={transcript} onNext={() => onNext(feedback?.completenessPercent ?? undefined)} isLast={isLast} questionType="EXPRESS_OPINION" />
             : <p style={{ color: '#ef4444', fontSize: 13 }}>Feedback konnte nicht geladen werden.</p>
       )}
     </div>
   )
 }
 
-function RespondTask({ question, onNext, isLast }: { question: Question; onNext: () => void; isLast: boolean }) {
+function RespondTask({ question, onNext, isLast }: { question: Question; onNext: (score?: number) => void; isLast: boolean }) {
   const content = question.content as { scenario: string; questions: { id: string; text: string; prepSeconds: number; speakSeconds: number }[] }
   const [subIndex, setSubIndex] = useState(0)
   const [phase, setPhase] = useState<Phase>('idle')
@@ -420,7 +420,7 @@ function RespondTask({ question, onNext, isLast }: { question: Question; onNext:
   const prepRemaining = useTimer(subQ?.prepSeconds ?? 3, phase === 'prep', handlePrepEnd)
   const recRemaining = useTimer(subQ?.speakSeconds ?? 15, phase === 'recording', handleRecordEnd)
   useEffect(() => { if (phase === 'recording') { startSR(); startRecording(); startTimeRef.current = Date.now() } }, [phase, startSR, startRecording])
-  function handleNextSub() { clearAudio(); if (subIndex + 1 >= content.questions.length) { onNext() } else { setSubIndex(i => i + 1); setPhase('idle') } }
+  function handleNextSub(fb?: FeedbackResult) { clearAudio(); if (subIndex + 1 >= content.questions.length) { onNext(fb?.completenessPercent ?? undefined) } else { setSubIndex(i => i + 1); setPhase('idle') } }
   if (!subQ) return null
   return (
     <div className="card" style={{ padding: '28px 28px 24px' }}>
@@ -441,7 +441,7 @@ function RespondTask({ question, onNext, isLast }: { question: Question; onNext:
         loading
           ? <p style={{ color: 'var(--muted)' }}>Feedback wird erstellt…</p>
           : feedbacks[subIndex]
-            ? <SpeakingFeedback feedback={feedbacks[subIndex]} transcript={transcript} onNext={handleNextSub} isLast={subIndex + 1 >= content.questions.length && isLast} questionType="RESPOND_FREE" />
+            ? <SpeakingFeedback feedback={feedbacks[subIndex]} transcript={transcript} onNext={() => handleNextSub(feedbacks[subIndex])} isLast={subIndex + 1 >= content.questions.length && isLast} questionType="RESPOND_FREE" />
             : <p style={{ color: '#ef4444', fontSize: 13 }}>Feedback konnte nicht geladen werden.</p>
       )}
     </div>
@@ -482,6 +482,9 @@ export default function SpeakingShell({ mode }: SpeakingShellProps) {
   const [loading, setLoading] = useState(true)
   const [finished, setFinished] = useState(false)
   const [micDenied, setMicDenied] = useState(false)
+  const [sessionId, setSessionId] = useState<string | null>(null)
+  const scoresRef = useRef<number[]>([])
+  const startTimeRef = useRef<number>(Date.now())
 
   useEffect(() => {
     if (typeof navigator === 'undefined' || !navigator.permissions) return
@@ -503,25 +506,65 @@ export default function SpeakingShell({ mode }: SpeakingShellProps) {
     const res = await fetch(`/api/questions?section=${config.section}&part=${config.part}`)
     const data = await res.json()
     setQuestions(data.questions ?? []); setLoading(false)
+    const sessRes = await fetch('/api/sessions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'PART_PRACTICE', section: 'SPEAKING', parts: [config.part], totalQuestions: data.questions?.length ?? 0 }),
+    })
+    const sessData = await sessRes.json()
+    setSessionId(sessData.id ?? null)
+    scoresRef.current = []
+    startTimeRef.current = Date.now()
   }, [config.section, config.part])
   useEffect(() => { load() }, [load])
-  function handleNext() { if (index + 1 >= questions.length) { setFinished(true) } else { setIndex(i => i + 1) } }
+  async function handleNext(score?: number) {
+    if (score !== undefined) scoresRef.current.push(score)
+    if (index + 1 >= questions.length) {
+      setFinished(true)
+      if (sessionId) {
+        const avgScore = scoresRef.current.length
+          ? Math.round(scoresRef.current.reduce((a, b) => a + b, 0) / scoresRef.current.length)
+          : 0
+        const durationSec = Math.round((Date.now() - startTimeRef.current) / 1000)
+        await fetch(`/api/sessions/${sessionId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ score: avgScore, maxScore: 100, durationSec, answers: [] }),
+        })
+      }
+    } else {
+      setIndex(i => i + 1)
+    }
+  }
   if (loading) return (<div style={{ maxWidth: 768, margin: '0 auto' }}><h1 className="text-2xl font-bold mb-4">{config.label}</h1><div className="card" style={{ padding: 48, textAlign: 'center', color: 'var(--muted)' }}>Aufgaben werden geladen…</div></div>)
   if (questions.length === 0) return (<div style={{ maxWidth: 768, margin: '0 auto' }}><h1 className="text-2xl font-bold mb-4">{config.label}</h1><div className="card" style={{ padding: 48, textAlign: 'center', color: 'var(--muted)' }}>Keine Aufgaben verfügbar.</div></div>)
-  if (finished) return (
-    <div style={{ maxWidth: 768, margin: '0 auto' }}>
-      <h1 className="text-2xl font-bold mb-6">{config.label} — Fertig!</h1>
-      <div className="card" style={{ padding: '36px 32px', marginBottom: 24, textAlign: 'center' }}>
-        <CheckCircle size={48} style={{ color: 'var(--success)', margin: '0 auto 12px' }} />
-        <p className="text-lg font-semibold mb-1">Alle Aufgaben abgeschlossen!</p>
-        <p style={{ color: 'var(--muted)' }}>Regelmäßiges Üben verbessert deine Aussprache und Flüssigkeit.</p>
+  if (finished) {
+    const avgScore = scoresRef.current.length
+      ? Math.round(scoresRef.current.reduce((a, b) => a + b, 0) / scoresRef.current.length)
+      : null
+    const scoreColor = avgScore !== null ? (avgScore >= 75 ? 'var(--success)' : avgScore >= 55 ? '#fbbf24' : '#ef4444') : 'var(--muted)'
+    return (
+      <div style={{ maxWidth: 768, margin: '0 auto' }}>
+        <h1 className="text-2xl font-bold mb-6">{config.label} — Fertig!</h1>
+        <div className="card" style={{ padding: '36px 32px', marginBottom: 24, textAlign: 'center' }}>
+          <CheckCircle size={48} style={{ color: 'var(--success)', margin: '0 auto 12px' }} />
+          <p className="text-lg font-semibold mb-1">Alle Aufgaben abgeschlossen!</p>
+          {avgScore !== null && (
+            <p style={{ fontSize: 48, fontWeight: 800, color: scoreColor, margin: '12px 0 4px' }}>{avgScore}</p>
+          )}
+          <p style={{ color: 'var(--muted)', marginBottom: 8 }}>
+            {avgScore !== null
+              ? (avgScore >= 75 ? '🏆 Ausgezeichnet! Prüfungsreifes Niveau.' : avgScore >= 55 ? '💪 Gut! Weiter regelmäßig üben.' : '📚 Fokus auf Struktur und Aufgabenerfüllung.')
+              : 'Regelmäßiges Üben verbessert deine Aussprache und Flüssigkeit.'}
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <button onClick={load} className="btn-primary flex items-center gap-2"><RotateCcw size={16} /> Nochmals üben</button>
+          <button onClick={() => router.push(config.back)} className="text-sm font-medium rounded-lg border" style={{ padding: '0 20px', borderColor: 'var(--card-border)', height: 44 }}>Zurück zu Speaking</button>
+        </div>
       </div>
-      <div style={{ display: 'flex', gap: 12 }}>
-        <button onClick={load} className="btn-primary flex items-center gap-2"><RotateCcw size={16} /> Nochmals üben</button>
-        <button onClick={() => router.push(config.back)} className="text-sm font-medium rounded-lg border" style={{ padding: '0 20px', borderColor: 'var(--card-border)', height: 44 }}>Zurück zu Speaking</button>
-      </div>
-    </div>
-  )
+    )
+  }
   const question = questions[index] as Question
   return (
     <div style={{ maxWidth: 768, margin: '0 auto' }}>
