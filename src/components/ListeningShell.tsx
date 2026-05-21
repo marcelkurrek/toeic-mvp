@@ -566,6 +566,13 @@ export default function ListeningShell({ part }: ListeningShellProps) {
     const total = answers.length
     const pct = total > 0 ? Math.round(correct / total * 100) : 0
     const pctColor = pct >= 80 ? 'var(--success)' : pct >= 60 ? '#fbbf24' : '#ef4444'
+    const wrongCount = total - correct
+    const avgTime = answers.length ? Math.round(answers.reduce((s, a) => s + a.timeSpentSec, 0) / answers.length) : 0
+    const debriefMsg = pct >= 80
+      ? 'Prüfungsreifes Niveau! Starte den nächsten Part.'
+      : pct >= 60
+      ? 'Guter Fortschritt — höre die falsch beantworteten Fragen nochmals im Transkript.'
+      : 'Lies die Transkripte sorgfältig — so erkennst du Schlüsselwörter für die Antworten.'
     const NEXT_PARTS: Record<ListeningPart, { href: string; label: string }> = {
       1: { href: '/practice/part2', label: 'Part 2 – Frage & Antwort' },
       2: { href: '/practice/part3', label: 'Part 3 – Gespräche' },
@@ -586,6 +593,27 @@ export default function ListeningShell({ part }: ListeningShellProps) {
             {pct >= 80 ? '🏆 Ausgezeichnet — prüfungsreifes Niveau!' : pct >= 60 ? '💪 Gut! Weiter üben für volle Sicherheit.' : '📚 Weiter üben — dieser Part braucht mehr Aufmerksamkeit.'}
           </p>
         </div>
+
+        {/* Post-Session Debrief */}
+        <div className="card" style={{ padding: '18px 22px', marginBottom: 16, borderLeft: `3px solid ${pctColor}` }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>Session-Auswertung</p>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
+            <div style={{ padding: '8px 12px', borderRadius: 8, background: 'var(--background)', border: '1px solid var(--card-border)' }}>
+              <p style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 3 }}>Ø Zeit / Frage</p>
+              <p style={{ fontSize: 16, fontWeight: 700 }}>{avgTime}s</p>
+            </div>
+            <div style={{ padding: '8px 12px', borderRadius: 8, background: 'var(--background)', border: '1px solid var(--card-border)' }}>
+              <p style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 3 }}>Falsch</p>
+              <p style={{ fontSize: 16, fontWeight: 700, color: pctColor }}>{wrongCount} / {total}</p>
+            </div>
+          </div>
+          <div style={{ padding: '8px 12px', borderRadius: 8, background: `${pctColor}10`, border: `1px solid ${pctColor}30` }}>
+            <p style={{ fontSize: 12, lineHeight: 1.5 }}>
+              <span style={{ color: pctColor, fontWeight: 700 }}>Empfehlung: </span>{debriefMsg}
+            </p>
+          </div>
+        </div>
+
         {answers.some(a => !a.correct) && (
           <details style={{ marginBottom: 16 }}>
             <summary style={{ cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'var(--muted)', padding: '10px 16px', borderRadius: 10, background: 'var(--card)', border: '1px solid var(--card-border)', listStyle: 'none' }}>

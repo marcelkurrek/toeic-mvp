@@ -117,13 +117,32 @@ export default function PracticeShell({ part }: PracticeShellProps) {
   if (isFinished) {
     const score = answers.filter(a => a.isCorrect).length
     const pct = Math.round(score / questions.length * 100)
+    const pctColor = pct >= 80 ? 'var(--success)' : pct >= 60 ? 'var(--warning)' : 'var(--error)'
+
+    // Session debrief: collect wrong tags
+    const wrongTagMap: Record<string, number> = {}
+    questions.forEach((q, i) => {
+      const ans = answers[i]
+      if (ans && !ans.isCorrect) {
+        for (const tag of (q.tags as string[] ?? [])) {
+          wrongTagMap[tag] = (wrongTagMap[tag] ?? 0) + 1
+        }
+      }
+    })
+    const topWrongTags = Object.entries(wrongTagMap).sort((a, b) => b[1] - a[1]).slice(0, 3)
+    const avgTime = answers.length ? Math.round(answers.reduce((s, a) => s + a.timeSpentSec, 0) / answers.length) : 0
+
+    const debriefMessage = pct >= 80
+      ? 'Prüfungsreifes Niveau! Du kannst Part 6 in Angriff nehmen.'
+      : pct >= 60
+      ? 'Guter Fortschritt — konzentriere dich morgen auf die markierten Grammatikmuster.'
+      : 'Übe diese Grammatikmuster gezielt — dann schaffst du die 80%-Marke.'
+
     return (
       <div style={{ maxWidth: 768, margin: '0 auto' }}>
         <h1 className="text-2xl font-bold" style={{ marginBottom: 28 }}>{partInfo.title} — {t.practice.results}</h1>
         <div className="card" style={{ padding: '36px 32px', marginBottom: 24, textAlign: 'center' }}>
-          <div className="text-6xl font-bold mb-2" style={{
-            color: pct >= 80 ? 'var(--success)' : pct >= 60 ? 'var(--warning)' : 'var(--error)'
-          }}>
+          <div className="text-6xl font-bold mb-2" style={{ color: pctColor }}>
             {pct}%
           </div>
           <p className="text-lg mb-1">
@@ -132,6 +151,41 @@ export default function PracticeShell({ part }: PracticeShellProps) {
           <p style={{ color: 'var(--muted)' }}>
             {pct >= 80 ? t.practice.feedback.excellent : pct >= 60 ? t.practice.feedback.good : t.practice.feedback.keep}
           </p>
+        </div>
+
+        {/* Post-Session Debrief */}
+        <div className="card" style={{ padding: '20px 24px', marginBottom: 24, borderLeft: `3px solid ${pctColor}` }}>
+          <p style={{ fontSize: 12, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12 }}>Session-Auswertung</p>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 16 }}>
+            <div style={{ padding: '10px 14px', borderRadius: 8, background: 'var(--background)', border: '1px solid var(--card-border)' }}>
+              <p style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 4 }}>Ø Zeit / Frage</p>
+              <p style={{ fontSize: 18, fontWeight: 700 }}>{avgTime}s</p>
+              <p style={{ fontSize: 11, color: 'var(--muted)' }}>{avgTime > 45 ? 'Zu langsam — Prüfungstempo üben' : avgTime > 25 ? 'Im Zielbereich' : 'Sehr schnell'}</p>
+            </div>
+            <div style={{ padding: '10px 14px', borderRadius: 8, background: 'var(--background)', border: '1px solid var(--card-border)' }}>
+              <p style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 4 }}>Fehlerquote</p>
+              <p style={{ fontSize: 18, fontWeight: 700, color: pctColor }}>{answers.length - score} / {answers.length}</p>
+              <p style={{ fontSize: 11, color: 'var(--muted)' }}>Fragen falsch</p>
+            </div>
+          </div>
+          {topWrongTags.length > 0 && (
+            <div style={{ marginBottom: 12 }}>
+              <p style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 6 }}>Grammatikmuster mit Fehlern:</p>
+              <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                {topWrongTags.map(([tag, count]) => (
+                  <span key={tag} style={{ fontSize: 11, padding: '3px 10px', borderRadius: 99, background: 'rgba(239,68,68,0.12)', color: '#ef4444', border: '1px solid rgba(239,68,68,0.25)', fontWeight: 600 }}>
+                    {tag} ({count}×)
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+          <div style={{ padding: '10px 14px', borderRadius: 8, background: `${pctColor}10`, border: `1px solid ${pctColor}30` }}>
+            <p style={{ fontSize: 12, color: 'var(--fg)', lineHeight: 1.5 }}>
+              <span style={{ color: pctColor, fontWeight: 700 }}>Empfehlung: </span>
+              {debriefMessage}
+            </p>
+          </div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
