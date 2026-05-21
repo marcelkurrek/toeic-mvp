@@ -19,7 +19,14 @@ const SPEAKING_DIMS = [
   { key: 'taskCompletion'as const, label: 'Aufgabenerfüllung', color: '#6366f1' },
 ]
 
-function SpeakingFeedback({ feedback, transcript, onNext, isLast }: { feedback: FeedbackResult; transcript: string; onNext: () => void; isLast: boolean }) {
+const MODEL_ANSWER_TEMPLATES: Record<string, string> = {
+  READ_ALOUD: '', // provided per-question
+  DESCRIBE_PICTURE: 'The picture shows [setting/location]. In the foreground, I can see [main subject] who appears to be [action]. There is/are also [other elements] visible. The [clothing/objects/details] suggest that [context or purpose]. Overall, this looks like a [summary description].',
+  EXPRESS_OPINION: 'In my opinion, [state clear position]. I have two main reasons for this. First, [reason 1 with brief explanation]. For instance, [concrete example]. Second, [reason 2 with detail]. Therefore, I firmly believe that [restate opinion].',
+  RESPOND_FREE: 'Thank you for your question. [Direct answer to the question asked]. [Supporting detail or explanation]. [Optional: related information or follow-up if relevant].',
+}
+
+function SpeakingFeedback({ feedback, transcript, onNext, isLast, questionType, modelAnswer }: { feedback: FeedbackResult; transcript: string; onNext: () => void; isLast: boolean; questionType?: string; modelAnswer?: string }) {
   const dims = SPEAKING_DIMS.map(d => ({
     label: d.label,
     score: feedback.dimensions?.[d.key] ?? feedback.completenessPercent,
@@ -43,6 +50,16 @@ function SpeakingFeedback({ feedback, transcript, onNext, isLast }: { feedback: 
             {transcript}
           </div>
         </details>
+      )}
+      {(modelAnswer || (questionType && MODEL_ANSWER_TEMPLATES[questionType])) && (
+        <div style={{ marginBottom: 16, padding: '14px 16px', borderRadius: 10, background: 'rgba(251,146,60,0.07)', border: '1px solid rgba(251,146,60,0.25)' }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: '#fb923c', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            {questionType === 'READ_ALOUD' ? 'Mustertext (Vorlage)' : 'Musterstruktur'}
+          </p>
+          <p style={{ fontSize: 13, fontStyle: 'italic', lineHeight: 1.7, color: 'var(--foreground)' }}>
+            {modelAnswer || MODEL_ANSWER_TEMPLATES[questionType!]}
+          </p>
+        </div>
       )}
       <button onClick={onNext} className="btn-primary flex items-center gap-2">
         {isLast ? 'Fertig' : 'Weiter'} <ChevronRight size={16} />
@@ -209,7 +226,7 @@ function ReadAloudTask({ question, onNext, isLast }: { question: Question; onNex
         loading
           ? <p style={{ color: 'var(--muted)' }}>Feedback wird erstellt…</p>
           : feedback
-            ? <SpeakingFeedback feedback={feedback} transcript={transcript} onNext={onNext} isLast={isLast} />
+            ? <SpeakingFeedback feedback={feedback} transcript={transcript} onNext={onNext} isLast={isLast} questionType="READ_ALOUD" modelAnswer={content.text} />
             : <p style={{ color: '#ef4444', fontSize: 13 }}>Feedback konnte nicht geladen werden.</p>
       )}
     </div>
@@ -259,7 +276,7 @@ function DescribeTask({ question, onNext, isLast }: { question: Question; onNext
         loading
           ? <p style={{ color: 'var(--muted)' }}>Feedback wird erstellt…</p>
           : feedback
-            ? <SpeakingFeedback feedback={feedback} transcript={transcript} onNext={onNext} isLast={isLast} />
+            ? <SpeakingFeedback feedback={feedback} transcript={transcript} onNext={onNext} isLast={isLast} questionType="DESCRIBE_PICTURE" />
             : <p style={{ color: '#ef4444', fontSize: 13 }}>Feedback konnte nicht geladen werden.</p>
       )}
     </div>
@@ -324,7 +341,7 @@ function RespondDocTask({ question, onNext, isLast }: { question: Question; onNe
         loading
           ? <p style={{ color: 'var(--muted)' }}>Feedback wird erstellt…</p>
           : feedbacks[subIndex]
-            ? <SpeakingFeedback feedback={feedbacks[subIndex]} transcript={transcript} onNext={handleNextSub} isLast={subIndex + 1 >= content.questions.length && isLast} />
+            ? <SpeakingFeedback feedback={feedbacks[subIndex]} transcript={transcript} onNext={handleNextSub} isLast={subIndex + 1 >= content.questions.length && isLast} questionType="RESPOND_FREE" />
             : <p style={{ color: '#ef4444', fontSize: 13 }}>Feedback konnte nicht geladen werden.</p>
       )}
     </div>
@@ -374,7 +391,7 @@ function OpinionTask({ question, onNext, isLast }: { question: Question; onNext:
         loading
           ? <p style={{ color: 'var(--muted)' }}>Feedback wird erstellt…</p>
           : feedback
-            ? <SpeakingFeedback feedback={feedback} transcript={transcript} onNext={onNext} isLast={isLast} />
+            ? <SpeakingFeedback feedback={feedback} transcript={transcript} onNext={onNext} isLast={isLast} questionType="EXPRESS_OPINION" />
             : <p style={{ color: '#ef4444', fontSize: 13 }}>Feedback konnte nicht geladen werden.</p>
       )}
     </div>
@@ -424,7 +441,7 @@ function RespondTask({ question, onNext, isLast }: { question: Question; onNext:
         loading
           ? <p style={{ color: 'var(--muted)' }}>Feedback wird erstellt…</p>
           : feedbacks[subIndex]
-            ? <SpeakingFeedback feedback={feedbacks[subIndex]} transcript={transcript} onNext={handleNextSub} isLast={subIndex + 1 >= content.questions.length && isLast} />
+            ? <SpeakingFeedback feedback={feedbacks[subIndex]} transcript={transcript} onNext={handleNextSub} isLast={subIndex + 1 >= content.questions.length && isLast} questionType="RESPOND_FREE" />
             : <p style={{ color: '#ef4444', fontSize: 13 }}>Feedback konnte nicht geladen werden.</p>
       )}
     </div>

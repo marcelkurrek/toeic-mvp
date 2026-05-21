@@ -368,6 +368,18 @@ function MultiQuestionView({ question, part, onAnswers, submitted, selected }: M
   const transcriptText = (c.transcript as string) ?? (c.talk as string) ?? ''
   const dialogue = c.dialogue as { speaker: string; line: string }[] | undefined
 
+  // Compute key words from correct answer options for transcript highlighting
+  const STOP_WORDS = new Set(['that', 'this', 'they', 'have', 'with', 'from', 'will', 'been', 'were', 'more', 'also', 'some', 'what', 'when', 'them', 'each', 'made', 'does', 'said', 'into', 'could', 'their', 'would', 'there', 'about', 'which', 'other', 'after', 'very', 'just', 'then', 'your', 'here'])
+  const keyWords = new Set<string>()
+  questions.forEach(sq => {
+    const letterIdx = 'ABCD'.indexOf(sq.answer)
+    const option = sq.options?.[letterIdx] ?? ''
+    option.toLowerCase().split(/\s+/).forEach(w => {
+      const cleaned = w.replace(/[^a-z]/g, '')
+      if (cleaned.length > 3 && !STOP_WORDS.has(cleaned)) keyWords.add(cleaned)
+    })
+  })
+
   const handlePlay = () => {
     setPhase('playing')
     const script = buildScript(question, part)
@@ -503,13 +515,26 @@ function MultiQuestionView({ question, part, onAnswers, submitted, selected }: M
           </button>
           {showTranscript && (
             <div style={{ marginTop: 10, padding: '14px 16px', borderRadius: 10, background: `${color}08`, border: `1px solid ${color}30` }}>
+              {keyWords.size > 0 && dialogue && (
+                <p style={{ fontSize: 11, color, marginBottom: 8, fontWeight: 600 }}>▶ Schlüssel-Phrasen markiert</p>
+              )}
               {dialogue ? (
-                dialogue.map((d, i) => (
-                  <div key={i} style={{ display: 'flex', gap: 10, marginBottom: i < dialogue.length - 1 ? 8 : 0 }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, color, flexShrink: 0, minWidth: 60 }}>{d.speaker}</span>
-                    <span style={{ fontSize: 12, lineHeight: 1.6, color: 'var(--fg)' }}>{d.line}</span>
-                  </div>
-                ))
+                dialogue.map((d, i) => {
+                  const lineWords = d.line.toLowerCase().split(/\s+/).map(w => w.replace(/[^a-z]/g, ''))
+                  const isKeyLine = lineWords.some(w => keyWords.has(w))
+                  return (
+                    <div key={i} style={{
+                      display: 'flex', gap: 10,
+                      marginBottom: i < dialogue.length - 1 ? 8 : 0,
+                      background: isKeyLine ? `${color}15` : 'transparent',
+                      borderLeft: isKeyLine ? `2px solid ${color}` : '2px solid transparent',
+                      paddingLeft: 6, borderRadius: 4,
+                    }}>
+                      <span style={{ fontSize: 11, fontWeight: 700, color, flexShrink: 0, minWidth: 60 }}>{d.speaker}</span>
+                      <span style={{ fontSize: 12, lineHeight: 1.6, color: 'var(--fg)' }}>{d.line}</span>
+                    </div>
+                  )
+                })
               ) : (
                 <p style={{ fontSize: 12, lineHeight: 1.8, color: 'var(--fg)', whiteSpace: 'pre-wrap' }}>{transcriptText}</p>
               )}

@@ -60,6 +60,36 @@ const READING_STRATEGY: Record<5 | 6 | 7, { title: string; tips: string[] }> = {
   },
 }
 
+function detectPart7QuestionType(questionText: string): { type: string; hint: string; color: string } | null {
+  const q = questionText.toUpperCase()
+  if (/\bNOT\b/.test(q) || /\bEXCEPT\b/.test(q))
+    return { type: 'NOT/EXCEPT-Frage', hint: 'Gehe alle 4 Optionen durch — 3 sind korrekt, nur 1 ist FALSCH. Lies jede Option gegen den Text und elimiere die richtigen.', color: '#ef4444' }
+  if (/\bSUGGEST|\bIMPL|\bINDICAT|\bINFER/.test(q))
+    return { type: 'Inference-Frage', hint: 'Die Antwort steht nicht direkt im Text. Schließe aus dem Kontext: Was ist die logische Folgerung? Vermeide Überinterpretation.', color: '#fb923c' }
+  if (/CLOSEST IN MEANING|MOST NEARLY MEANS|REFER(S)? TO/.test(q))
+    return { type: 'Wortbedeutung', hint: 'Finde das Wort im Text. Setze jede Option gedanklich ein — welche passt am besten in den Kontext des Satzes?', color: '#6366f1' }
+  if (/\bPURPOSE\b|\bWHY\b/.test(q))
+    return { type: 'Zweck/Absicht', hint: 'Suche nach Signalwörtern: "because", "in order to", "to", "so that" in der Nähe des relevanten Abschnitts.', color: '#D5FD44' }
+  if (/^WHAT |^WHERE |^WHEN |^WHO |^HOW MANY|^HOW MUCH|^WHICH /.test(q))
+    return { type: 'Detail-Frage', hint: 'Direkte Faktenfrage — finde das Schlüsselwort im Text und lies die Umgebung. Die Antwort steht explizit dort.', color: '#04FF88' }
+  return null
+}
+
+function detectPart6DocumentType(passage: string): { docType: string; hint: string } | null {
+  const p = passage.toLowerCase()
+  if (/(^|\n)subject:/m.test(p) || /(^|\n)from:/m.test(p) || /dear \w/.test(p))
+    return { docType: 'E-Mail / Brief', hint: 'Achte auf Zeitkohärenz. Lücken oft: Present Perfect für aktuelle Ereignisse, Konjunktionen (however, therefore, although).' }
+  if (/\bmemo\b|\bmemorandum\b/.test(p))
+    return { docType: 'Memo', hint: 'Memos sind präzise und direkt. Lücken oft: Verbformen im Präsens/Futur, Verbindungswörter (additionally, as a result).' }
+  if (/\bmeeting\b|\bagenda\b|\bminutes\b/.test(p))
+    return { docType: 'Protokoll', hint: 'Protokolle nutzen Vergangenheitsform. Lücken oft: Passivkonstruktionen (was discussed, were agreed, has been proposed).' }
+  if (/\bannounce|\bpleased to inform|\binvit/.test(p))
+    return { docType: 'Ankündigung', hint: 'Ankündigungen: Präsens oder Futur. Lücken oft: Adjektive (exciting, upcoming), Adverbien (officially, proudly).' }
+  if (/\breport\b|\bfindings\b|\brecommend/.test(p))
+    return { docType: 'Bericht', hint: 'Berichte nutzen Passiv und Fachvokabular. Lücken oft: Passivformen (was found, were identified), Konjunktionen.' }
+  return null
+}
+
 interface PracticeShellProps {
   part: 5 | 6 | 7
 }
@@ -376,12 +406,13 @@ export default function PracticeShell({ part }: PracticeShellProps) {
         isLast={currentIndex === questions.length - 1}
         isRetry={skippedIds.includes(question.id)}
         t={t.practice}
+        part={part}
       />
     </div>
   )
 }
 
-function QuestionCard({ question, opts, letters, selected, submitted, correctLetter, currentAnswer, onSelect, onSubmit, onNext, onSkip, isLast, isRetry, t }: {
+function QuestionCard({ question, opts, letters, selected, submitted, correctLetter, currentAnswer, onSelect, onSubmit, onNext, onSkip, isLast, isRetry, t, part }: {
   question: Question
   opts: string[]
   letters: string[]
@@ -396,6 +427,7 @@ function QuestionCard({ question, opts, letters, selected, submitted, correctLet
   isLast: boolean
   isRetry: boolean
   t: { passage: string; explanation: string; correct: string; incorrect: string; submitBtn: string; nextBtn: string; resultsBtn: string }
+  part: number
 }) {
   const content = question.content as {
     question: string
@@ -405,6 +437,11 @@ function QuestionCard({ question, opts, letters, selected, submitted, correctLet
   const [activePassage, setActivePassage] = useState(0)
   const passages = content.passages?.map((p, i) => ({ label: p.title ?? p.label ?? `Dokument ${i + 1}`, text: p.text }))
     ?? (content.passage ? [{ label: 'Text', text: content.passage }] : [])
+
+  const part7Hint = part === 7 ? detectPart7QuestionType(content.question) : null
+
+  const passageForDoc = passages[0]?.text ?? ''
+  const part6DocHint = part === 6 ? detectPart6DocumentType(passageForDoc) : null
 
   // For Part 6: highlight the active blank number in the passage
   const activeBlankMatch = content.question?.match(/\[(\d+)\]/)
@@ -450,6 +487,19 @@ function QuestionCard({ question, opts, letters, selected, submitted, correctLet
             {passages.length === 1 && <p className="text-xs font-medium" style={{ color: 'var(--muted)', marginBottom: 8 }}>{t.passage}</p>}
             {renderPassageWithHighlight(passages[activePassage]?.text ?? '')}
           </div>
+        </div>
+      )}
+
+      {part6DocHint && !submitted && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', borderRadius: 8, background: 'rgba(213,253,68,0.07)', border: '1px solid rgba(213,253,68,0.25)', marginBottom: 14 }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: '#D5FD44', padding: '2px 8px', borderRadius: 99, background: 'rgba(213,253,68,0.15)', flexShrink: 0 }}>{part6DocHint.docType}</span>
+          <span style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.4 }}>{part6DocHint.hint}</span>
+        </div>
+      )}
+      {part7Hint && !submitted && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', borderRadius: 8, background: `${part7Hint.color}0d`, border: `1px solid ${part7Hint.color}35`, marginBottom: 14 }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: part7Hint.color, padding: '2px 8px', borderRadius: 99, background: `${part7Hint.color}20`, flexShrink: 0 }}>{part7Hint.type}</span>
+          <span style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.4 }}>{part7Hint.hint}</span>
         </div>
       )}
 

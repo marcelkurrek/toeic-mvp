@@ -43,6 +43,62 @@ const WRITING_DIMS = [
   { key: 'vocabulary'as const, label: 'Wortschatz',        color: '#AE00FF' },
 ]
 
+const EMAIL_PHRASES = [
+  { cat: 'Eröffnung', phrases: ['I am writing to...', 'With reference to your email...', 'I am contacting you regarding...', 'Further to our recent conversation...'] },
+  { cat: 'Anfrage/Bitte', phrases: ['Could you please...', 'I would be grateful if you could...', 'I would appreciate it if...', 'Would it be possible to...'] },
+  { cat: 'Beschwerde', phrases: ['I am writing to express my concern about...', 'I would like to bring to your attention...', 'Unfortunately, I am not satisfied with...', 'I was disappointed to find that...'] },
+  { cat: 'Abschluss', phrases: ['I look forward to hearing from you.', 'Please do not hesitate to contact me.', 'Thank you for your prompt attention to this matter.', 'I would appreciate a response at your earliest convenience.'] },
+]
+
+const ESSAY_PHRASES = [
+  { cat: 'Einleitung', phrases: ["In today's society, ... is becoming increasingly important.", 'There is much debate about whether...', 'Many people believe that...', 'The question of ... is a topic that deserves careful consideration.'] },
+  { cat: 'Argument', phrases: ['One key reason for this is...', 'Furthermore, it should be noted that...', 'This is supported by the fact that...', 'Another important point is...'] },
+  { cat: 'Beispiel', phrases: ['For example,...', 'A clear illustration of this is...', 'Consider the case of...', 'This can be seen in...'] },
+  { cat: 'Schluss', phrases: ['In conclusion,...', 'To sum up,...', 'For these reasons, I believe that...', 'Taking everything into account,...'] },
+]
+
+function PhraseBaukasten({ type, color }: { type: 'email' | 'essay'; color: string }) {
+  const [open, setOpen] = useState(false)
+  const [copied, setCopied] = useState<string | null>(null)
+  const groups = type === 'email' ? EMAIL_PHRASES : ESSAY_PHRASES
+  const copyPhrase = (phrase: string) => {
+    navigator.clipboard.writeText(phrase).catch(() => {})
+    setCopied(phrase)
+    setTimeout(() => setCopied(null), 1500)
+  }
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <button onClick={() => setOpen(v => !v)} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color, background: `${color}15`, border: `1px solid ${color}35`, borderRadius: 8, padding: '8px 14px', cursor: 'pointer', width: '100%', justifyContent: 'space-between' }}>
+        <span>Phrase-Baukasten</span>
+        <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--muted)' }}>{open ? '▲ Einklappen' : '▼ Ausklappen'}</span>
+      </button>
+      {open && (
+        <div style={{ marginTop: 8, padding: '14px 16px', borderRadius: 10, background: 'var(--background)', border: `1px solid ${color}25` }}>
+          <p style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 12 }}>Klicke auf eine Phrase zum Kopieren in die Zwischenablage</p>
+          {groups.map(({ cat, phrases }) => (
+            <div key={cat} style={{ marginBottom: 12 }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color, marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{cat}</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {phrases.map(phrase => (
+                  <button key={phrase} onClick={() => copyPhrase(phrase)} style={{
+                    fontSize: 12, textAlign: 'left', padding: '6px 10px', borderRadius: 6,
+                    border: `1px solid ${copied === phrase ? color : 'var(--card-border)'}`,
+                    background: copied === phrase ? `${color}15` : 'var(--card)',
+                    color: copied === phrase ? color : 'var(--foreground)',
+                    cursor: 'pointer', fontStyle: 'italic',
+                  }}>
+                    {copied === phrase ? '✓ Kopiert!' : phrase}
+                  </button>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function useCountdownTimer(totalSecs: number, running: boolean) {
   const [remaining, setRemaining] = useState(totalSecs)
   useEffect(() => { setRemaining(totalSecs) }, [totalSecs])
@@ -247,6 +303,7 @@ function EmailTask({ question, onSubmit, submitted, feedback, timerExpired }: {
           <p style={{ fontSize: 12, color: 'var(--muted)' }}>Aufgabe: {c.instructions as string}</p>
         </div>
       )}
+      <PhraseBaukasten type="email" color="#fb923c" />
       <textarea value={text} onChange={e => setText(e.target.value)} disabled={submitted || timerExpired}
         placeholder="Schreibe hier deine Antwort-E-Mail…" rows={8}
         style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: '1px solid var(--card-border)', background: 'var(--card)', color: 'var(--fg)', fontSize: 14, resize: 'vertical', outline: 'none', boxSizing: 'border-box' }}
@@ -299,6 +356,7 @@ function EssayTask({ question, onSubmit, submitted, feedback, timerExpired }: {
           Klare Meinung + mind. 2 Begründungen. Struktur: Einleitung → Argument 1 → Argument 2 → Schluss.
         </p>
       </div>
+      <PhraseBaukasten type="essay" color="#6366f1" />
       <textarea value={text} onChange={e => setText(e.target.value)} disabled={submitted || timerExpired}
         placeholder="Schreibe hier deinen Essay (mind. 300 Wörter)…" rows={14}
         style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: '1px solid var(--card-border)', background: 'var(--card)', color: 'var(--fg)', fontSize: 14, resize: 'vertical', outline: 'none', boxSizing: 'border-box', lineHeight: 1.7 }}
