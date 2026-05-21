@@ -29,6 +29,22 @@ PAT="<token>" && git remote set-url origin "https://${PAT}@github.com/marcelkurr
 - **Admin-Email:** `marcelkurrek@web.de` — Admin-Bereich unter `/admin`
 - **Branch:** Entwicklung auf `main`, kein separater Feature-Branch nötig
 
+## Copyright & Urheberrecht — STRENGE REGEL
+
+**Niemals Inhalte aus TOEIC-Büchern (Barron's, ETS, Princeton Review, etc.) 1:1 kopieren.**
+
+Das gilt für: Fragen, Antwortoptionen, Dialoge, Texte, Fotos, Aufgabenstellungen — alles.
+
+**Erlaubt:** Aus Buchbeispielen lernen, Prinzipien und Muster verstehen, und dann **eigene originelle Inhalte** mit demselben Schwierigkeitsgrad und Stil erstellen.
+
+**Vorgehen bei Buchmaterial:**
+1. Analysiere das Beispiel: Welche Fragentyp? Welche Distractor-Technik? Welche Szene?
+2. Extrahiere das **Prinzip** (z.B. "Sound-alike-Trap mit ähnlich klingendem Verb")
+3. Erstelle **neue, eigenständige Fragen** die dasselbe Prinzip anwenden — andere Wörter, andere Szene, gleiche Qualität
+4. Speichere das gelernte Prinzip in CLAUDE.md — nicht den Originaltext
+
+**Gilt für alle Materialquellen:** Bücher, PDFs, Screenshots, Fotos von Buchseiten.
+
 ## TOEIC Prüfungs-Tipps (Barron's Premium 10th Edition — Lerngrundlage)
 
 Folgende Prinzipien sind in allen Implementierungen zu berücksichtigen:
