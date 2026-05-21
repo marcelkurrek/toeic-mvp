@@ -426,26 +426,26 @@ async function main() {
     {
       id: 'p3-conv1-32',
       content: { transcript: conv1, question: 'Why is the woman calling?' },
-      options: ['To cancel an order', 'To complain about a product', 'To redeem a gift card', 'To renew a warranty'],
+      options: ['To ask about the warranty policy', 'To report a problem with a product', 'To request a product replacement', 'To renew an expired warranty'],
       answer: 'B',
-      explanation: 'The woman calls because her coffee machine stopped working – she is complaining about a product.',
+      explanation: 'The woman calls because her coffee machine stopped working. "To ask about the warranty policy" is a trap — warranty is mentioned but she is complaining, not inquiring. "To request a replacement" is wrong — the man says they cannot replace it.',
       tags: ['conversation', 'reason'],
       isDiagnostic: true,
     },
     {
       id: 'p3-conv1-33',
       content: { transcript: conv1, question: 'What does the man ask the woman about?' },
-      options: ['A model name', 'A brand of coffee', 'A catalog number', 'A date of purchase'],
+      options: ['The serial number of the machine', 'How long the product was used', 'The website where it was purchased', 'When she bought the machine'],
       answer: 'D',
-      explanation: 'The man asks "Do you know when you bought it?" – a date of purchase question.',
+      explanation: 'The man asks "Do you know when you bought it?" — when the purchase was made. Trap A uses "machine" context. Trap C uses "Web site" from the transcript. Trap B refers to duration, not date.',
       tags: ['conversation', 'detail'],
     },
     {
       id: 'p3-conv1-34',
       content: { transcript: conv1, question: 'What does the man offer to do?' },
-      options: ['Provide a discount', 'Send a free sample', 'Extend a warranty', 'Issue a refund'],
+      options: ['Give a discount on a future purchase', 'Replace the defective coffee machine', 'Extend the product warranty', 'Issue a full refund'],
       answer: 'A',
-      explanation: 'The man offers a coupon for 40% off the next purchase – a discount.',
+      explanation: 'The man offers a 40% coupon on the next purchase. "Replace the coffee machine" is a classic trap — the man explicitly says "we cannot replace it." "Extend the warranty" uses a keyword but is not offered.',
       tags: ['conversation', 'offer'],
       isDiagnostic: true,
     },
@@ -454,7 +454,7 @@ async function main() {
   for (const q of part3) {
     await prisma.question.upsert({
       where: { id: q.id },
-      update: {},
+      update: { options: q.options, explanation: q.explanation },
       create: { ...q, section: 'LISTENING', part: 3, type: 'CONVERSATION', difficulty: 3 },
     })
   }
@@ -466,26 +466,26 @@ async function main() {
     {
       id: 'p4-talk1-71',
       content: { transcript: talk1, question: 'What does the speaker say about the repair?' },
-      options: ['It is not required.', 'It has been finished early.', 'It will be inexpensive.', 'It is covered by a warranty.'],
+      options: ['The ordered part has not yet arrived.', 'It has been completed ahead of schedule.', 'It required a more expensive replacement.', 'It will take longer than originally estimated.'],
       answer: 'B',
-      explanation: 'The speaker says they got the part early and finished the repair ahead of schedule.',
+      explanation: 'The repair is finished early. Trap A is a strong distractor — the original message was that the part would take until next week. Trap D is the opposite of truth. Trap C uses "part" from the transcript.',
       tags: ['talk', 'announcement'],
       isDiagnostic: true,
     },
     {
       id: 'p4-talk1-72',
-      content: { transcript: talk1, question: 'When can the listener pick up his car?' },
-      options: ['Today', 'Tomorrow', 'Next week', 'In two weeks'],
+      content: { transcript: talk1, question: 'When can the listener pick up the car?' },
+      options: ['Later today before the shop closes', 'Tomorrow at any time', 'When the ordered part arrives', 'Next week as originally planned'],
       answer: 'B',
-      explanation: '"You\'re welcome to come get your car anytime tomorrow."',
+      explanation: '"You\'re welcome to come get your car anytime tomorrow." Trap A is the best distractor — the speaker mentions closing soon, but pick-up is TOMORROW not today. Trap D uses the original estimate as a trap.',
       tags: ['talk', 'time'],
     },
     {
       id: 'p4-talk1-73',
-      content: { transcript: talk1, question: 'What does the speaker offer to do?' },
-      options: ['Look for a used part', 'Refund the cost of a charge', 'Send an invoice', 'Arrange a ride'],
+      content: { transcript: talk1, question: 'What does the speaker offer to arrange?' },
+      options: ['A discount on the repair cost', 'Delivery of the vehicle to the listener', 'A callback when the shop reopens', 'Transportation to the shop'],
       answer: 'D',
-      explanation: '"If you need a ride to the shop tomorrow, let me know, and I can arrange one for you."',
+      explanation: '"If you need a ride to the shop tomorrow, I can arrange one for you." Trap B sounds helpful but is wrong. Trap C references the shop closing (mentioned in talk) but is not offered.',
       tags: ['talk', 'offer'],
       isDiagnostic: true,
     },
@@ -494,7 +494,7 @@ async function main() {
   for (const q of part4) {
     await prisma.question.upsert({
       where: { id: q.id },
-      update: {},
+      update: { options: q.options, explanation: q.explanation },
       create: { ...q, section: 'LISTENING', part: 4, type: 'TALK', difficulty: 3 },
     })
   }
@@ -723,26 +723,26 @@ Woman: Module C runs on Tuesday and Thursday afternoons, but we can arrange a on
     {
       id: 'p3-conv2-35',
       content: { transcript: conv2, question: 'What problem do the speakers discuss?' },
-      options: ['A client cancelled an appointment.', 'A meeting room is unavailable.', 'A meeting has a scheduling conflict.', 'A project deadline was moved.'],
+      options: ['The director cancelled a client visit.', 'A meeting room is double-booked.', 'A meeting must be rescheduled.', 'A project deadline has been moved forward.'],
       answer: 'C',
-      explanation: 'The woman asks if the meeting is still on, and the man explains the director has a conflict that afternoon.',
+      explanation: 'The woman asks if the meeting is still on, and the man explains the director has a conflict that afternoon — the meeting must be rescheduled. Trap A uses "client visit" (which IS mentioned — director has a client visit — but the PROBLEM is the meeting conflict, not the visit itself). Trap D uses "project" from context ("project update meeting").',
       tags: ['conversation', 'problem'],
     },
     {
       id: 'p3-conv2-36',
       content: { transcript: conv2, question: 'When will the meeting now take place?' },
-      options: ['Thursday afternoon', 'Friday morning', 'Monday at nine', 'Next week sometime'],
+      options: ['Thursday at nine o\'clock', 'Friday morning', 'After the director\'s client visit', 'The following Monday morning'],
       answer: 'B',
-      explanation: 'The man says the director asked to move the meeting to Friday morning.',
+      explanation: 'The man says the director asked to move the meeting to Friday morning. Trap A is excellent: "nine o\'clock" IS the time mentioned for Friday, combined with Thursday (original day) = strong trap. Trap C sounds logical but is not stated.',
       tags: ['conversation', 'time'],
       isDiagnostic: false,
     },
     {
       id: 'p3-conv2-37',
       content: { transcript: conv2, question: 'What does the woman offer to do?' },
-      options: ['Contact the director directly', 'Book a new meeting room', 'Send an updated calendar invite', 'Prepare the meeting agenda'],
+      options: ['Notify the director about the change', 'Book a different meeting room', 'Send updated calendar invitations', 'Prepare the revised meeting agenda'],
       answer: 'C',
-      explanation: 'The woman asks "Should I send an updated calendar invite to everyone on the team?"',
+      explanation: 'The woman asks "Should I send an updated calendar invite to everyone on the team?" Trap A uses "director" (mentioned in talk) as trap.',
       tags: ['conversation', 'offer'],
     },
     {
@@ -757,9 +757,9 @@ Woman: Module C runs on Tuesday and Thursday afternoons, but we can arrange a on
           rows: [['Module A', 'Data Security Basics'], ['Module B', 'Cloud Storage Management'], ['Module C', 'Email Systems & Protocols'], ['Module D', 'Network Troubleshooting']],
         },
       },
-      options: ['To report a technical problem', 'To register for a training course', 'To schedule a one-on-one session', 'To ask about IT department hours'],
+      options: ['To report a problem with the email system', 'To enroll in a training course', 'To schedule a one-on-one IT session', 'To find out about IT department hours'],
       answer: 'B',
-      explanation: 'The man says he would like to register for one of the IT training courses.',
+      explanation: 'The man says he would like to register for one of the IT training courses. Trap A uses "email" from the conversation. Trap C uses "one-on-one session" which IS mentioned (as an alternative offered by woman).',
       tags: ['conversation', 'reason'],
       isDiagnostic: true,
     },
@@ -775,9 +775,9 @@ Woman: Module C runs on Tuesday and Thursday afternoons, but we can arrange a on
           rows: [['Module A', 'Data Security Basics'], ['Module B', 'Cloud Storage Management'], ['Module C', 'Email Systems & Protocols'], ['Module D', 'Network Troubleshooting']],
         },
       },
-      options: ['Sign up for all four modules', 'Speak with his supervisor first', 'Register for Module C', 'Attend a Thursday afternoon session'],
+      options: ['Take all four training modules', 'Consult his supervisor before registering', 'Sign up for the email systems module', 'Attend a Thursday afternoon session'],
       answer: 'C',
-      explanation: 'The woman recommends "Module C — it goes into email systems and communication protocols in detail."',
+      explanation: 'The woman recommends "Module C — it goes into email systems and communication protocols in detail." Trap D is excellent: "Thursday AND afternoon" are both mentioned (Module C runs Tuesday and THURSDAY afternoons) — student might pick D.',
       tags: ['conversation', 'suggestion'],
     },
     {
@@ -803,7 +803,7 @@ Woman: Module C runs on Tuesday and Thursday afternoons, but we can arrange a on
   for (const q of part3Extra) {
     await prisma.question.upsert({
       where: { id: q.id },
-      update: {},
+      update: { options: q.options, explanation: q.explanation },
       create: { ...q, section: 'LISTENING', part: 3, type: 'CONVERSATION', difficulty: 3 },
     })
   }
@@ -817,26 +817,26 @@ Woman: Module C runs on Tuesday and Thursday afternoons, but we can arrange a on
     {
       id: 'p4-talk2-74',
       content: { transcript: talk2, question: 'What is the main subject of the announcement?' },
-      options: ['A change to employee working hours', 'A new office building location', 'An update to the parking policy', 'A renovation of the east wing'],
+      options: ['A change to employee shift schedules', 'Renovations to the east wing of the building', 'An update to the company parking policy', 'A new visitor registration system'],
       answer: 'C',
-      explanation: 'The speaker says "I\'d like to share an important update to our company\'s parking policy."',
+      explanation: 'The speaker says "I\'d like to share an important update to our company\'s parking policy." Trap B uses "east" (east lot is mentioned) — strong keyword trap.',
       tags: ['talk', 'announcement'],
     },
     {
       id: 'p4-talk2-75',
       content: { transcript: talk2, question: 'Where must employees park starting next week?' },
-      options: ['In the east lot', 'Behind the main building', 'At the Grant Street garage', 'At a nearby public car park'],
+      options: ['In the east lot as usual', 'In a space behind the main building', 'At the parking garage on Grant Street', 'At a lot near the security desk'],
       answer: 'C',
-      explanation: 'The speaker says employees must use "the parking garage on Grant Street, one block north of our building."',
+      explanation: 'The speaker says employees must use "the parking garage on Grant Street, one block north of our building." Trap A is great: east lot IS mentioned — but it\'s now RESERVED FOR VISITORS. Trap D uses "security desk" (mentioned for key card collection).',
       tags: ['talk', 'location'],
       isDiagnostic: true,
     },
     {
       id: 'p4-talk2-76',
       content: { transcript: talk2, question: 'What are employees asked to do before the weekend?' },
-      options: ['Update their commuter pass', 'Register their vehicle online', 'Collect a key card', 'Speak with the facilities team'],
+      options: ['Update their vehicle registration on file', 'Report to the facilities team in person', 'Pick up an access card for the garage', 'Park in the east lot one final time'],
       answer: 'C',
-      explanation: '"Please make sure to pick yours [the key card] up before the weekend."',
+      explanation: '"Please make sure to pick yours [the key card] up before the weekend." Trap B uses "facilities team" which IS mentioned at the end.',
       tags: ['talk', 'action'],
     },
     {
@@ -851,7 +851,7 @@ Woman: Module C runs on Tuesday and Thursday afternoons, but we can arrange a on
           rows: [['1:00 PM', 'Dr. Hartmann', 'Digital Marketing Trends'], ['2:15 PM', 'Ms. Yamamoto', 'Customer Engagement Strategies'], ['3:30 PM', 'Mr. Okafor', 'E-commerce & Global Markets'], ['4:45 PM', 'Panel', 'Q&A: The Future of Business']],
         },
       },
-      options: ['To introduce the morning speakers', 'To present the afternoon schedule', 'To announce a change of venue', 'To welcome new conference attendees'],
+      options: ['To welcome morning conference attendees', 'To introduce the afternoon session lineup', 'To announce a change to the conference schedule', 'To present an award to a guest speaker'],
       answer: 'B',
       explanation: 'The speaker introduces the afternoon lineup of presenters and sessions.',
       tags: ['talk', 'purpose'],
@@ -869,9 +869,9 @@ Woman: Module C runs on Tuesday and Thursday afternoons, but we can arrange a on
           rows: [['1:00 PM', 'Dr. Hartmann', 'Digital Marketing Trends'], ['2:15 PM', 'Ms. Yamamoto', 'Customer Engagement Strategies'], ['3:30 PM', 'Mr. Okafor', 'E-commerce & Global Markets'], ['4:45 PM', 'Panel', 'Q&A: The Future of Business']],
         },
       },
-      options: ['Purchase conference materials', 'Network with other participants', 'Ask questions to the experts', 'View a product demonstration'],
-      answer: 'C',
-      explanation: '"The day will close with a panel discussion giving all attendees the chance to put your questions directly to our experts."',
+      options: ['Meet the speakers one-on-one after the talks', 'Purchase materials at the conference bookstore', 'Submit written questions before each talk', 'Direct questions to the panel of experts'],
+      answer: 'D',
+      explanation: '"The day will close with a panel discussion giving all attendees the chance to put your questions directly to our experts." Trap C is strong: "write down questions THROUGHOUT the afternoon" is mentioned, but they ask the questions at the FINAL session, not before each talk.',
       tags: ['talk', 'detail'],
     },
     {
@@ -897,7 +897,7 @@ Woman: Module C runs on Tuesday and Thursday afternoons, but we can arrange a on
   for (const q of part4Extra) {
     await prisma.question.upsert({
       where: { id: q.id },
-      update: {},
+      update: { options: q.options, explanation: q.explanation },
       create: { ...q, section: 'LISTENING', part: 4, type: 'TALK', difficulty: 3 },
     })
   }
