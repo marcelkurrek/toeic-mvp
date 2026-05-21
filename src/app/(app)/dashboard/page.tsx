@@ -114,12 +114,14 @@ export default async function DashboardPage() {
   // DB part numbers: Speaking read-aloud=1, describe=2, respond=3, respond-doc=4, opinion=5
   //                  Writing sentences=1, email=2, essay=3
   const ALL_SW_CONFIGS = [
-    { label: 'Speaking Read Aloud',  href: '/practice/speaking/read-aloud', color: '#fb923c', icon: '🎤', hasProgress: spProg.some(p => p.part === 1) },
-    { label: 'Speaking Beschreiben', href: '/practice/speaking/describe',   color: '#fb923c', icon: '🎤', hasProgress: spProg.some(p => p.part === 2) },
-    { label: 'Speaking Meinung',     href: '/practice/speaking/opinion',    color: '#fb923c', icon: '🎤', hasProgress: spProg.some(p => p.part === 5) },
-    { label: 'Writing E-Mail',       href: '/practice/writing/email',       color: '#AE00FF', icon: '✍️', hasProgress: wrProg.some(p => p.part === 2) },
-    { label: 'Writing Essay',        href: '/practice/writing/essay',       color: '#AE00FF', icon: '✍️', hasProgress: wrProg.some(p => p.part === 3) },
-    { label: 'Writing Sätze',        href: '/practice/writing/sentences',   color: '#AE00FF', icon: '✍️', hasProgress: wrProg.some(p => p.part === 1) },
+    { label: 'Speaking Read Aloud',    href: '/practice/speaking/read-aloud',  color: '#fb923c', icon: '🎤', hasProgress: spProg.some(p => p.part === 1) },
+    { label: 'Speaking Beschreiben',   href: '/practice/speaking/describe',    color: '#fb923c', icon: '🎤', hasProgress: spProg.some(p => p.part === 2) },
+    { label: 'Speaking Beantworten',   href: '/practice/speaking/respond',     color: '#fb923c', icon: '🎤', hasProgress: spProg.some(p => p.part === 3) },
+    { label: 'Speaking mit Dokument',  href: '/practice/speaking/respond-doc', color: '#fb923c', icon: '🎤', hasProgress: spProg.some(p => p.part === 4) },
+    { label: 'Speaking Meinung',       href: '/practice/speaking/opinion',     color: '#fb923c', icon: '🎤', hasProgress: spProg.some(p => p.part === 5) },
+    { label: 'Writing Sätze',          href: '/practice/writing/sentences',    color: '#AE00FF', icon: '✍️', hasProgress: wrProg.some(p => p.part === 1) },
+    { label: 'Writing E-Mail',         href: '/practice/writing/email',        color: '#AE00FF', icon: '✍️', hasProgress: wrProg.some(p => p.part === 2) },
+    { label: 'Writing Essay',          href: '/practice/writing/essay',        color: '#AE00FF', icon: '✍️', hasProgress: wrProg.some(p => p.part === 3) },
   ]
 
   // ── Smart recommendation ──────────────────────────────────────────────────

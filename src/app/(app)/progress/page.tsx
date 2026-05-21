@@ -76,8 +76,9 @@ export default async function ProgressPage() {
   const SW_META = [
     { key: 'speaking-read-aloud',  label: 'Speaking · Vorlesen (Q1–2)',        href: '/practice/speaking/read-aloud',  color: '#fb923c', subtle: 'rgba(251,146,60,0.10)', hasProg: spProg.some(p => p.part === 1) },
     { key: 'speaking-describe',    label: 'Speaking · Bild beschreiben (Q3–4)',href: '/practice/speaking/describe',    color: '#fb923c', subtle: 'rgba(251,146,60,0.10)', hasProg: spProg.some(p => p.part === 2) },
-    { key: 'speaking-respond',     label: 'Speaking · Fragen beantworten (Q5–7)',href: '/practice/speaking/respond',   color: '#fb923c', subtle: 'rgba(251,146,60,0.10)', hasProg: spProg.some(p => p.part === 3) },
-    { key: 'speaking-opinion',     label: 'Speaking · Meinung äußern (Q11)',   href: '/practice/speaking/opinion',    color: '#fb923c', subtle: 'rgba(251,146,60,0.10)', hasProg: spProg.some(p => p.part === 5) },
+    { key: 'speaking-respond',     label: 'Speaking · Fragen beantworten (Q5–7)',  href: '/practice/speaking/respond',     color: '#fb923c', subtle: 'rgba(251,146,60,0.10)', hasProg: spProg.some(p => p.part === 3) },
+    { key: 'speaking-respond-doc', label: 'Speaking · Antwort mit Dokument (Q8–10)', href: '/practice/speaking/respond-doc', color: '#fb923c', subtle: 'rgba(251,146,60,0.10)', hasProg: spProg.some(p => p.part === 4) },
+    { key: 'speaking-opinion',     label: 'Speaking · Meinung äußern (Q11)',        href: '/practice/speaking/opinion',     color: '#fb923c', subtle: 'rgba(251,146,60,0.10)', hasProg: spProg.some(p => p.part === 5) },
     { key: 'writing-sentences',    label: 'Writing · Sätze schreiben (T1–5)',  href: '/practice/writing/sentences',   color: '#AE00FF', subtle: 'rgba(174,0,255,0.10)',   hasProg: wrProg.some(p => p.part === 1) },
     { key: 'writing-email',        label: 'Writing · E-Mail verfassen (T6–7)', href: '/practice/writing/email',       color: '#AE00FF', subtle: 'rgba(174,0,255,0.10)',   hasProg: wrProg.some(p => p.part === 2) },
     { key: 'writing-essay',        label: 'Writing · Opinion Essay (T8)',      href: '/practice/writing/essay',       color: '#6366f1', subtle: 'rgba(99,102,241,0.10)',   hasProg: wrProg.some(p => p.part === 3) },

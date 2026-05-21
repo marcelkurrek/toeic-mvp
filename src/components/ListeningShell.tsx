@@ -815,7 +815,7 @@ export default function ListeningShell({ part }: ListeningShellProps) {
 
   useEffect(() => {
     async function load() {
-      const res = await fetch(`/api/questions?part=${part}&limit=6`)
+      const res = await fetch(`/api/questions?part=${part}&section=LISTENING&limit=6`)
       const data = await res.json()
       setQuestions(data.questions ?? [])
       const sr = await fetch('/api/sessions', {
