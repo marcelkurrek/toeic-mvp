@@ -155,6 +155,9 @@ const TASKS: Task[] = [
   { title: 'Triple-Passage Seed Data (Part 7)', desc: '3-Dokument-Sets mit authentischen Typ-Kombinationen: Ticket+Notice+Form | Itinerary+Email+Table | Notice+PriceList+Email. Cross-Reference-Fragen die NUR mit ≥2 Dokumenten beantwortbar sind. Barron\'s Practice Test 1 Struktur als Vorlage', status: 'planned', priority: 'mittel', category: 'Infra' },
   { title: 'Score Conversion Table (asymmetrisch)', desc: 'Barron\'s echte Conversion-Kurve: Reading bei <50 richtig deutlich schwächer als Listening. App soll NICHT linear umrechnen. Tabellenwerte: 25→L250/R60, 50→L250/R215, 75→L405/R365, 100→L495/R495. Macht Score-Feedback realistisch', status: 'done', priority: 'hoch', category: 'Dashboard' },
 
+  // ── Practice Errors Integration ──────────────────────────────────────────
+  { title: 'Fehler-Tracker im Üben-Bereich integrieren', desc: 'Nach jeder Übung: Statistik zeigen (X% richtig, Y% falsch). Fehler tracken und später in neue Übungen integrieren. "Meine Fehler" direkt im Üben-Bereich anzeigen (NICHT als separate Kategorie). Session-Ende Screen mit Fehleranalyse + Schnell-Wiederholung der falschen Fragen', status: 'in-progress', priority: 'hoch', category: 'Practice' },
+
   // ── Ideen (warten auf Validierung) ────────────────────────────────────────
   { title: 'Vokabel-System mit Spaced Repetition', desc: '1000+ TOEIC-Vokabeln kategorisiert nach Domäne (Finance, HR, Travel, Marketing, Office). SM-2 Algorithmus für Wiederholungsintervalle. Forschung zeigt direkten Score-Zusammenhang', status: 'idea', priority: 'hoch', category: 'Practice' },
   { title: 'Score-Prognose auf Prüfungstag', desc: 'Lineare Regression über Accuracy-Verlauf → "Bei aktueller Lernrate erreichst du voraussichtlich 720–760 am [Datum]". Warnung wenn Ziel nicht erreichbar', status: 'idea', priority: 'mittel', category: 'Dashboard' },
