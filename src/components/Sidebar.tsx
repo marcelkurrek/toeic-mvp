@@ -20,7 +20,7 @@ const NAV = [
     label: 'Test Training',
     icon: Dumbbell,
     exact: false,
-    activeFor: ['/listening', '/reading', '/speaking', '/writing'],
+    activeFor: ['/listening', '/reading', '/speaking', '/writing', '/progress', '/study-plan'],
   },
   {
     href: '/test-simulation',

@@ -363,6 +363,228 @@ Send your résumé and a cover letter to careers@hartfield.com by April 15. Only
   }
   console.log(`✅ Part 4 extra: ${part4Extra2.length} talks`)
 
+  // ── LISTENING: Part 3 – Additional conversations (3 more) ────────────────
+  const part3Extra3 = [
+    {
+      id: 'p3-extra-e3',
+      content: {
+        dialogue: [
+          { speaker: 'Woman', line: 'Hi, I\'d like to return this jacket. I bought it last week, but the zipper broke after just one use.' },
+          { speaker: 'Man', line: 'I\'m sorry to hear that. Do you have your receipt?' },
+          { speaker: 'Woman', line: 'Yes, here it is. Can I exchange it for a different one, or would I get a refund?' },
+          { speaker: 'Man', line: 'Both options are available. Since it\'s a product defect, we can also offer you store credit with an extra 10% bonus.' },
+        ],
+        questions: [
+          { stem: 'Why is the woman returning the jacket?', options: ['It was the wrong size.', 'It was too expensive.', 'The zipper broke.', 'She changed her mind.'], answer: 'C', explanation: '"The zipper broke after just one use" — a product defect.' },
+          { stem: 'What does the man ask the woman to provide?', options: ['Her credit card', 'Her receipt', 'Her membership ID', 'Her phone number'], answer: 'B', explanation: '"Do you have your receipt?" — the man needs the receipt to process the return.' },
+          { stem: 'What additional option does the man offer?', options: ['Free shipping on next order', 'A discount on a similar item', 'Store credit with an extra 10% bonus', 'A free gift with the exchange'], answer: 'C', explanation: '"We can also offer store credit with an extra 10% bonus."' },
+        ],
+      },
+      options: null, answer: 'CBC',
+      explanation: 'Customer service conversation about returning a defective jacket.',
+      tags: ['conversation', 'retail', 'customer-service'], isDiagnostic: false,
+    },
+    {
+      id: 'p3-extra-e4',
+      content: {
+        dialogue: [
+          { speaker: 'Man', line: 'I just got the results of the customer satisfaction survey. Overall, clients rated our service at 4.2 out of 5.' },
+          { speaker: 'Woman', line: 'That\'s pretty good. Were there any specific areas where we scored lower?' },
+          { speaker: 'Man', line: 'Yes — response time to client inquiries was the main issue. About 40% of respondents rated it as slow.' },
+          { speaker: 'Woman', line: 'We should address that at the next team meeting and come up with an action plan.' },
+        ],
+        questions: [
+          { stem: 'What are the speakers discussing?', options: ['A new client proposal', 'Results of a satisfaction survey', 'A team performance review', 'A marketing campaign'], answer: 'B', explanation: '"I just got the results of the customer satisfaction survey."' },
+          { stem: 'What issue did the survey highlight?', options: ['Poor product quality', 'High prices', 'Slow response to inquiries', 'Insufficient staff training'], answer: 'C', explanation: '"Response time to client inquiries was the main issue."' },
+          { stem: 'What does the woman suggest?', options: ['Sending a follow-up survey', 'Hiring more customer service agents', 'Discussing the issue at a team meeting', 'Calling each dissatisfied client'], answer: 'C', explanation: '"We should address that at the next team meeting and come up with an action plan."' },
+        ],
+      },
+      options: null, answer: 'BCC',
+      explanation: 'Office conversation about customer satisfaction survey results.',
+      tags: ['conversation', 'customer-satisfaction', 'data'], isDiagnostic: false,
+    },
+    {
+      id: 'p3-extra-e5',
+      content: {
+        dialogue: [
+          { speaker: 'Woman', line: 'Are you going to the product launch event on Thursday evening?' },
+          { speaker: 'Man', line: 'I planned to, but I just found out my flight to Chicago is that same night.' },
+          { speaker: 'Woman', line: 'Oh no. Will you be able to watch the live stream instead?' },
+          { speaker: 'Man', line: 'Yes, I\'ll catch it online. Could you save me a copy of the product brochure from the event?' },
+        ],
+        questions: [
+          { stem: 'Why can\'t the man attend the event?', options: ['He has a family commitment.', 'He is traveling that night.', 'He is working overtime.', 'He was not invited.'], answer: 'B', explanation: '"My flight to Chicago is that same night" — the man has a travel conflict.' },
+          { stem: 'What does the man plan to do instead?', options: ['Attend a different event', 'Watch the live stream online', 'Reschedule his flight', 'Send a representative'], answer: 'B', explanation: '"I\'ll catch it online" — he will watch the product launch via live stream.' },
+          { stem: 'What does the man ask the woman to do?', options: ['Email him the event recording', 'Register him for the event', 'Save him a product brochure', 'Share the event schedule'], answer: 'C', explanation: '"Could you save me a copy of the product brochure from the event?"' },
+        ],
+      },
+      options: null, answer: 'BBC',
+      explanation: 'Workplace conversation about a product launch event and a scheduling conflict.',
+      tags: ['conversation', 'product-launch', 'scheduling'], isDiagnostic: false,
+    },
+  ]
+
+  for (const q of part3Extra3) {
+    await prisma.question.upsert({
+      where: { id: q.id },
+      update: {},
+      create: { ...q, section: 'LISTENING', part: 3, type: 'CONVERSATION', difficulty: 3, isDiagnostic: false },
+    })
+  }
+  console.log(`✅ Part 3 extra 3: ${part3Extra3.length} conversations`)
+
+  // ── LISTENING: Part 4 – Additional talks (2 more) ─────────────────────────
+  const part4Extra3 = [
+    {
+      id: 'p4-extra-e3',
+      content: {
+        transcript: `Good morning, listeners. Before we get into today's program, I'd like to share some exciting news about our city's new public transit expansion. Starting next month, the Blue Line subway will extend three additional stops, connecting the downtown area to the Northgate district for the first time. Commuters traveling from Northgate to the city center can expect a journey of approximately twenty-two minutes. Monthly passes will be available for the new extension at the same price as existing passes, with no additional fee. City officials have encouraged residents to leave their cars at home and try the new service for free during the first two weeks after the launch. For more information, visit the city transit website or call our hotline.`,
+        questions: [
+          { stem: 'What is the main topic of this announcement?', options: ['A new highway construction project', 'An extension of the subway system', 'New bus routes for the city', 'Road closure due to repairs'], answer: 'B', explanation: 'The announcement is about the Blue Line subway expanding with three additional stops.' },
+          { stem: 'How long will the commute from Northgate to downtown take?', options: ['About 12 minutes', 'About 22 minutes', 'About 30 minutes', 'About 45 minutes'], answer: 'B', explanation: '"A journey of approximately twenty-two minutes."' },
+          { stem: 'What incentive is offered during the first two weeks?', options: ['Reduced monthly pass rates', 'Free parking near stations', 'Free rides for all commuters', 'Complimentary transit cards'], answer: 'C', explanation: '"Try the new service for free during the first two weeks after the launch."' },
+        ],
+      },
+      options: null, answer: 'BBC',
+      explanation: 'Radio announcement about a new subway extension.',
+      tags: ['talk', 'public-transit', 'radio'], isDiagnostic: false,
+    },
+    {
+      id: 'p4-extra-e4',
+      content: {
+        transcript: `Welcome to the Hartwell Professional Development Series. I'm thrilled to introduce today's speaker, Dr. Maria Sousa, whose research on workplace communication has been published in over thirty peer-reviewed journals. Dr. Sousa earned her doctorate from the University of Amsterdam and has worked as a consultant for Fortune 500 companies across three continents. Today, she'll be speaking about effective strategies for cross-cultural communication in international business settings. After her presentation, there will be a thirty-minute question and answer session, followed by a networking reception in the adjoining room. Refreshments will be served. Please silence your mobile devices and feel free to take notes. Dr. Sousa, the floor is yours.`,
+        questions: [
+          { stem: 'Who is Dr. Maria Sousa?', options: ['A university president', 'A corporate executive', 'A researcher and consultant', 'A government official'], answer: 'C', explanation: 'She is described as a researcher whose work is published in journals, and a consultant for Fortune 500 companies.' },
+          { stem: 'What will Dr. Sousa speak about?', options: ['Financial strategies for global companies', 'Cross-cultural communication in business', 'Leadership development programs', 'Academic publishing techniques'], answer: 'B', explanation: '"Effective strategies for cross-cultural communication in international business settings."' },
+          { stem: 'What will happen immediately after the presentation?', options: ['A networking reception', 'A 30-minute Q&A session', 'A panel discussion', 'A break for refreshments'], answer: 'B', explanation: '"After her presentation, there will be a thirty-minute question and answer session."' },
+        ],
+      },
+      options: null, answer: 'CBB',
+      explanation: 'Introduction speech at a professional development seminar.',
+      tags: ['talk', 'introduction', 'seminar'], isDiagnostic: false,
+    },
+  ]
+
+  for (const q of part4Extra3) {
+    await prisma.question.upsert({
+      where: { id: q.id },
+      update: {},
+      create: { ...q, section: 'LISTENING', part: 4, type: 'TALK', difficulty: 3, isDiagnostic: false },
+    })
+  }
+  console.log(`✅ Part 4 extra 3: ${part4Extra3.length} talks`)
+
+  // ── READING: Part 7 – Additional single passages (3 more) ────────────────
+  const part7ExtraSingle2 = [
+    {
+      id: 'p7-email-e1',
+      content: {
+        passage: `From: Natalie Obi <n.obi@crystalweb.com>
+To: customer.support@techsupply.com
+Subject: Order #48291 — Missing Item
+Date: May 14
+
+Dear Customer Support Team,
+
+I am writing to report that my recent order (#48291) arrived incomplete. I ordered a set of five wireless keyboard-and-mouse combos for our office, but only four sets were included in the shipment. The delivery was made on May 12.
+
+I would appreciate it if you could either ship the missing unit at your earliest convenience or arrange for a partial refund for the missing item. I have attached a copy of my invoice and a photo of the delivery box as received.
+
+Please let me know how you would like to proceed.
+
+Kind regards,
+Natalie Obi
+Office Manager, Crystal Web Solutions`,
+        question: 'Why is Natalie Obi writing this email?',
+      },
+      options: ['To request a return for all five items', 'To report a missing item from her order', 'To inquire about a shipping delay', 'To update her delivery address'],
+      answer: 'B',
+      explanation: 'She explicitly states: "I am writing to report that my recent order arrived incomplete... only four sets were included."',
+      tags: ['single-passage', 'email', 'complaint'], isDiagnostic: false,
+    },
+    {
+      id: 'p7-email-e2',
+      content: {
+        passage: `From: Natalie Obi <n.obi@crystalweb.com>
+To: customer.support@techsupply.com
+Subject: Order #48291 — Missing Item
+Date: May 14
+
+Dear Customer Support Team,
+
+I am writing to report that my recent order (#48291) arrived incomplete. I ordered a set of five wireless keyboard-and-mouse combos for our office, but only four sets were included in the shipment. The delivery was made on May 12.
+
+I would appreciate it if you could either ship the missing unit at your earliest convenience or arrange for a partial refund for the missing item. I have attached a copy of my invoice and a photo of the delivery box as received.
+
+Please let me know how you would like to proceed.
+
+Kind regards,
+Natalie Obi
+Office Manager, Crystal Web Solutions`,
+        question: 'What does Ms. Obi request as a resolution?',
+      },
+      options: ['A full refund', 'A replacement for all five items', 'The missing unit or a partial refund', 'A discount on her next order'],
+      answer: 'C',
+      explanation: '"Ship the missing unit at your earliest convenience or arrange for a partial refund for the missing item."',
+      tags: ['single-passage', 'email', 'request'], isDiagnostic: false,
+    },
+    {
+      id: 'p7-article-e1',
+      content: {
+        passage: `PRESS RELEASE
+
+FOR IMMEDIATE RELEASE
+
+Luminos Energy Announces Opening of New Solar Panel Manufacturing Facility
+
+AUSTIN, TX — Luminos Energy, a leader in renewable energy solutions, announced today the opening of its newest manufacturing facility in Austin, Texas. The 80,000-square-foot plant is expected to produce over 2 million solar panels annually and will create approximately 350 full-time jobs in the region.
+
+"This facility represents our commitment to expanding clean energy production in the United States," said CEO Daniel Park. "We are proud to be part of Austin's growing green technology sector."
+
+The new plant uses automated assembly technology that reduces production costs by an estimated 18 percent compared to the company's previous facilities. Luminos Energy plans to begin deliveries to commercial clients in Q3 of this year.
+
+The company currently operates facilities in California, Nevada, and Ohio.`,
+        question: 'What is the purpose of this press release?',
+      },
+      options: ['To announce a merger between two energy companies', 'To report on a new solar panel facility opening', 'To introduce a new solar panel product line', 'To advertise job openings at Luminos Energy'],
+      answer: 'B',
+      explanation: 'The press release announces the opening of a new manufacturing facility for solar panels.',
+      tags: ['single-passage', 'press-release', 'business'], isDiagnostic: false,
+    },
+    {
+      id: 'p7-article-e2',
+      content: {
+        passage: `PRESS RELEASE
+
+FOR IMMEDIATE RELEASE
+
+Luminos Energy Announces Opening of New Solar Panel Manufacturing Facility
+
+AUSTIN, TX — Luminos Energy, a leader in renewable energy solutions, announced today the opening of its newest manufacturing facility in Austin, Texas. The 80,000-square-foot plant is expected to produce over 2 million solar panels annually and will create approximately 350 full-time jobs in the region.
+
+"This facility represents our commitment to expanding clean energy production in the United States," said CEO Daniel Park. "We are proud to be part of Austin's growing green technology sector."
+
+The new plant uses automated assembly technology that reduces production costs by an estimated 18 percent compared to the company's previous facilities. Luminos Energy plans to begin deliveries to commercial clients in Q3 of this year.
+
+The company currently operates facilities in California, Nevada, and Ohio.`,
+        question: 'According to the press release, what advantage does the new facility have?',
+      },
+      options: ['It is the largest facility in the world.', 'It reduces production costs by 18 percent.', 'It will create 500 permanent jobs.', 'It uses solar panels to power itself.'],
+      answer: 'B',
+      explanation: '"Automated assembly technology that reduces production costs by an estimated 18 percent compared to the company\'s previous facilities."',
+      tags: ['single-passage', 'press-release', 'technology'], isDiagnostic: false,
+    },
+  ]
+
+  for (const q of part7ExtraSingle2) {
+    await prisma.question.upsert({
+      where: { id: q.id },
+      update: {},
+      create: { ...q, section: 'READING', part: 7, type: 'SINGLE_PASSAGE', difficulty: 3, isDiagnostic: false },
+    })
+  }
+  console.log(`✅ Part 7 extra single 2: ${part7ExtraSingle2.length} questions`)
+
   // ── WRITING: Additional tasks ──────────────────────────────────────────────
   const writingExtra = [
     {
