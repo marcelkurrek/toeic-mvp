@@ -480,6 +480,8 @@ export default function WritingShell({ writingPart }: { writingPart: WritingPart
   const [currentIndex, setCurrentIndex] = useState(0)
   const [submitted, setSubmitted] = useState(false)
   const [feedback, setFeedback] = useState<WritingFeedback | null>(null)
+  const [prevFeedback, setPrevFeedback] = useState<WritingFeedback | null>(null)
+  const [isRevising, setIsRevising] = useState(false)
   const [loading, setLoading] = useState(true)
   const [timerRunning, setTimerRunning] = useState(false)
   const [timerExpired, setTimerExpired] = useState(false)
@@ -523,6 +525,8 @@ export default function WritingShell({ writingPart }: { writingPart: WritingPart
 
   const handleSubmit = useCallback(async (text: string) => {
     setSubmitted(true)
+    setIsRevising(false)
+    setPrevFeedback(null)
     setTimerRunning(false)
     setTimerExpired(false)
     const q = questions[currentIndex]
@@ -555,10 +559,12 @@ export default function WritingShell({ writingPart }: { writingPart: WritingPart
   }
 
   const handleRevise = useCallback(() => {
+    setPrevFeedback(feedback)
+    setIsRevising(true)
     setSubmitted(false)
     setFeedback(null)
     setTimerExpired(false)
-  }, [])
+  }, [feedback])
 
   if (loading) return (
     <div style={{ maxWidth: 700, margin: '0 auto' }}>
@@ -636,11 +642,44 @@ export default function WritingShell({ writingPart }: { writingPart: WritingPart
         <span style={{ fontSize: 11, padding: '2px 10px', borderRadius: 99, background: meta.color + '15', color: meta.color, fontWeight: 700 }}>WRITING</span>
       </div>
 
-      <div className="card" style={{ padding: '20px 24px', marginBottom: 16 }}>
-        {writingPart === 'sentences' && <SentenceTask question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} timerExpired={timerExpired} onRevise={handleRevise} />}
-        {writingPart === 'email'     && <EmailTask    question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} timerExpired={timerExpired} onRevise={handleRevise} />}
-        {writingPart === 'essay'     && <EssayTask    question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} timerExpired={timerExpired} onRevise={handleRevise} />}
-      </div>
+      {isRevising && prevFeedback ? (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 16 }}>
+          {/* Left: Previous feedback */}
+          <div className="card" style={{ padding: '16px 20px' }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12 }}>Vorheriges Feedback</p>
+            <div style={{ padding: '8px 12px', borderRadius: 8, background: 'var(--background)', border: '1px solid var(--card-border)', marginBottom: 10 }}>
+              <p style={{ fontSize: 24, fontWeight: 800, color: prevFeedback.score >= 75 ? 'var(--success)' : prevFeedback.score >= 55 ? '#fbbf24' : '#ef4444', marginBottom: 4 }}>{prevFeedback.score}/100</p>
+              <p style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.5 }}>{prevFeedback.feedback}</p>
+            </div>
+            {prevFeedback.tips && prevFeedback.tips.length > 0 && (
+              <div>
+                <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--accent)', marginBottom: 6 }}>Verbesserungen:</p>
+                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  {prevFeedback.tips.map((tip, i) => (
+                    <li key={i} style={{ fontSize: 11, color: 'var(--muted)', lineHeight: 1.4, display: 'flex', gap: 6 }}>
+                      <span style={{ color: 'var(--accent)', fontWeight: 700, flexShrink: 0 }}>{i+1}.</span>
+                      {tip}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+          {/* Right: Editor */}
+          <div className="card" style={{ padding: '16px 20px' }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12 }}>Überarbeitung</p>
+            {writingPart === 'sentences' && <SentenceTask question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} timerExpired={timerExpired} onRevise={handleRevise} />}
+            {writingPart === 'email'     && <EmailTask    question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} timerExpired={timerExpired} onRevise={handleRevise} />}
+            {writingPart === 'essay'     && <EssayTask    question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} timerExpired={timerExpired} onRevise={handleRevise} />}
+          </div>
+        </div>
+      ) : (
+        <div className="card" style={{ padding: '20px 24px', marginBottom: 16 }}>
+          {writingPart === 'sentences' && <SentenceTask question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} timerExpired={timerExpired} onRevise={handleRevise} />}
+          {writingPart === 'email'     && <EmailTask    question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} timerExpired={timerExpired} onRevise={handleRevise} />}
+          {writingPart === 'essay'     && <EssayTask    question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} timerExpired={timerExpired} onRevise={handleRevise} />}
+        </div>
+      )}
 
       {submitted && (
         <button onClick={handleNext}

@@ -231,7 +231,6 @@ export default function PracticeShell({ part }: PracticeShellProps) {
             <div style={{ padding: '10px 14px', borderRadius: 8, background: 'var(--background)', border: '1px solid var(--card-border)' }}>
               <p style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 4 }}>Ø Zeit / Frage</p>
               <p style={{ fontSize: 18, fontWeight: 700 }}>{avgTime}s</p>
-              <p style={{ fontSize: 11, color: 'var(--muted)' }}>{avgTime > 45 ? 'Zu langsam — Prüfungstempo üben' : avgTime > 25 ? 'Im Zielbereich' : 'Sehr schnell'}</p>
             </div>
             <div style={{ padding: '10px 14px', borderRadius: 8, background: 'var(--background)', border: '1px solid var(--card-border)' }}>
               <p style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 4 }}>Fehlerquote</p>
@@ -239,6 +238,26 @@ export default function PracticeShell({ part }: PracticeShellProps) {
               <p style={{ fontSize: 11, color: 'var(--muted)' }}>Fragen falsch</p>
             </div>
           </div>
+          {/* Speed feedback */}
+          {(() => {
+            const TARGET_SECS: Record<number, number> = { 5: 45, 6: 75, 7: 90 }
+            const target = TARGET_SECS[part]
+            if (!target || !avgTime) return null
+            const isOnTarget = avgTime <= target
+            const ratio = Math.round((avgTime / target) * 100)
+            return (
+              <div style={{ padding: '10px 14px', borderRadius: 8, background: isOnTarget ? 'rgba(74,222,128,0.08)' : 'rgba(251,191,36,0.08)', border: `1px solid ${isOnTarget ? 'rgba(74,222,128,0.25)' : 'rgba(251,191,36,0.25)'}`, marginTop: 10 }}>
+                <p style={{ fontSize: 11, fontWeight: 700, color: isOnTarget ? 'var(--success)' : '#fbbf24', marginBottom: 3 }}>
+                  ⏱ Geschwindigkeit: {avgTime}s / Frage · Ziel: {target}s
+                </p>
+                <p style={{ fontSize: 11, color: 'var(--muted)' }}>
+                  {isOnTarget
+                    ? `✓ Gut — du bist ${target - avgTime}s schneller als das TOEIC-Ziel.`
+                    : `${ratio - 100}% langsamer als TOEIC-Ziel. Im echten Test wäre das kritisch.`}
+                </p>
+              </div>
+            )
+          })()}
           {topWrongTags.length > 0 && (
             <div style={{ marginBottom: 12 }}>
               <p style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 6 }}>Grammatikmuster mit Fehlern:</p>

@@ -768,6 +768,7 @@ export default function ListeningShell({ part }: ListeningShellProps) {
             <div style={{ padding: '8px 12px', borderRadius: 8, background: 'var(--background)', border: '1px solid var(--card-border)' }}>
               <p style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 3 }}>Ø Zeit / Frage</p>
               <p style={{ fontSize: 16, fontWeight: 700 }}>{avgTime}s</p>
+              <p style={{ fontSize: 10, color: 'var(--muted)', marginTop: 2 }}>Klang-gesteuert</p>
             </div>
             <div style={{ padding: '8px 12px', borderRadius: 8, background: 'var(--background)', border: '1px solid var(--card-border)' }}>
               <p style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 3 }}>Falsch</p>

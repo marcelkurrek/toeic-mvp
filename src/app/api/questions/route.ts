@@ -35,10 +35,13 @@ export async function GET(request: Request) {
     const adaptive = url.searchParams.get('adaptive') === 'true'
     const limit    = Math.min(50, Math.max(1, Number(url.searchParams.get('limit') ?? 10)))
 
+    const tag = url.searchParams.get('tag')
+
     const baseWhere: Record<string, unknown> = {}
     if (part)     baseWhere.part = parseInt(part)
     if (section)  baseWhere.section = section
     if (diagMode) baseWhere.isDiagnostic = diagMode === 'true'
+    if (tag)      baseWhere.tags = { has: tag }
 
     if (!adaptive) {
       const questions = await prisma.question.findMany({

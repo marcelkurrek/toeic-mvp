@@ -147,7 +147,15 @@ export default async function ProgressPage() {
                         <span style={{ fontSize: 11, color: '#ef4444', fontWeight: 600 }}>Schwachstelle</span>
                       )}
                     </div>
-                    <span style={{ fontSize: 12, color: 'var(--muted)' }}>{total - wrong}/{total} richtig · {pct}% Fehler</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <span style={{ fontSize: 12, color: 'var(--muted)' }}>{total - wrong}/{total} richtig · {pct}% Fehler</span>
+                      <Link
+                        href={`/practice/part5/drill?pattern=${encodeURIComponent(tag)}`}
+                        style={{ fontSize: 11, padding: '3px 10px', borderRadius: 99, background: 'rgba(213,253,68,0.15)', color: '#D5FD44', fontWeight: 700, textDecoration: 'none', flexShrink: 0 }}
+                      >
+                        Drill →
+                      </Link>
+                    </div>
                   </div>
                   <div style={{ height: 6, borderRadius: 99, background: 'var(--card-border)', overflow: 'hidden' }}>
                     <div style={{ height: '100%', borderRadius: 99, width: `${pct}%`, background: barColor, transition: 'width 0.4s' }} />
