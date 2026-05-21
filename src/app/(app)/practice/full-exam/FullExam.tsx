@@ -401,6 +401,13 @@ export default function FullExam() {
 
         <p style={{ fontSize: 15, fontWeight: 500, lineHeight: 1.6, marginBottom: 20 }}>{questionText}</p>
 
+        {opts.length === 0 && isListening && (
+          <div style={{ marginBottom: 20, padding: '12px 14px', borderRadius: 10, background: 'rgba(4,255,136,0.06)', border: '1px solid rgba(4,255,136,0.2)', fontSize: 13, color: 'var(--muted)', lineHeight: 1.6 }}>
+            <span style={{ fontWeight: 600, color: '#04FF88' }}>Audio-Frage — </span>
+            Im echten TOEIC wird diese Frage vorgelesen. Hier als Transkript dargestellt. Klicke <strong>Weiter</strong> um fortzufahren.
+          </div>
+        )}
+
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
           {opts.map((opt, i) => {
             const letter = LETTERS[i]
@@ -447,12 +454,12 @@ export default function FullExam() {
             </span>
           ) : <span />}
           <div style={{ display: 'flex', gap: 8 }}>
-            {!submitted && (
+            {!submitted && opts.length > 0 && (
               <button onClick={handleSubmit} disabled={!selected} className="btn-primary">
                 Prüfen
               </button>
             )}
-            <button onClick={handleNext} className="btn-primary flex items-center gap-2" style={{ background: submitted ? undefined : 'var(--card-border)', color: submitted ? undefined : 'var(--muted)' }}>
+            <button onClick={handleNext} className="btn-primary flex items-center gap-2">
               {isLastQ ? (isListening ? 'Reading starten' : 'Ergebnis') : 'Weiter'} <ChevronRight size={16} />
             </button>
           </div>
