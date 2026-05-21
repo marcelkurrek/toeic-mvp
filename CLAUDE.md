@@ -29,6 +29,18 @@ PAT="<token>" && git remote set-url origin "https://${PAT}@github.com/marcelkurr
 - **Admin-Email:** `marcelkurrek@web.de` — Admin-Bereich unter `/admin`
 - **Branch:** Entwicklung auf `main`, kein separater Feature-Branch nötig
 
+## TOEIC Prüfungs-Tipps (Barron's Premium 10th Edition — Lerngrundlage)
+
+Folgende Prinzipien sind in allen Implementierungen zu berücksichtigen:
+
+**Part 1:** Analysiere Personen (Anzahl, Geschlecht, Beruf, Aktion) + Objekte + Ort. Eliminiere Aussagen mit nicht sichtbaren Details.
+**Part 2:** Sound-alikes, Synonyme, Homonyme sind Fallen. Erkenne Vorschläge/Angebote/Bitten. "Or"-Fragen: Antwort wählt eine Option oder sagt neither/both.
+**Part 3/4:** Erkenne Fragentypen (Person, Beruf, Ort, Zeit, Handlung, Setting). Antworten sind oft Paraphrasen. Implizite Bedeutung wichtig. Grafik: erst scannen, dann hören.
+**Part 5/6:** Unterscheide ähnliche Wortformen, Verbformen, Adjektiv/Adverb, Präpositionen.
+**Part 7:** PRSA-Strategie: Predict → Read → Scan → Answer. Antworten sind Paraphrasen des Textes.
+
+**Distractor-Qualität:** Falsche Antworten sollen Wörter aus dem Text/Dialog nutzen (Sound-alike-Trap), Zeit/Ort/Person verwechseln (Context-Swap) oder partiell wahr sein (Partial-Truth-Trap).
+
 ## Produkt-Prinzipien
 
 - Der User soll nicht überlegen müssen was er tut — das System führt ihn guided

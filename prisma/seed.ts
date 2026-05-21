@@ -362,6 +362,74 @@ async function main() {
       tags: ['office', 'interior', 'furniture'],
       isDiagnostic: false,
     },
+    {
+      id: 'p1-presentation-13',
+      content: {
+        imageUrl: 'https://images.pexels.com/photos/3184292/pexels-photo-3184292.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+        transcript: [
+          'A woman is writing notes on a whiteboard.',
+          'The team is gathered around a conference table.',
+          'A projector screen is being set up.',
+          'The room has been cleared of furniture.',
+        ],
+      },
+      options: ['A', 'B', 'C', 'D'],
+      answer: 'B',
+      explanation: 'The photo shows a group of colleagues seated around a conference table during a meeting. The whiteboard is visible in the background but no one is writing on it.',
+      tags: ['office', 'meeting', 'presentation'],
+      isDiagnostic: false,
+    },
+    {
+      id: 'p1-outdoor-event-14',
+      content: {
+        imageUrl: 'https://images.pexels.com/photos/1540406/pexels-photo-1540406.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+        transcript: [
+          'People are seated at tables at an outdoor event.',
+          'Vendors are packing up their merchandise.',
+          'Banners are being hung from the ceiling.',
+          'The event space is completely empty.',
+        ],
+      },
+      options: ['A', 'B', 'C', 'D'],
+      answer: 'A',
+      explanation: 'The photo shows attendees seated at tables at an outdoor gathering. Options B and C describe actions not visible; D is incorrect as people are present.',
+      tags: ['outdoor', 'event', 'crowd'],
+      isDiagnostic: false,
+    },
+    {
+      id: 'p1-building-exterior-15',
+      content: {
+        imageUrl: 'https://images.pexels.com/photos/1134166/pexels-photo-1134166.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+        transcript: [
+          'Workers are repairing the building facade.',
+          'People are entering through the main doors.',
+          'Steps lead up to the entrance of a large building.',
+          'The building is surrounded by construction equipment.',
+        ],
+      },
+      options: ['A', 'B', 'C', 'D'],
+      answer: 'C',
+      explanation: 'The photo shows a grand building exterior with a prominent staircase leading to the entrance. No repair work or construction equipment is visible.',
+      tags: ['building', 'exterior', 'architecture'],
+      isDiagnostic: false,
+    },
+    {
+      id: 'p1-corridor-16',
+      content: {
+        imageUrl: 'https://images.pexels.com/photos/6476254/pexels-photo-6476254.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1',
+        transcript: [
+          'A woman is walking down the hallway.',
+          'She is opening a door at the end of the corridor.',
+          'Boxes are stacked along the wall.',
+          'She is standing near a filing cabinet.',
+        ],
+      },
+      options: ['A', 'B', 'C', 'D'],
+      answer: 'D',
+      explanation: 'The photo shows a woman standing next to a filing cabinet in an office corridor. She is not walking or opening a door.',
+      tags: ['office', 'corridor', 'interior'],
+      isDiagnostic: false,
+    },
   ]
 
   for (const q of part1) {

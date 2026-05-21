@@ -50,12 +50,15 @@ const READING_STRATEGY: Record<5 | 6 | 7, { title: string; tips: string[] }> = {
     ],
   },
   7: {
-    title: 'Part 7 Strategie — Leseverständnis',
+    title: 'Part 7 Strategie — PRSA-Methode',
     tips: [
-      'ZUERST die Fragen lesen, DANN im Text nach Antworten suchen (kein vollständiges Lesen).',
-      'NOT-Fragen und INFERENCE-Fragen markieren und am Ende beantworten.',
-      'Multi-Passage: notiere mental welche Info in welchem Dokument steht.',
-      'Wortbedeutungs-Fragen (closest in meaning): suche das Wort im Kontext, nicht isoliert.',
+      '📌 PRSA: Predict → Read → Scan → Answer — wende diese Reihenfolge bei jeder Frage an.',
+      'PREDICT: Lies die Frage zuerst — was für eine Antwort erwartest du (Zahl? Name? Grund?)?',
+      'READ: Lies den Text gezielt — überspringe was nicht zur Frage passt.',
+      'SCAN: Suche gezielt nach Schlüsselwörtern aus der Frage oder ihren Paraphrasen im Text.',
+      'ANSWER: Wähle die Option die am besten passt — Antworten sind oft Paraphrasen des Textes.',
+      'NOT/EXCEPT-Fragen: 3 Optionen sind richtig, 1 ist falsch — jede Option gegen den Text prüfen.',
+      'Inference-Fragen: Antwort steht NICHT direkt im Text — schließe aus dem Kontext.',
     ],
   },
 }
