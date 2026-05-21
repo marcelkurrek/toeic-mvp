@@ -43,7 +43,7 @@ interface PracticeShellProps {
 export default function PracticeShell({ part }: PracticeShellProps) {
   const router = useRouter()
   const { t } = useLang()
-  const { questions, currentIndex, answers, isFinished, setQuestions, submitAnswer, nextQuestion, reset } = useExamStore()
+  const { questions, currentIndex, answers, isFinished, skippedIds, setQuestions, submitAnswer, nextQuestion, skipQuestion, reset } = useExamStore()
   const [selected, setSelected] = useState<string | null>(null)
   const [submitted, setSubmitted] = useState(false)
   const [sessionId, setSessionId]   = useState<string | null>(null)
@@ -325,14 +325,16 @@ export default function PracticeShell({ part }: PracticeShellProps) {
         onSelect={setSelected}
         onSubmit={handleSubmit}
         onNext={nextQuestion}
+        onSkip={skipQuestion}
         isLast={currentIndex === questions.length - 1}
+        isRetry={skippedIds.includes(question.id)}
         t={t.practice}
       />
     </div>
   )
 }
 
-function QuestionCard({ question, opts, letters, selected, submitted, correctLetter, currentAnswer, onSelect, onSubmit, onNext, isLast, t }: {
+function QuestionCard({ question, opts, letters, selected, submitted, correctLetter, currentAnswer, onSelect, onSubmit, onNext, onSkip, isLast, isRetry, t }: {
   question: Question
   opts: string[]
   letters: string[]
@@ -343,7 +345,9 @@ function QuestionCard({ question, opts, letters, selected, submitted, correctLet
   onSelect: (l: string) => void
   onSubmit: () => void
   onNext: () => void
+  onSkip: () => void
   isLast: boolean
+  isRetry: boolean
   t: { passage: string; explanation: string; correct: string; incorrect: string; submitBtn: string; nextBtn: string; resultsBtn: string }
 }) {
   const content = question.content as {
@@ -455,6 +459,12 @@ function QuestionCard({ question, opts, letters, selected, submitted, correctLet
         </div>
       )}
 
+      {isRetry && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 16, padding: '6px 10px', borderRadius: 8, background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.25)' }}>
+          <RotateCcw size={12} style={{ color: '#fbbf24' }} />
+          <span style={{ fontSize: 11, color: '#fbbf24', fontWeight: 600 }}>Wiederholung — zuvor übersprungen</span>
+        </div>
+      )}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           {submitted && (
@@ -467,15 +477,22 @@ function QuestionCard({ question, opts, letters, selected, submitted, correctLet
             </span>
           )}
         </div>
-        {!submitted ? (
-          <button onClick={onSubmit} disabled={!selected} className="btn-primary">
-            {t.submitBtn}
-          </button>
-        ) : (
-          <button onClick={onNext} className="btn-primary flex items-center gap-2">
-            {isLast ? t.resultsBtn : t.nextBtn} <ChevronRight size={16} />
-          </button>
-        )}
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          {!submitted && !isLast && !isRetry && (
+            <button onClick={onSkip} style={{ fontSize: 12, color: 'var(--muted)', background: 'none', border: '1px solid var(--card-border)', cursor: 'pointer', padding: '8px 12px', borderRadius: 8 }}>
+              Überspringen
+            </button>
+          )}
+          {!submitted ? (
+            <button onClick={onSubmit} disabled={!selected} className="btn-primary">
+              {t.submitBtn}
+            </button>
+          ) : (
+            <button onClick={onNext} className="btn-primary flex items-center gap-2">
+              {isLast ? t.resultsBtn : t.nextBtn} <ChevronRight size={16} />
+            </button>
+          )}
+        </div>
       </div>
     </div>
   )

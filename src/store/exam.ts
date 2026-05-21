@@ -8,10 +8,12 @@ interface ExamState {
   startTime: number | null
   questionStartTime: number | null
   isFinished: boolean
+  skippedIds: string[]
 
   setQuestions: (questions: Question[]) => void
   submitAnswer: (questionId: string, userAnswer: string) => void
   nextQuestion: () => void
+  skipQuestion: () => void
   finishExam: () => void
   reset: () => void
 }
@@ -24,8 +26,10 @@ export const useExamStore = create<ExamState>((set, get) => ({
   questionStartTime: null,
   isFinished: false,
 
+  skippedIds: [],
+
   setQuestions: (questions) =>
-    set({ questions, currentIndex: 0, answers: [], startTime: Date.now(), questionStartTime: Date.now(), isFinished: false }),
+    set({ questions, currentIndex: 0, answers: [], startTime: Date.now(), questionStartTime: Date.now(), isFinished: false, skippedIds: [] }),
 
   submitAnswer: (questionId, userAnswer) => {
     const { questions, currentIndex, answers, questionStartTime } = get()
@@ -44,8 +48,24 @@ export const useExamStore = create<ExamState>((set, get) => ({
     }
   },
 
+  skipQuestion: () => {
+    const { questions, currentIndex, skippedIds } = get()
+    if (currentIndex >= questions.length - 1) return
+    const skipped = questions[currentIndex]
+    const newQuestions = [
+      ...questions.slice(0, currentIndex),
+      ...questions.slice(currentIndex + 1),
+      skipped,
+    ]
+    set({
+      questions: newQuestions,
+      skippedIds: [...skippedIds, skipped.id],
+      questionStartTime: Date.now(),
+    })
+  },
+
   finishExam: () => set({ isFinished: true }),
 
   reset: () =>
-    set({ questions: [], currentIndex: 0, answers: [], startTime: null, questionStartTime: null, isFinished: false }),
+    set({ questions: [], currentIndex: 0, answers: [], startTime: null, questionStartTime: null, isFinished: false, skippedIds: [] }),
 }))
