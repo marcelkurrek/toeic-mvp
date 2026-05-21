@@ -44,8 +44,8 @@ export default function TestSimulationPage() {
   return (
     <div>
       <div style={{ marginBottom: 28 }}>
-        <h1 className="text-3xl font-bold" style={{ marginBottom: 6 }}>Test Simulation</h1>
-        <p style={{ color: 'var(--muted)', fontSize: 14 }}>Prüfungssimulation und nützliche Ressourcen</p>
+        <h1 className="text-3xl font-bold" style={{ marginBottom: 6 }}>Prüfen</h1>
+        <p style={{ color: 'var(--muted)', fontSize: 14 }}>Prüfungsbedingungen mit Timer — teste dein echtes Level</p>
       </div>
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>

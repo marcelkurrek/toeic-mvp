@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { LayoutDashboard, LogOut, Dumbbell, FlaskConical, Settings, ShieldAlert } from 'lucide-react'
+import { LayoutDashboard, LogOut, BookOpenCheck, GraduationCap, Settings, ShieldAlert } from 'lucide-react'
 import { useLang } from '@/lib/i18n/client'
 import LanguageSwitcher from './LanguageSwitcher'
 import ThemeSwitcher from './ThemeSwitcher'
@@ -17,15 +17,15 @@ const NAV = [
   },
   {
     href: '/test-training',
-    label: 'Test Training',
-    icon: Dumbbell,
+    label: 'Üben',
+    icon: BookOpenCheck,
     exact: false,
     activeFor: ['/listening', '/reading', '/speaking', '/writing', '/progress', '/study-plan'],
   },
   {
     href: '/test-simulation',
-    label: 'Test Simulation',
-    icon: FlaskConical,
+    label: 'Prüfen',
+    icon: GraduationCap,
     exact: false,
     activeFor: ['/practice', '/diagnostic', '/guide'],
   },

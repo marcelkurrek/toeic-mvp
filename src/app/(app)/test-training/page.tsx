@@ -45,8 +45,8 @@ export default async function TestTrainingPage() {
   return (
     <div>
       <div style={{ marginBottom: 28 }}>
-        <h1 className="text-3xl font-bold" style={{ marginBottom: 6 }}>Test Training</h1>
-        <p style={{ color: 'var(--muted)', fontSize: 14 }}>Übe alle Bereiche des TOEIC-Tests</p>
+        <h1 className="text-3xl font-bold" style={{ marginBottom: 6 }}>Üben</h1>
+        <p style={{ color: 'var(--muted)', fontSize: 14 }}>Gezieltes Training nach Bereich — kein Timer, Feedback nach jeder Frage</p>
       </div>
 
       {/* Stats */}
