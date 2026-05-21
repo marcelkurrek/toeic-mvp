@@ -1,7 +1,7 @@
 'use client'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Mic, MicOff, RotateCcw, ChevronRight, CheckCircle, Play, Pause } from 'lucide-react'
+import { Mic, MicOff, RotateCcw, ChevronRight, CheckCircle, Play, Pause, AlertTriangle, ExternalLink } from 'lucide-react'
 import type { Question } from '@/types'
 import FeedbackScorecard from './FeedbackScorecard'
 
@@ -431,12 +431,48 @@ function RespondTask({ question, onNext, isLast }: { question: Question; onNext:
   )
 }
 
+function MicPermissionWarning() {
+  const ua = typeof navigator !== 'undefined' ? navigator.userAgent : ''
+  const isChrome = /Chrome/.test(ua) && !/Edg/.test(ua)
+  const isFirefox = /Firefox/.test(ua)
+  const isSafari = /Safari/.test(ua) && !/Chrome/.test(ua)
+  return (
+    <div style={{ padding: '16px 18px', borderRadius: 12, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.3)', marginBottom: 20 }}>
+      <div style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
+        <AlertTriangle size={16} style={{ color: '#ef4444', flexShrink: 0, marginTop: 1 }} />
+        <p style={{ fontSize: 13, fontWeight: 700, color: '#ef4444' }}>Mikrofon-Zugriff verweigert</p>
+      </div>
+      <p style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 10, lineHeight: 1.5 }}>
+        Ohne Mikrofon-Erlaubnis kann Speaking nicht funktionieren. Bitte erlaube den Zugriff:
+      </p>
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
+        {isChrome && <li style={{ fontSize: 12, color: 'var(--muted)' }}>→ Chrome: Adressleiste → 🔒 → Mikrofon → Erlauben → Seite neu laden</li>}
+        {isFirefox && <li style={{ fontSize: 12, color: 'var(--muted)' }}>→ Firefox: Adressleiste → 🔒 → Verbindungssicher → Berechtigungen → Mikrofon entfernen → Seite neu laden</li>}
+        {isSafari && <li style={{ fontSize: 12, color: 'var(--muted)' }}>→ Safari: Einstellungen → Websites → Mikrofon → Für diese Website erlauben</li>}
+        {!isChrome && !isFirefox && !isSafari && <li style={{ fontSize: 12, color: 'var(--muted)' }}>→ Browser-Einstellungen → Datenschutz & Sicherheit → Mikrofon → Diese Website erlauben</li>}
+      </ul>
+      <button onClick={() => window.location.reload()} style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: '#ef4444', background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: 8, padding: '6px 12px', cursor: 'pointer' }}>
+        <ExternalLink size={12} /> Seite neu laden
+      </button>
+    </div>
+  )
+}
+
 export default function SpeakingShell({ mode }: SpeakingShellProps) {
   const router = useRouter()
   const [questions, setQuestions] = useState<Question[]>([])
   const [index, setIndex] = useState(0)
   const [loading, setLoading] = useState(true)
   const [finished, setFinished] = useState(false)
+  const [micDenied, setMicDenied] = useState(false)
+
+  useEffect(() => {
+    if (typeof navigator === 'undefined' || !navigator.permissions) return
+    navigator.permissions.query({ name: 'microphone' as PermissionName }).then(result => {
+      if (result.state === 'denied') setMicDenied(true)
+      result.onchange = () => { if (result.state === 'denied') setMicDenied(true) }
+    }).catch(() => {})
+  }, [])
   const modeConfig = {
     'read-aloud':  { label: 'Speaking – Vorlesen (Q1–2)',          type: 'READ_ALOUD',       part: 1, section: 'SPEAKING', back: '/speaking' },
     'describe':    { label: 'Speaking – Bild beschreiben (Q3–4)',   type: 'DESCRIBE_PICTURE', part: 2, section: 'SPEAKING', back: '/speaking' },
@@ -476,6 +512,7 @@ export default function SpeakingShell({ mode }: SpeakingShellProps) {
         <div><h1 className="text-2xl font-bold mb-1">{config.label}</h1><p className="text-sm flex items-center gap-1" style={{ color: 'var(--muted)' }}><Mic size={13} /> Mikrofon + KI-Feedback</p></div>
         <div className="text-sm font-medium rounded-full" style={{ padding: '4px 14px', background: 'var(--card-border)', whiteSpace: 'nowrap' }}>{index + 1} / {questions.length}</div>
       </div>
+      {micDenied && <MicPermissionWarning />}
       <div className="rounded-full overflow-hidden" style={{ height: 6, marginBottom: 24, background: 'var(--card-border)' }}>
         <div className="h-full rounded-full transition-all duration-300" style={{ width: `${(index / questions.length) * 100}%`, background: 'var(--accent)' }} />
       </div>

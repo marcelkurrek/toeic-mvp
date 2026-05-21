@@ -61,6 +61,33 @@ function countWords(text: string) {
   return text.trim().split(/\s+/).filter(w => w.length > 0).length
 }
 
+function useDraftAutosave(key: string, text: string, submitted: boolean) {
+  const [draftFound, setDraftFound] = useState<string | null>(null)
+  const [draftDismissed, setDraftDismissed] = useState(false)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const saved = localStorage.getItem(key)
+    if (saved && saved.length > 0) setDraftFound(saved)
+  }, [key])
+
+  useEffect(() => {
+    if (submitted || typeof window === 'undefined') return
+    const timer = setTimeout(() => {
+      if (text.length > 0) localStorage.setItem(key, text)
+    }, 10000)
+    return () => clearTimeout(timer)
+  }, [text, key, submitted])
+
+  useEffect(() => {
+    if (submitted && typeof window !== 'undefined') localStorage.removeItem(key)
+  }, [submitted, key])
+
+  const dismiss = () => { setDraftDismissed(true); setDraftFound(null) }
+  const restore = () => { setDraftDismissed(true); return draftFound ?? '' }
+  return { draftFound: draftDismissed ? null : draftFound, dismiss, restore }
+}
+
 function TimerBar({ mins, secs, pct, color }: { mins: number; secs: number; pct: number; color: string }) {
   const urgent = pct > 0.8
   const barColor = urgent ? '#ef4444' : pct > 0.6 ? '#fbbf24' : color
@@ -141,9 +168,17 @@ function SentenceTask({ question, onSubmit, submitted, feedback, timerExpired }:
   const [text, setText] = useState('')
   const words = countWords(text)
   const keywords = (c.keywords as string[]) ?? []
+  const { draftFound, dismiss, restore } = useDraftAutosave(`writing-draft-${question.id}`, text, submitted)
 
   return (
     <div>
+      {draftFound && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 8, background: 'rgba(174,0,255,0.08)', border: '1px solid rgba(174,0,255,0.25)', marginBottom: 14 }}>
+          <span style={{ fontSize: 12, color: '#AE00FF', flex: 1 }}>Entwurf gefunden — wiederherstellen?</span>
+          <button onClick={() => setText(restore())} style={{ fontSize: 12, fontWeight: 700, color: '#AE00FF', background: 'none', border: 'none', cursor: 'pointer' }}>Wiederherstellen</button>
+          <button onClick={dismiss} style={{ fontSize: 12, color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer' }}>Verwerfen</button>
+        </div>
+      )}
       {c.imageUrl && (
         <div style={{ marginBottom: 16, borderRadius: 12, overflow: 'hidden', maxHeight: 240 }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -190,9 +225,17 @@ function EmailTask({ question, onSubmit, submitted, feedback, timerExpired }: {
   const c = question.content as Record<string, unknown>
   const [text, setText] = useState('')
   const words = countWords(text)
+  const { draftFound, dismiss, restore } = useDraftAutosave(`writing-draft-${question.id}`, text, submitted)
 
   return (
     <div>
+      {draftFound && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 8, background: 'rgba(251,146,60,0.08)', border: '1px solid rgba(251,146,60,0.25)', marginBottom: 14 }}>
+          <span style={{ fontSize: 12, color: '#fb923c', flex: 1 }}>Entwurf gefunden — wiederherstellen?</span>
+          <button onClick={() => setText(restore())} style={{ fontSize: 12, fontWeight: 700, color: '#fb923c', background: 'none', border: 'none', cursor: 'pointer' }}>Wiederherstellen</button>
+          <button onClick={dismiss} style={{ fontSize: 12, color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer' }}>Verwerfen</button>
+        </div>
+      )}
       <div style={{ padding: '16px 20px', borderRadius: 10, background: 'rgba(251,146,60,0.06)', border: '1px solid rgba(251,146,60,0.2)', marginBottom: 20 }}>
         <p style={{ fontSize: 11, fontWeight: 700, color: '#fb923c', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Eingehende E-Mail</p>
         {c.from && <p style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 4 }}>Von: {c.from as string}</p>}
@@ -236,9 +279,17 @@ function EssayTask({ question, onSubmit, submitted, feedback, timerExpired }: {
   const c = question.content as Record<string, unknown>
   const [text, setText] = useState('')
   const words = countWords(text)
+  const { draftFound, dismiss, restore } = useDraftAutosave(`writing-draft-${question.id}`, text, submitted)
 
   return (
     <div>
+      {draftFound && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 8, background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.25)', marginBottom: 14 }}>
+          <span style={{ fontSize: 12, color: '#6366f1', flex: 1 }}>Entwurf gefunden — wiederherstellen?</span>
+          <button onClick={() => setText(restore())} style={{ fontSize: 12, fontWeight: 700, color: '#6366f1', background: 'none', border: 'none', cursor: 'pointer' }}>Wiederherstellen</button>
+          <button onClick={dismiss} style={{ fontSize: 12, color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer' }}>Verwerfen</button>
+        </div>
+      )}
       <div style={{ padding: '16px 20px', borderRadius: 10, background: 'rgba(99,102,241,0.07)', border: '1px solid rgba(99,102,241,0.25)', marginBottom: 20 }}>
         <p style={{ fontSize: 11, fontWeight: 700, color: '#6366f1', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Aufgabenstellung</p>
         <p style={{ fontSize: 14, lineHeight: 1.7, fontWeight: 500 }}>{(c.prompt ?? c.question) as string}</p>
