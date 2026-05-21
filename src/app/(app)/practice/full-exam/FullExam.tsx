@@ -97,7 +97,8 @@ export default function FullExam() {
     const rqs: Question[] = []
     for (const part of [...LISTENING_PARTS, ...READING_PARTS]) {
       const limit = PART_LIMITS[part] ?? 10
-      const res  = await fetch(`/api/questions?part=${part}&adaptive=true&limit=${limit}`)
+      const section = LISTENING_PARTS.includes(part) ? 'LISTENING' : 'READING'
+      const res  = await fetch(`/api/questions?part=${part}&section=${section}&adaptive=true&limit=${limit}`)
       const data = await res.json()
       if (LISTENING_PARTS.includes(part)) lqs.push(...data.questions)
       else rqs.push(...data.questions)

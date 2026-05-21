@@ -211,7 +211,7 @@ export default function PracticeShell({ part, wrongIds }: PracticeShellProps) {
     reset()
     let url = wrongIds && wrongIds.length > 0
       ? `/api/questions?ids=${wrongIds.join(',')}`
-      : `/api/questions?part=${part}&adaptive=true&limit=10`
+      : `/api/questions?part=${part}&section=READING&adaptive=true&limit=10`
     const res = await fetch(url)
     const data = await res.json()
     setQuestions(data.questions)

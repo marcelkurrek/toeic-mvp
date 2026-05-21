@@ -48,7 +48,7 @@ export default async function DashboardPage() {
   })
 
   const allSessions    = await prisma.session.findMany({ where: { userId: dbUser?.id ?? '' }, orderBy: { createdAt: 'desc' }, select: { createdAt: true } })
-  const totalSessions  = dbUser?.sessions.length ?? 0
+  const totalSessions  = allSessions.length
   const avgAccuracy    = dbUser?.progress.length
     ? Math.round(dbUser.progress.reduce((s, p) => s + p.accuracy, 0) / dbUser.progress.length * 100)
     : null
@@ -66,10 +66,9 @@ export default async function DashboardPage() {
   const levels         = dbUser?.levels ?? []
 
   // L+R score estimation from accuracy per section (5–495 each, total 10–990)
-  const listeningParts = [1, 2, 3, 4]
-  const readingParts   = [5, 6, 7]
-  const listeningProgress = (dbUser?.progress ?? []).filter(p => listeningParts.includes(p.part))
-  const readingProgress   = (dbUser?.progress ?? []).filter(p => readingParts.includes(p.part))
+  // Must filter by section to avoid collision with SPEAKING parts 1-4
+  const listeningProgress = (dbUser?.progress ?? []).filter(p => p.section === 'LISTENING')
+  const readingProgress   = (dbUser?.progress ?? []).filter(p => p.section === 'READING')
   const listeningAccuracy = listeningProgress.length
     ? listeningProgress.reduce((s, p) => s + p.accuracy, 0) / listeningProgress.length
     : null
@@ -112,13 +111,15 @@ export default async function DashboardPage() {
     { part: 6, section: 'READING',   label: 'Reading Part 6 · Textergänzung',          href: '/practice/part6', color: '#D5FD44', prog: rProg[6] },
     { part: 7, section: 'READING',   label: 'Reading Part 7 · Leseverständnis',        href: '/practice/part7', color: '#D5FD44', prog: rProg[7] },
   ]
+  // DB part numbers: Speaking read-aloud=1, describe=2, respond=3, respond-doc=4, opinion=5
+  //                  Writing sentences=1, email=2, essay=3
   const ALL_SW_CONFIGS = [
-    { label: 'Speaking Read Aloud',  href: '/practice/speaking/read-aloud', color: '#fb923c', icon: '🎤', hasProgress: spProg.some(p => p.part === 1 || p.part === 2) },
-    { label: 'Speaking Beschreiben', href: '/practice/speaking/describe',   color: '#fb923c', icon: '🎤', hasProgress: spProg.some(p => p.part === 3 || p.part === 4) },
-    { label: 'Speaking Meinung',     href: '/practice/speaking/opinion',    color: '#fb923c', icon: '🎤', hasProgress: spProg.some(p => p.part === 11) },
-    { label: 'Writing E-Mail',       href: '/practice/writing/email',       color: '#AE00FF', icon: '✍️', hasProgress: wrProg.some(p => p.part === 6 || p.part === 7) },
-    { label: 'Writing Essay',        href: '/practice/writing/essay',       color: '#AE00FF', icon: '✍️', hasProgress: wrProg.some(p => p.part === 8) },
-    { label: 'Writing Sätze',        href: '/practice/writing/sentences',   color: '#AE00FF', icon: '✍️', hasProgress: wrProg.some(p => p.part <= 5) },
+    { label: 'Speaking Read Aloud',  href: '/practice/speaking/read-aloud', color: '#fb923c', icon: '🎤', hasProgress: spProg.some(p => p.part === 1) },
+    { label: 'Speaking Beschreiben', href: '/practice/speaking/describe',   color: '#fb923c', icon: '🎤', hasProgress: spProg.some(p => p.part === 2) },
+    { label: 'Speaking Meinung',     href: '/practice/speaking/opinion',    color: '#fb923c', icon: '🎤', hasProgress: spProg.some(p => p.part === 5) },
+    { label: 'Writing E-Mail',       href: '/practice/writing/email',       color: '#AE00FF', icon: '✍️', hasProgress: wrProg.some(p => p.part === 2) },
+    { label: 'Writing Essay',        href: '/practice/writing/essay',       color: '#AE00FF', icon: '✍️', hasProgress: wrProg.some(p => p.part === 3) },
+    { label: 'Writing Sätze',        href: '/practice/writing/sentences',   color: '#AE00FF', icon: '✍️', hasProgress: wrProg.some(p => p.part === 1) },
   ]
 
   // ── Smart recommendation ──────────────────────────────────────────────────
@@ -416,7 +417,12 @@ export default async function DashboardPage() {
             icon: <Star size={15} style={{ color: '#fbbf24' }} />,
             bg: 'rgba(251,191,36,0.12)',
             label: 'Bester Part',
-            value: bestPart ? `Part ${bestPart.part}` : '—',
+            value: bestPart
+              ? bestPart.section === 'LISTENING' ? `L · Part ${bestPart.part}`
+              : bestPart.section === 'READING'   ? `R · Part ${bestPart.part}`
+              : bestPart.section === 'SPEAKING'  ? `SP · Part ${bestPart.part}`
+              : `WR · Part ${bestPart.part}`
+              : '—',
             sub: bestPart ? `${bestPart.pct}% Genauigkeit` : 'Noch keine Daten',
           },
         ].map(({ icon, bg, label, value, sub }) => (

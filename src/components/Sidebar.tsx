@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { LayoutDashboard, LogOut, BookOpenCheck, GraduationCap, Settings, ShieldAlert } from 'lucide-react'
+import { LayoutDashboard, LogOut, BookOpenCheck, GraduationCap, Settings, ShieldAlert, Trophy } from 'lucide-react'
 import { useLang } from '@/lib/i18n/client'
 import LanguageSwitcher from './LanguageSwitcher'
 import ThemeSwitcher from './ThemeSwitcher'
@@ -12,6 +12,13 @@ const NAV = [
     href: '/dashboard',
     label: 'Dashboard',
     icon: LayoutDashboard,
+    exact: true,
+    activeFor: [] as string[],
+  },
+  {
+    href: '/achievements',
+    label: 'Achievements',
+    icon: Trophy,
     exact: true,
     activeFor: [] as string[],
   },

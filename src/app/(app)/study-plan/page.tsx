@@ -59,8 +59,9 @@ function buildStudyPlan(params: {
   lProgByPart: Record<number, { accuracy: number; sampleSize: number }>
   levels: { section: string; cefr: string; score: number }[]
   diagnosticDone: boolean
+  userScoreTarget: number | null
 }): { plan: DayPlan[]; advice: string; targetScore: string } {
-  const { examType, daysUntilExam, progByPart, lProgByPart, levels, diagnosticDone } = params
+  const { examType, daysUntilExam, progByPart, lProgByPart, levels, diagnosticDone, userScoreTarget } = params
 
   // Determine active sections
   const sections: Section[] = examType === 'LISTENING_READING'
@@ -92,9 +93,14 @@ function buildStudyPlan(params: {
   const readingLevel = levels.find(l => l.section === 'READING')
   const listeningLevel = levels.find(l => l.section === 'LISTENING')
   const cefrToScore: Record<string, number> = { A1: 200, A2: 300, B1: 450, B2: 600, C1: 750, C2: 900 }
-  const targetScore = readingLevel || listeningLevel
-    ? `${Math.min(990, (cefrToScore[readingLevel?.cefr ?? 'B1'] ?? 450) + (cefrToScore[listeningLevel?.cefr ?? 'B1'] ?? 450))} Punkte`
-    : '600+ Punkte'
+  const cefrScore = readingLevel || listeningLevel
+    ? Math.min(990, (cefrToScore[readingLevel?.cefr ?? 'B1'] ?? 450) + (cefrToScore[listeningLevel?.cefr ?? 'B1'] ?? 450))
+    : null
+  const targetScore = userScoreTarget
+    ? `${userScoreTarget} Punkte (Ziel)`
+    : cefrScore
+      ? `${cefrScore} Punkte`
+      : '600+ Punkte'
 
   function getPriority(section: Section, part: number): string {
     const progMap = section === 'LISTENING' ? lProgByPart : progByPart
@@ -143,7 +149,7 @@ function buildStudyPlan(params: {
         part: lPart,
         label: PART_LABEL[lPart],
         link: PART_LINKS[lPart],
-        reason: 'Hörverstehen täglich üben',
+        reason: getPriority('LISTENING', lPart),
       })
     }
 
@@ -217,6 +223,7 @@ export default async function StudyPlanPage() {
     lProgByPart,
     levels: dbUser.levels,
     diagnosticDone: dbUser.diagnosticDone,
+    userScoreTarget: (dbUser as { scoreTarget?: number | null }).scoreTarget ?? null,
   })
 
   const todayIndex = (new Date().getDay() + 6) % 7 // Mon=0 … Sun=6

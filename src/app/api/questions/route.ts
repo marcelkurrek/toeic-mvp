@@ -67,9 +67,11 @@ export async function GET(request: Request) {
       return NextResponse.json({ questions, adaptive: false })
     }
 
-    // 1. Get user's current accuracy for this part
+    // 1. Get user's current accuracy for this part+section (section prevents cross-section collision)
     const progress = part
-      ? await prisma.progress.findFirst({ where: { userId: dbUser.id, part: parseInt(part) } })
+      ? await prisma.progress.findFirst({
+          where: { userId: dbUser.id, part: parseInt(part), ...(section ? { section } : {}) },
+        })
       : null
     const accuracy = progress?.accuracy ?? null
 
@@ -77,7 +79,7 @@ export async function GET(request: Request) {
     const recentAnswers = await prisma.answer.findMany({
       where: {
         session: { userId: dbUser.id },
-        question: part ? { part: parseInt(part) } : undefined,
+        question: part ? { part: parseInt(part), ...(section ? { section } : {}) } : undefined,
       },
       orderBy: { createdAt: 'desc' },
       take: 40,

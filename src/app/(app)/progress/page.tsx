@@ -100,7 +100,7 @@ export default async function ProgressPage() {
           { icon: <Flame size={16} style={{ color: '#fb923c' }} />, bg: 'rgba(251,146,60,0.12)', label: 'Streak', value: streak.current > 0 ? `${streak.current}🔥` : '0', sub: `Längste: ${streak.longest}d` },
           { icon: <Trophy size={16} style={{ color: '#fbbf24' }} />, bg: 'rgba(251,191,36,0.12)', label: 'Ø Genauigkeit', value: overallPct !== null ? `${overallPct}%` : '—', sub: overallPct !== null ? (overallPct >= 80 ? 'Ausgezeichnet' : overallPct >= 60 ? 'Gut' : 'Weiter üben') : 'Noch keine Daten' },
           { icon: <Target size={16} style={{ color: 'var(--accent)' }} />, bg: 'var(--accent-subtle)', label: 'Fragen beantwortet', value: totalAnswered, sub: `${sessions.length} Sitzungen` },
-          { icon: <Trophy size={16} style={{ color: 'var(--green)' }} />, bg: 'var(--green-subtle)', label: 'Bester Part', value: bestPart ? `Part ${bestPart.part}` : '—', sub: bestPart ? `${Math.round(bestPart.accuracy * 100)}% Genauigkeit` : 'Noch keine Daten' },
+          { icon: <Trophy size={16} style={{ color: 'var(--green)' }} />, bg: 'var(--green-subtle)', label: 'Bester Part', value: bestPart ? (bestPart.section === 'LISTENING' ? `L · Part ${bestPart.part}` : bestPart.section === 'READING' ? `R · Part ${bestPart.part}` : bestPart.section === 'SPEAKING' ? `SP · Part ${bestPart.part}` : `WR · Part ${bestPart.part}`) : '—', sub: bestPart ? `${Math.round(bestPart.accuracy * 100)}% Genauigkeit` : 'Noch keine Daten' },
         ].map(({ icon, bg, label, value, sub }) => (
           <div key={label} className="card" style={{ padding: '18px 20px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
