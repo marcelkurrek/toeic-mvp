@@ -116,16 +116,58 @@ Frage: Can you / May I / Would you / Could you / Do you think you could / How ab
 Antwort zustimmend: Of course / Is this OK? / No problem / Certainly / I'd be happy to
 Antwort ablehnend: I'm sorry, I can't / Regretfully, no / Not at all, I'd be glad to
 
-### Part 3 — Alle 9 Fragetypen
-1. Questions About People — Wer spricht? Wer wird erwähnt?
-2. Questions About Occupations — Welcher Beruf? (aus Dialog erschließen, nicht direkt genannt)
-3. Questions About Place — Wo findet das Gespräch statt?
-4. Questions About Time — Wann? Wie lange? (Zeitangaben im Dialog)
-5. Questions About Activities — Was tun/planen die Sprecher?
-6. Questions About Opinions — Wie denken die Sprecher darüber?
-7. Graphic — Tabelle/Grafik + Dialog, Wert aus Grafik mit Audio-Info kombinieren
-8. Meaning in Context — Was bedeutet ein bestimmtes Wort/Satz im Kontext?
-9. Incomplete Sentences — Satz aus dem Dialog ergänzen
+### Part 3 — Alle 9 Fragetypen (vollständig)
+
+**Skill 1 — Questions About People (WHO):**
+- Fragephrasen: Who are the speakers? Who is the man? Who will do X? Who delivered Y? Who is the party for? Whose office is it?
+- Antwort-Typen: Proper names (Mr./Mrs./Dr.), By activity (a tourist, a driver), By group (business people, college students), By relationship (his boss, her colleague)
+
+**Skill 2 — Questions About Occupations (JOB):**
+- Tip: Zuerst Antwortoptionen lesen → welche Berufe stehen zur Auswahl? → dann im Audio nach Clues suchen
+- Fragephrasen: What kind of job does X have? What is X's present position? What type of work does Y do? Who can benefit from this memo? Who would most likely use the conference hall?
+- Typische Berufe im TOEIC: director, lawyer, accountant, office manager, receptionist, dentist, travel agent, hotel clerk, pilot, flight attendant, waiter/server, chef, computer programmer, personnel director
+
+**Skill 3 — Questions About Place (WHERE):**
+- Tip: Hör auf Präpositionen: in, on, at
+- Fragephrasen: Where did the conversation take place? Where is the man/woman? Where are they going? Where has the man been? Where should he call?
+- Antworten ohne Präp: The train station, The store, The office, The house
+- Antworten mit Präp: In the closet, Under the desk, At the office, Next to the bank, On the bus, At the dentist's, By the door, In the dining room
+
+**Skill 4 — Questions About Time (WHEN/HOW LONG/HOW OFTEN):**
+- WHEN: When did X happen? When is the meeting? When was the vacation?
+- HOW LONG: How long will they be in X? How long did the meeting last? How long to arrive?
+- HOW OFTEN: How often do buses leave? How often are employees paid?
+- Antworten Zeitpunkte: 11:00 a.m., Noon, Midnight, At 6:00, Before 5:30, Tomorrow, In the morning, Next year, On January 3rd
+- Dauer: 45 minutes, An hour, Two days, A week, About a month, Less than a year
+- Frequenz: Every hour, Every day, Every other day, Once a month, Twice a year, Three times a week
+
+**Skill 5 — Questions About Activities (WHAT WILL/DID):**
+- Fragephrasen mit "to do": What will the man do? What did the woman do? What are they planning to do? What is X supposed to do? What are they doing?
+- Ereignis-Fragen: What happened? What occurred? What took place? What will happen next?
+- HOW-Fragen: How can the package be sent? How will the room be changed?
+- Typische Antworten: Mail a package, Wait on the corner, Take a course, Attend a lecture, Take a day off, Leave soon, Move furniture, Go to the store, See a movie, Play golf, Plan a workshop, Make photocopies
+
+**Skill 6 — Questions About Opinions (WHAT + THINK/FEEL):**
+- Immer eingeleitet durch WHAT: What did the man think about X? What did the woman say about Y? What is the woman's opinion of Z? What was the matter with X?
+- Antworten: It's boring / He's highly qualified / The room is too dark / It was too expensive / She was very helpful / It wasn't long enough
+
+**Skill 7 — Graphic (LOOK AT THE GRAPHIC):**
+- Immer eingeleitet durch "Look at the graphic"
+- Grafik-Typen: Tabelle (Stundenplan, Preisliste), Liniendiagramm, Agenda, Einkaufszentrum-Karte
+- Tip: Grafik VORHER schnell scannen → Schlüsselwörter merken → im Dialog nach diesen Wörtern hören
+- Beispiel: Reception Desk Schedule (Name pro Tag), Printer Model + Price table, Sales graph, Staff Meeting agenda, Shopping Mall map
+
+**Skill 8 — Meaning in Context (WHAT DOES X MEAN):**
+- Frage: "What does the man mean when he says, '[Zitat]'?"
+- Wörter/Phrasen können mehrere Bedeutungen haben — Kontext entscheidet
+- Typische umgangssprachliche Beispiele: "I got it" = I understand / "Could you?" = Will you do it? / "Gotta work" = I have to work
+- Tip: Verstehe wie das Wort/die Phrase im Kontext des Gesprächs verwendet wird
+
+**Skill 9 — Incomplete Sentences (FRAGMENTED SPEECH):**
+- In normaler Konversation werden Sätze oft verkürzt (Speaker lässt Subject+Verb weg)
+- Typ: Kurze Antworten verstehen: "Maybe later" = "Maybe later I will come" / "Gotta work" = "I've got to work"
+- Typische Fragmente: Right. / Got it. / Fine with me. / Sure. / Of course.
+- Tip: Kontext nutzen um die vollständige Bedeutung zu verstehen
 
 ### Part 4 — Alle 8 Fragetypen
 1. Questions About Events and Facts — Was ist passiert / wird passieren?
