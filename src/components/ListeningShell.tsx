@@ -56,7 +56,7 @@ function useTTS() {
     window.speechSynthesis.cancel()
     const utt = new SpeechSynthesisUtterance(text)
     utt.lang = 'en-US'
-    utt.rate = 0.92
+    utt.rate = 0.8
     utt.pitch = 1
     utt.onstart = () => setSpeaking(true)
     utt.onend = () => { setSpeaking(false); onEnd?.() }
@@ -204,7 +204,11 @@ function Part1View({ question, onAnswer, submitted, selected }: Part1Props) {
   const [played, setPlayed] = useState(false)
   const [showOptions, setShowOptions] = useState(false)
   const [showTranscript, setShowTranscript] = useState(false)
-  const transcript = (c.transcript as string[]) ?? []
+  const rawTranscript = (c.transcript as string[]) ?? []
+  // fallback: if options field contains actual text (not just 'A','B','C','D'), use it
+  const optionsField = question.options as string[] | null
+  const optionsAreText = optionsField && optionsField.length > 0 && optionsField[0].length > 1
+  const transcript = rawTranscript.length > 0 ? rawTranscript : (optionsAreText ? optionsField! : [])
   const correct = question.answer
   const letters = ['A', 'B', 'C', 'D']
 
@@ -231,6 +235,11 @@ function Part1View({ question, onAnswer, submitted, selected }: Part1Props) {
       {speaking && <p style={{ color: 'var(--muted)', fontSize: 13, marginBottom: 12 }}><Volume2 size={13} style={{ display: 'inline', marginRight: 6 }} />Wird abgespielt…</p>}
       {(showOptions || submitted) && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {transcript.length === 0 && (
+            <div style={{ padding: '10px 14px', borderRadius: 8, background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.3)', marginBottom: 4 }}>
+              <p style={{ fontSize: 12, color: '#fbbf24' }}>⚠ Transkript fehlt für diese Frage — wähle trotzdem eine Option.</p>
+            </div>
+          )}
           {['A', 'B', 'C', 'D'].map((letter, i) => {
             const isSelected = selected === letter
             const isCorrect = correct === letter
@@ -244,7 +253,7 @@ function Part1View({ question, onAnswer, submitted, selected }: Part1Props) {
               <button key={letter} onClick={() => !submitted && onAnswer(letter)} disabled={submitted}
                 style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '11px 16px', borderRadius: 10, background: bg, border, cursor: submitted ? 'default' : 'pointer', textAlign: 'left' }}>
                 <span style={{ width: 26, height: 26, borderRadius: 99, background: 'var(--card-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0 }}>{letter}</span>
-                <span style={{ fontSize: 13, color: 'var(--fg)' }}>{transcript[i]}</span>
+                <span style={{ fontSize: 13, color: 'var(--fg)' }}>{transcript[i] ?? '—'}</span>
                 {submitted && isCorrect && <CheckCircle size={14} style={{ color: 'var(--success)', marginLeft: 'auto', flexShrink: 0 }} />}
                 {submitted && isSelected && !isCorrect && <XCircle size={14} style={{ color: '#ef4444', marginLeft: 'auto', flexShrink: 0 }} />}
               </button>
@@ -560,6 +569,12 @@ function MultiQuestionView({ question, part, onAnswers, submitted, selected }: M
         ))}
       </div>
 
+      {questions.length === 0 && phase === 'answering' && (
+        <div style={{ padding: '12px 16px', borderRadius: 8, background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.3)', marginBottom: 12 }}>
+          <p style={{ fontSize: 12, color: '#fbbf24' }}>⚠ Keine Teilfragen für diese Frage verfügbar — klicke "Antwort prüfen" um weiterzumachen.</p>
+        </div>
+      )}
+
       {/* Play button */}
       {(phase === 'ready') && (
         <button onClick={handlePlay}
@@ -568,9 +583,15 @@ function MultiQuestionView({ question, part, onAnswers, submitted, selected }: M
         </button>
       )}
       {phase === 'playing' && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '12px 16px', borderRadius: 10, background: `${color}10` }}>
-          <Volume2 size={15} style={{ color }} />
-          <p style={{ fontSize: 13, color }}>Wird abgespielt…</p>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, padding: '12px 16px', borderRadius: 10, background: `${color}10` }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Volume2 size={15} style={{ color }} />
+            <p style={{ fontSize: 13, color }}>Wird abgespielt…</p>
+          </div>
+          <button onClick={() => setPhase('answering')}
+            style={{ fontSize: 11, color, background: 'none', border: `1px solid ${color}50`, borderRadius: 6, padding: '4px 10px', cursor: 'pointer', fontWeight: 600 }}>
+            Überspringen
+          </button>
         </div>
       )}
       {submitted && question.explanation && (
@@ -741,10 +762,10 @@ export default function ListeningShell({ part }: ListeningShellProps) {
       ? 'Guter Fortschritt — höre die falsch beantworteten Fragen nochmals im Transkript.'
       : 'Lies die Transkripte sorgfältig — so erkennst du Schlüsselwörter für die Antworten.'
     const NEXT_PARTS: Record<ListeningPart, { href: string; label: string }> = {
-      1: { href: '/practice/part2', label: 'Part 2 – Frage & Antwort' },
-      2: { href: '/practice/part3', label: 'Part 3 – Gespräche' },
-      3: { href: '/practice/part4', label: 'Part 4 – Monologe' },
-      4: { href: '/test-training',  label: 'Test Training Übersicht' },
+      1: { href: '/practice/part2', label: 'Weiter zu Part 2 üben →' },
+      2: { href: '/practice/part3', label: 'Weiter zu Part 3 üben →' },
+      3: { href: '/practice/part4', label: 'Weiter zu Part 4 üben →' },
+      4: { href: '/test-training',  label: 'Zur Übersicht →' },
     }
     const next = NEXT_PARTS[part]
     return (
@@ -799,7 +820,8 @@ export default function ListeningShell({ part }: ListeningShellProps) {
           if (found.length === 0) return null
           return (
             <div className="card" style={{ padding: '16px 20px', marginBottom: 16 }}>
-              <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>Session-Vokabular</p>
+              <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Session-Vokabular</p>
+              <p style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 10, lineHeight: 1.5 }}>Diese TOEIC-Schlüsselwörter sind in deiner Session aufgetaucht — merke sie dir.</p>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {found.map(([word, de]) => (
                   <div key={word} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -870,8 +892,11 @@ export default function ListeningShell({ part }: ListeningShellProps) {
     </div>
   )
 
+  const subQCount = isMultiQ
+    ? ((q.content as Record<string, unknown>).questions as unknown[] | undefined)?.length ?? 0
+    : 0
   const canSubmit = isMultiQ
-    ? Object.keys(multiSelected).length > 0
+    ? Object.keys(multiSelected).length > 0 || subQCount === 0
     : selected !== null
 
   return (

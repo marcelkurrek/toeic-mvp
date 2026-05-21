@@ -318,7 +318,16 @@ export default function MiniExam() {
   // ── Exam ──────────────────────────────────────────────────────────────────
   if (questions.length === 0) return null
   const q    = questions[currentIdx]
-  const opts = Array.isArray(q.options) ? q.options : Object.values(q.options as Option)
+  // For Part 1, real option texts come from content.transcript, not the options field
+  const getOpts = (question: Question): string[] => {
+    if (question.part === 1) {
+      const tr = (question.content as Record<string, unknown>).transcript as string[] | undefined
+      if (tr && tr.length > 0) return tr
+    }
+    const raw = question.options
+    return Array.isArray(raw) ? raw : Object.values(raw as Option)
+  }
+  const opts = getOpts(q)
   const content = q.content
   const partProgress = { done: currentIdx, total: questions.length }
 

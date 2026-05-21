@@ -47,6 +47,7 @@ export async function GET(request: Request) {
       const questions = await prisma.question.findMany({
         where: baseWhere,
         orderBy: { createdAt: 'asc' },
+        take: limit,
       })
       return NextResponse.json({ questions, adaptive: false })
     }
