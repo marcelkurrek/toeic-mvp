@@ -186,8 +186,8 @@ export default async function WeakPartsPage() {
         <div className="card" style={{ padding: '24px', textAlign: 'center' }}>
           <CheckCircle2 size={32} style={{ color: 'var(--success)', margin: '0 auto 12px' }} />
           <p className="font-bold" style={{ marginBottom: 6 }}>Alle Parts auf einem guten Niveau!</p>
-          <p className="text-sm" style={{ color: 'var(--muted)', marginBottom: 16 }}>Bereit für die Mini-Prüfung?</p>
-          <Link href="/practice/mini-exam" className="btn-primary">Mini-Prüfung starten</Link>
+          <p className="text-sm" style={{ color: 'var(--muted)', marginBottom: 16 }}>Bereit für die Vollprüfung?</p>
+          <Link href="/practice/full-exam" className="btn-primary">TOEIC Vollprüfung starten</Link>
         </div>
       )}
     </div>

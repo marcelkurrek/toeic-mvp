@@ -1,6 +1,6 @@
 'use client'
 import { useRouter } from 'next/navigation'
-import { ClipboardList, BookOpen, ChevronRight, Trophy } from 'lucide-react'
+import { BookOpen, ChevronRight, Trophy } from 'lucide-react'
 
 const CARDS = [
   {
@@ -11,14 +11,6 @@ const CARDS = [
     sub: '120 Min · L+R Score',
     desc: 'Originalgetreue Simulation: 45 Min Listening + 75 Min Reading mit echtem Timer und separatem Score',
     badge: 'NEU',
-  },
-  {
-    href: '/practice/mini-exam',
-    icon: ClipboardList,
-    color: '#6366f1',
-    label: 'Mini-Prüfung',
-    sub: '15 Min · 11 Fragen',
-    desc: 'Simuliere eine echte TOEIC-Prüfungssituation im Kurzformat',
   },
   {
     href: '/guide',

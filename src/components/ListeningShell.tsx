@@ -143,6 +143,94 @@ function detectListeningErrorType(correctText: string): { type: string; tip: str
   return { type: 'Inhalt falsch interpretiert', tip: 'Fokussiere auf das Schlüsselwort der Frage und suche es aktiv im Audio statt passiv zuzuhören.', color: '#fbbf24' }
 }
 
+// Part 1 — 6-Dimensions framework (Barron's)
+function analyze6Dimensions(transcriptLines: string[]): { dim: string; value: string }[] {
+  const text = transcriptLines.join(' ').toLowerCase()
+  const dims: { dim: string; value: string }[] = []
+
+  // Number
+  if (/\ba man\b|\ba woman\b|\bhe is\b|\bshe is\b|\bthe man\b|\bthe woman\b|\bone person\b/.test(text))
+    dims.push({ dim: 'Anzahl', value: 'Eine Person' })
+  else if (/\bpeople\b|\bthey are\b|\bgroup\b|\bcrowd\b|\btwo\b|\bseveral\b/.test(text))
+    dims.push({ dim: 'Anzahl', value: 'Mehrere Personen' })
+  else
+    dims.push({ dim: 'Anzahl', value: 'Keine Person' })
+
+  // Gender
+  const isMale = /\ba man\b|\bhe is\b|\bthe man\b|\bhis\b/.test(text)
+  const isFemale = /\ba woman\b|\bshe is\b|\bthe woman\b|\bher\b/.test(text)
+  if (isMale && !isFemale) dims.push({ dim: 'Geschlecht', value: 'Männlich' })
+  else if (isFemale && !isMale) dims.push({ dim: 'Geschlecht', value: 'Weiblich' })
+  else if (isMale && isFemale) dims.push({ dim: 'Geschlecht', value: 'Gemischt' })
+
+  // Location
+  const locations: [RegExp, string][] = [
+    [/\boffice\b|\bdesk\b|\bworkplace\b|\bconference\b/, 'Büro'],
+    [/\bstreet\b|\boutdoor\b|\bpark\b|\bsidewalk\b/, 'Außenbereich'],
+    [/\brestaurant\b|\bcafe\b|\bdining\b|\btable\b.*\bfood\b/, 'Restaurant'],
+    [/\bstore\b|\bshop\b|\bshopping\b|\bmarket\b|\bcashier\b/, 'Geschäft/Markt'],
+    [/\bfactory\b|\bwarehouse\b|\bmachinery\b/, 'Fabrik/Lager'],
+    [/\bkitchen\b|\bcooking\b|\bstove\b/, 'Küche'],
+    [/\bhospital\b|\bclinic\b|\bmedical\b/, 'Klinik'],
+    [/\bairport\b|\bgate\b|\bpassenger\b/, 'Flughafen'],
+  ]
+  for (const [pattern, label] of locations) {
+    if (pattern.test(text)) { dims.push({ dim: 'Ort', value: label }); break }
+  }
+
+  // Activity
+  const actMatch = text.match(/\b(?:is|are) (reading|writing|working|walking|sitting|standing|talking|looking|carrying|holding|using|examining|repairing|typing|signing|painting|cleaning|cooking|driving|presenting|pointing|lifting|pushing|pulling)\b/)
+  if (actMatch) dims.push({ dim: 'Aktivität', value: actMatch[1].charAt(0).toUpperCase() + actMatch[1].slice(1) })
+
+  // Occupation hint
+  const jobs: [RegExp, string][] = [
+    [/\bdoctor\b|\bnurse\b|\bmedical\b/, 'Medizin'],
+    [/\bchef\b|\bcook\b|\bkitchen\b/, 'Koch/Küche'],
+    [/\brepair\b|\binstall\b|\btool\b/, 'Handwerk/Technik'],
+    [/\bcashier\b|\bregister\b|\bshopping\b/, 'Einzelhandel'],
+  ]
+  for (const [pattern, label] of jobs) {
+    if (pattern.test(text)) { dims.push({ dim: 'Beruf (Kontext)', value: label }); break }
+  }
+
+  return dims
+}
+
+// Part 2 — Barron's question type detection (Suggestion / Offer / Request / W-Frage)
+function detectPart2QuestionType(questionText: string): { type: string; tip: string; color: string } | null {
+  const q = questionText.toLowerCase()
+  if (/why don'?t (we|you)|shall we\b|let'?s\b|how about\b|maybe we|what about\b|should we|you could always|what if (we|you)/.test(q))
+    return { type: 'Vorschlag (Suggestion)', tip: 'Erkennungsphrasen: "Why don\'t we / Shall we / Let\'s / How about". Richtige Antwort: "Yes, let\'s" / "That\'s a good idea" / "Why not?"', color: '#04FF88' }
+  if (/let me\b|shall i\b|can i help|would you like me to|do you want me to|allow me to/.test(q))
+    return { type: 'Angebot (Offer)', tip: 'Erkennungsphrasen: "Let me / Shall I / Would you like me to". Richtige Antwort: "Thank you" / "That\'s very kind" — ablehnen: "No, thanks. I can manage."', color: '#D5FD44' }
+  if (/could you\b|would you mind|do you think you could/.test(q))
+    return { type: 'Bitte (Request)', tip: 'Erkennungsphrasen: "Could you / Would you mind". Richtige Antwort: "Of course" / "No problem" — ablehnen: "I\'m sorry, I can\'t"', color: '#fb923c' }
+  if (/\bor\b.*\?/.test(q) && /^(would you|do you|are you|is it|will you)/.test(q))
+    return { type: 'Oder-Frage (Choice)', tip: '"Or"-Fragen: Antwort wählt eine Option oder sagt "neither" / "both". Kein einfaches Yes/No.', color: '#6366f1' }
+  return null
+}
+
+// Part 2 — Barron's distractor type detection
+function detectPart2DistractorType(questionText: string, wrongOptionText: string): { label: string; tip: string; color: string } {
+  const qWords = questionText.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/).filter(w => w.length > 3)
+  const oWords = wrongOptionText.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/).filter(w => w.length > 3)
+
+  // Barron's: "repeats the word found in the stimulus" — most common trap
+  const repeated = oWords.find(ow => qWords.includes(ow))
+  if (repeated)
+    return { label: 'Wiederholtes-Wort Falle', tip: `"${repeated}" kommt in der Frage vor und klingt deshalb richtig — exakt wiederholte Wörter sind im TOEIC Part 2 fast immer Ablenker.`, color: '#f97316' }
+
+  // Barron's: "continues similar-sounding words"
+  const soundAlike = oWords.find(ow => qWords.some(qw => qw !== ow && qw.length > 3 && ow.length > 3 && qw.slice(0, 3) === ow.slice(0, 3)))
+  if (soundAlike) {
+    const match = qWords.find(qw => qw.slice(0, 3) === soundAlike.slice(0, 3) && qw !== soundAlike)
+    return { label: 'Sound-alike Falle', tip: `"${soundAlike}" klingt ähnlich wie "${match ?? '?'}" — unterschiedliche Bedeutung. Häufigste Falle in Part 2 (Barron's Skill 1).`, color: '#ef4444' }
+  }
+
+  // Barron's: "is about a topic related to the stimulus"
+  return { label: 'Verwandtes-Thema Falle', tip: 'Falsche Antwort nutzt Wörter aus demselben Themenfeld wie die Frage — klingt plausibel, passt aber nicht direkt zur Frage.', color: '#fbbf24' }
+}
+
 const TOEIC_VOCAB: Record<string, string> = {
   postpone: 'verschieben / aufschieben',
   reschedule: 'umplanen / neu terminieren',
@@ -280,6 +368,25 @@ function Part1View({ question, onAnswer, submitted, selected }: Part1Props) {
           </div>
         )
       })()}
+      {submitted && transcript.length > 0 && (() => {
+        const dims = analyze6Dimensions(transcript)
+        if (dims.length === 0) return null
+        const dimColors = ['#04FF88', '#D5FD44', '#fb923c', '#6366f1', '#fbbf24']
+        return (
+          <div style={{ marginTop: 12, padding: '12px 16px', borderRadius: 10, background: 'rgba(4,255,136,0.05)', border: '1px solid rgba(4,255,136,0.2)' }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: '#04FF88', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8 }}>6-Dimensionen Framework (Part 1)</p>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {dims.map((d, i) => (
+                <div key={d.dim} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '3px 10px', borderRadius: 99, background: `${dimColors[i % dimColors.length]}15`, border: `1px solid ${dimColors[i % dimColors.length]}35` }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, color: dimColors[i % dimColors.length] }}>{d.dim}:</span>
+                  <span style={{ fontSize: 11, color: 'var(--fg)' }}>{d.value}</span>
+                </div>
+              ))}
+            </div>
+            <p style={{ fontSize: 10, color: 'var(--muted)', marginTop: 6, lineHeight: 1.4 }}>Trainiere diese 6 Dimensionen für jedes Foto: Anzahl · Geschlecht · Ort · Beschreibung · Aktivität · Beruf</p>
+          </div>
+        )
+      })()}
       {submitted && transcript.length > 0 && (
         <div style={{ marginTop: 12 }}>
           <button onClick={() => setShowTranscript(v => !v)}
@@ -373,14 +480,26 @@ function Part2View({ question, onAnswer, submitted, selected }: Part2Props) {
           <p style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.6 }}>{question.explanation}</p>
         </div>
       )}
-      {submitted && selected !== null && selected !== correct && (() => {
-        const correctIdx = 'ABC'.indexOf(correct)
-        const correctText = responses[correctIdx] ?? ''
-        const err = detectListeningErrorType(correctText)
+      {submitted && (() => {
+        const questionText = (c.question as string) ?? ''
+        const qType = detectPart2QuestionType(questionText)
+        const wrongIdx = selected !== null && selected !== correct ? 'ABC'.indexOf(selected) : -1
+        const wrongText = wrongIdx >= 0 ? (responses[wrongIdx] ?? '') : ''
+        const distractor = wrongIdx >= 0 ? detectPart2DistractorType(questionText, wrongText) : null
         return (
-          <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderRadius: 8, background: `${err.color}10`, border: `1px solid ${err.color}30` }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: err.color, padding: '2px 8px', borderRadius: 99, background: `${err.color}20`, flexShrink: 0 }}>{err.type}</span>
-            <span style={{ fontSize: 11, color: 'var(--muted)', lineHeight: 1.4 }}>{err.tip}</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 12 }}>
+            {qType && (
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '8px 12px', borderRadius: 8, background: `${qType.color}10`, border: `1px solid ${qType.color}30` }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: qType.color, padding: '2px 8px', borderRadius: 99, background: `${qType.color}20`, flexShrink: 0 }}>{qType.type}</span>
+                <span style={{ fontSize: 11, color: 'var(--muted)', lineHeight: 1.4 }}>{qType.tip}</span>
+              </div>
+            )}
+            {distractor && (
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '8px 12px', borderRadius: 8, background: `${distractor.color}10`, border: `1px solid ${distractor.color}30` }}>
+                <span style={{ fontSize: 11, fontWeight: 700, color: distractor.color, padding: '2px 8px', borderRadius: 99, background: `${distractor.color}20`, flexShrink: 0, whiteSpace: 'nowrap' }}>{distractor.label}</span>
+                <span style={{ fontSize: 11, color: 'var(--muted)', lineHeight: 1.4 }}>{distractor.tip}</span>
+              </div>
+            )}
           </div>
         )
       })()}

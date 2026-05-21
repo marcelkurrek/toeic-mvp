@@ -6,6 +6,61 @@ import type { Question } from '@/types'
 import { CheckCircle, XCircle, ChevronRight, RotateCcw, Zap, Lightbulb, X, AlertTriangle, RefreshCw } from 'lucide-react'
 import { useLang } from '@/lib/i18n/client'
 
+// Part 5 — 21 Barron's grammar skill tips
+const PART5_SKILL_TIPS: Record<string, { tip: string; color: string }> = {
+  'Word Families': { tip: 'Bestimme die Wortart: Nomen (-tion/-ment), Adjektiv (-ful/-ous/-al/-ive), Adverb (-ly), Verb (-ize/-ify). Nur eine Wortart passt grammatisch in die Lücke.', color: '#04FF88' },
+  'Similar Meanings': { tip: 'Transitive vs. intransitive: "raise" (anheben, transitiv) vs "rise" (steigen, intransitiv). "Borrow" (nehmen) vs "lend" (geben). Kontext: wer handelt?', color: '#D5FD44' },
+  'Similar Forms': { tip: 'Ähnliches Aussehen ≠ gleiche Bedeutung: reduce/produce/deduce — alle auf "-duce", aber verschiedene Bedeutungen. Kontext exakt lesen.', color: '#fb923c' },
+  'Subject-Verb Agreement': { tip: 'Das HAUPTSUBJEKT bestimmt Singular/Plural — nicht das nächste Nomen. "The list of items IS ready" (list = Subjekt, nicht items).', color: '#6366f1' },
+  'Singular and Plural': { tip: 'money/information/advice/news = immer singular. everybody/someone/nothing = singular. neither = singular ("neither of them IS").', color: '#fbbf24' },
+  'Verb Tenses': { tip: 'Zeitsignale: already/just/yet/since/for → Present Perfect. yesterday/ago/last → Simple Past. currently/right now → Present Continuous.', color: '#ef4444' },
+  'Prepositions of Time': { tip: 'in = Monate/Jahre/Tageszeiten. on = Wochentage/Datum. at = genaue Uhrzeit/noon/midnight/night.', color: '#04FF88' },
+  'Prepositions with Verbs': { tip: 'Kollokationen: arrive AT (Ort) / IN (Stadt). depend ON. agree WITH (Person) / ON (Thema). responsible FOR. interested IN.', color: '#D5FD44' },
+  'Coordinating Conjunctions': { tip: '"neither...nor" → Verb richtet sich nach dem NÄHEREN Subjekt. Parallelstruktur bei and/or/but: gleiche Wortart auf beiden Seiten.', color: '#fb923c' },
+  'Parallel Structure': { tip: 'Alle Elemente einer Liste müssen dieselbe grammatische Form haben: "swimming, running, and hiking" (alle Gerundien). Keine Mischung erlaubt.', color: '#6366f1' },
+  'Subordinating Conjunctions': { tip: 'Grund: because/since/as. Kontrast: although/while/whereas. Zeit: when/after/before/until. Nebensatz vor Hauptsatz → Komma dahinter.', color: '#fbbf24' },
+  'Future Time Clauses': { tip: 'KRITISCH: Nach "when/before/after/as soon as/until" → PRÄSENS, nicht will! "When I arrive" (NICHT "will arrive"). Hauptsatz nutzt will.', color: '#ef4444' },
+  'Real Conditionals': { tip: 'If + Präsens → will/can/should + Verb. "If it rains, we WILL cancel." NIEMALS "If + will" im Nebensatz!', color: '#04FF88' },
+  'Unreal Conditionals': { tip: 'Gegenwart unreal: If + Past Simple, would + Verb. be → immer "were". Vergangenheit unreal: If + Past Perfect, would have + Past Participle.', color: '#D5FD44' },
+  'Comparisons': { tip: 'Kurze Adj: -er/-est (cheaper/cheapest). Lange Adj: more/most. Superlativ IMMER mit "the". good → better → best. bad → worse → worst.', color: '#fb923c' },
+  'Pronouns': { tip: 'Antezedens finden → Person und Numerus bestimmen → passendes Pronomen wählen: Subject/Object/Possessive/Reflexive (I/me/my/myself).', color: '#6366f1' },
+  'Subject Relative Pronouns': { tip: 'People: who/that. Things: which/that. Possessiv: whose. Nonrestrictive (mit Kommas) = nur who/which — KEIN that!', color: '#fbbf24' },
+  'Object Relative Pronouns': { tip: 'Objekt-Relativpronomen kann weggelassen werden: "The man (whom) I met". Nonrestrictive: nur whom/which — kein that.', color: '#ef4444' },
+  'Passive Voice': { tip: 'Passiv: be + Past Participle. Prüfe: Subjekt EMPFÄNGT (passiv) oder FÜHRT AUS (aktiv)? Mit "by" wenn Agens genannt wird.', color: '#04FF88' },
+  'Word Meaning': { tip: 'Kontextvokabular: Nicht nur die Lücke — umliegende Sätze geben die Bedeutung vor. Welches Wort passt zur Gesamtsituation des Textes?', color: '#D5FD44' },
+  'Sentence Choice': { tip: 'Thema UND Zweck der Passage identifizieren. Der einzufügende Satz muss BEIDES widerspiegeln — falsche Optionen passen zum Thema aber nicht zum Zweck.', color: '#fb923c' },
+}
+
+// Part 7 — 13 document type detection with PSRA hint
+function detectPart7DocumentType(passageTexts: string[]): { docType: string; psraHint: string; color: string } | null {
+  const text = passageTexts.join(' ').toLowerCase()
+  if (/\bfor sale\b|\bfor rent\b|\bspecial offer\b|\bdiscount\b|\bfree trial\b|\bcontact us today\b/.test(text))
+    return { docType: 'Advertisement', psraHint: 'PREDICT: Welches Produkt/Service? SCAN: Konditionen, Preise, Kontaktinfo. ANSWER: Antworten sind Paraphrasen des Angebots.', color: '#04FF88' }
+  if (/(^|\n|\s)(from|to):.*@|\bsubject:\b|\bsincerely\b|\bdear \w/.test(text))
+    return { docType: 'E-Mail / Brief', psraHint: 'PREDICT: Wer schreibt wem und warum? SCAN: Hauptaussage im ersten Absatz. ANSWER: Purpose-Fragen beziehen sich oft auf den Eröffnungssatz.', color: '#D5FD44' }
+  if (/\bmemo\b|\bto: all\b|\bfrom: management\b|\bmemorond\b/.test(text))
+    return { docType: 'Memo', psraHint: 'PREDICT: Was wird kommuniziert (Richtlinie/Ankündigung)? SCAN: Betreff-Zeile und Datum. ANSWER: Direktive im Präsens oder Futur.', color: '#fb923c' }
+  if (/\bpleased to announce\b|\bnew appointment\b|\bwelcome.*aboard\b|\bjoin us\b/.test(text))
+    return { docType: 'Announcement', psraHint: 'PREDICT: Personal/Produkt/Event? SCAN: Wer, Was, Wann, Wo im ersten Absatz. ANSWER: Kernaussage steht ganz oben.', color: '#6366f1' }
+  if (/\bplease note\b|\bpolicy change\b|\beffective (date|immediately)\b|\breminder\b|\bnotice\b/.test(text))
+    return { docType: 'Notice / Hinweis', psraHint: 'PREDICT: Regeländerung oder Hinweis? SCAN: "effective", "required", "prohibited". ANSWER: Was ändert sich für wen?', color: '#fbbf24' }
+  if (/\bdeparture\b|\barrival\b|\bplatform\b|\btimetable\b|\bschedule\b.*\btime\b/.test(text))
+    return { docType: 'Schedule / Fahrplan', psraHint: 'PREDICT: Welche Art Zeitplan? SCAN: Fußnoten und Symbole unbedingt lesen! ANSWER: Daten exakt ablesen — Symbole ändern die Bedeutung.', color: '#ef4444' }
+  if (/\binvoice\b|\bpayment due\b|\bunit price\b|\bquantity\b|\bsubtotal\b/.test(text))
+    return { docType: 'Invoice / Formular', psraHint: 'PREDICT: Was wird berechnet? SCAN: Zahlen, Konditionen, Fälligkeitsdatum. ANSWER: Berechnungen prüfen (Summen, Rabatte).', color: '#04FF88' }
+  if (/\bhome\b.*\babout\b.*\bfaq\b|\bpricing\b|\breviews\b|\bour services\b|\blearn more\b/.test(text))
+    return { docType: 'Webseite', psraHint: 'PREDICT: Unternehmenstyp und Angebot. SCAN: Navigation zeigt Struktur (Home/About/FAQ/Pricing). ANSWER: Details in den jeweiligen Bereichen.', color: '#D5FD44' }
+  if (/\bgot it\b|\bsounds good\b|\bi\'ll be there\b|\bon my way\b/.test(text) && text.length < 800)
+    return { docType: 'Text / Chat', psraHint: 'PREDICT: Wer schreibt wem? SCAN: Zeitstempel und Reihenfolge. "Meaning in Context": Finde das Zitat im Chat und lies den Kontext direkt davor.', color: '#fb923c' }
+  if (/\bquarterly\b|\bannual report\b|\bfindings\b|\bperformance\b|\bkpi\b/.test(text))
+    return { docType: 'Bericht', psraHint: 'PREDICT: Finanz/Personal/Forschungsbericht? SCAN: Hauptaussagen und Zahlen. ANSWER: Schlussfolgerungen und Empfehlungen am Ende.', color: '#6366f1' }
+  if (/\bpercent\b|\bsales\b.*\bunits\b|\bargraph\b|\bbar chart\b|\bpie chart\b/.test(text))
+    return { docType: 'Grafik / Diagramm', psraHint: 'PREDICT: Welche Art Grafik? SCAN: Achsenbeschriftungen und Legende. ANSWER: Vergleiche Werte gezielt — Grafik allein reicht nicht, Audio gibt den entscheidenden Clue.', color: '#fbbf24' }
+  if (/\bnewspaper\b|\bmagazine\b|\bjournalist\b|\baccording to (a|the) study\b|\bresearchers\b/.test(text))
+    return { docType: 'Article', psraHint: 'PREDICT: Thema und Perspektive des Autors. SCAN: Hauptaussage im Eröffnungssatz. ANSWER: Schlussfolgerungen im letzten Absatz.', color: '#ef4444' }
+  return null
+}
+
 // Barron's distractor patterns — detect from option text vs question text
 function detectDistractorType(questionText: string, optionText: string): { label: string; color: string } | null {
   const qWords = new Set(
@@ -539,6 +594,7 @@ function QuestionCard({ question, opts, letters, selected, submitted, correctLet
     ?? (content.passage ? [{ label: 'Text', text: content.passage }] : [])
 
   const part7Hint = part === 7 ? detectPart7QuestionType(content.question) : null
+  const part7DocHint = part === 7 ? detectPart7DocumentType(passages.map(p => p.text)) : null
 
   const passageForDoc = passages[0]?.text ?? ''
   const part6DocHint = part === 6 ? detectPart6DocumentType(passageForDoc) : null
@@ -594,6 +650,14 @@ function QuestionCard({ question, opts, letters, selected, submitted, correctLet
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', borderRadius: 8, background: 'rgba(213,253,68,0.07)', border: '1px solid rgba(213,253,68,0.25)', marginBottom: 14 }}>
           <span style={{ fontSize: 11, fontWeight: 700, color: '#D5FD44', padding: '2px 8px', borderRadius: 99, background: 'rgba(213,253,68,0.15)', flexShrink: 0 }}>{part6DocHint.docType}</span>
           <span style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.4 }}>{part6DocHint.hint}</span>
+        </div>
+      )}
+      {part7DocHint && !submitted && (
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, padding: '10px 14px', borderRadius: 8, background: `${part7DocHint.color}0d`, border: `1px solid ${part7DocHint.color}35`, marginBottom: 14 }}>
+          <div style={{ flexShrink: 0 }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: part7DocHint.color, padding: '2px 8px', borderRadius: 99, background: `${part7DocHint.color}20`, display: 'inline-block', whiteSpace: 'nowrap' }}>{part7DocHint.docType}</span>
+          </div>
+          <span style={{ fontSize: 11, color: 'var(--muted)', lineHeight: 1.5 }}>{part7DocHint.psraHint}</span>
         </div>
       )}
       {part7Hint && !submitted && (
@@ -666,13 +730,27 @@ function QuestionCard({ question, opts, letters, selected, submitted, correctLet
         </div>
       )}
       {submitted && question.tags && question.tags.length > 0 && (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 20 }}>
-          <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Grammatik:</span>
-          {(question.tags as string[]).map(tag => (
-            <span key={tag} style={{ fontSize: 11, padding: '2px 8px', borderRadius: 99, background: 'rgba(213,253,68,0.15)', color: '#D5FD44', border: '1px solid rgba(213,253,68,0.3)', fontWeight: 600 }}>
-              {tag}
-            </span>
-          ))}
+        <div style={{ marginBottom: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 8 }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Grammatik:</span>
+            {(question.tags as string[]).map(tag => (
+              <span key={tag} style={{ fontSize: 11, padding: '2px 8px', borderRadius: 99, background: 'rgba(213,253,68,0.15)', color: '#D5FD44', border: '1px solid rgba(213,253,68,0.3)', fontWeight: 600 }}>
+                {tag}
+              </span>
+            ))}
+          </div>
+          {part === 5 && (() => {
+            const tags = question.tags as string[]
+            const matchedSkill = tags.find(t => PART5_SKILL_TIPS[t])
+            if (!matchedSkill) return null
+            const skillTip = PART5_SKILL_TIPS[matchedSkill]
+            return (
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '8px 12px', borderRadius: 8, background: `${skillTip.color}0d`, border: `1px solid ${skillTip.color}30` }}>
+                <span style={{ fontSize: 10, fontWeight: 700, color: skillTip.color, padding: '2px 8px', borderRadius: 99, background: `${skillTip.color}20`, flexShrink: 0, whiteSpace: 'nowrap' }}>Skill-Tipp</span>
+                <span style={{ fontSize: 11, color: 'var(--muted)', lineHeight: 1.5 }}>{skillTip.tip}</span>
+              </div>
+            )
+          })()}
         </div>
       )}
 
