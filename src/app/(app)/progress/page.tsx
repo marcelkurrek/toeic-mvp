@@ -137,6 +137,12 @@ export default async function ProgressPage() {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                       <span style={{ fontSize: 12, fontWeight: 600, padding: '2px 9px', borderRadius: 99, background: 'rgba(213,253,68,0.12)', color: '#D5FD44', border: '1px solid rgba(213,253,68,0.25)' }}>{tag}</span>
+                      {total >= 10 && errorRate < 0.3 && (
+                        <span style={{ fontSize: 11, color: 'var(--success)', fontWeight: 700 }}>✓ Gemeistert</span>
+                      )}
+                      {total >= 5 && total < 10 && errorRate < 0.4 && (
+                        <span style={{ fontSize: 11, color: '#D5FD44', fontWeight: 600 }}>★ Fortschritt</span>
+                      )}
                       {pct >= 50 && (
                         <span style={{ fontSize: 11, color: '#ef4444', fontWeight: 600 }}>Schwachstelle</span>
                       )}
@@ -166,6 +172,14 @@ export default async function ProgressPage() {
               Part 5 gezielt üben →
             </Link>
           </div>
+          {tagStats.filter(t => t.total >= 5).length > 0 && (
+            <div style={{ marginTop: 12, padding: '10px 14px', borderRadius: 8, background: 'rgba(213,253,68,0.06)', border: '1px solid rgba(213,253,68,0.2)' }}>
+              <p style={{ fontSize: 12, color: 'var(--muted)' }}>
+                <span style={{ color: '#D5FD44', fontWeight: 700 }}>Muster-Fortschritt: </span>
+                {tagStats.filter(t => t.total >= 10 && t.errorRate < 0.3).length} gemeistert · {tagStats.filter(t => t.total >= 5).length} geübt · {Math.max(0, 15 - tagStats.length)} noch nicht gestartet
+              </p>
+            </div>
+          )}
         </div>
       )}
 

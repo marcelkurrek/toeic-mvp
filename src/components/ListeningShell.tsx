@@ -128,6 +128,43 @@ const PART_STRATEGY: Record<number, { title: string; tips: string[] }> = {
   },
 }
 
+function detectListeningErrorType(correctText: string): { type: string; tip: string; color: string } {
+  const t = correctText.toLowerCase()
+  if (/\bnot\b|\bnever\b|\bn't\b|\bno one\b|\bnobody\b/.test(t))
+    return { type: 'Negation überhört', tip: 'Negationswörter wie "not" oder "never" klingen flüchtig und ändern die Bedeutung komplett.', color: '#ef4444' }
+  if (/\byesterday\b|\btoday\b|\btomorrow\b|\bnext\b|\blast\b|\bthis week\b|\bmonday\b|\btuesday\b|\bwednesday\b|\bthursday\b|\bfriday\b|\bmorning\b|\bafternoon\b|\bevening\b/.test(t))
+    return { type: 'Zeitangabe verwechselt', tip: 'Zeitangaben (yesterday/today/next week) klingen ähnlich und sind häufige Ablenker.', color: '#fb923c' }
+  if (/\bwill\b|\bwould\b|\bshould\b|\bmust\b|\bcan't\b|\bcouldn't\b|\bwon't\b/.test(t))
+    return { type: 'Modalverb verwechselt', tip: 'Modalverben (will/would/should) ändern den Sinn stark — in schneller Sprache schwer zu unterscheiden.', color: '#6366f1' }
+  return { type: 'Inhalt falsch interpretiert', tip: 'Fokussiere auf das Schlüsselwort der Frage und suche es aktiv im Audio statt passiv zuzuhören.', color: '#fbbf24' }
+}
+
+const TOEIC_VOCAB: Record<string, string> = {
+  postpone: 'verschieben / aufschieben',
+  reschedule: 'umplanen / neu terminieren',
+  deadline: 'Frist / Abgabetermin',
+  budget: 'Budget / Haushalt',
+  proposal: 'Vorschlag / Angebot',
+  negotiate: 'verhandeln',
+  contractor: 'Auftragnehmer',
+  inventory: 'Inventar / Lagerbestand',
+  invoice: 'Rechnung',
+  reimbursement: 'Erstattung',
+  renovation: 'Renovierung',
+  conference: 'Konferenz / Tagung',
+  promotion: 'Beförderung',
+  maintenance: 'Wartung / Instandhaltung',
+  complaint: 'Beschwerde',
+  shipment: 'Sendung / Lieferung',
+  reservation: 'Reservierung',
+  supervisor: 'Vorgesetzte(r)',
+  colleague: 'Kollege / Kollegin',
+  appointment: 'Termin',
+  quarterly: 'vierteljährlich',
+  facility: 'Einrichtung / Anlage',
+  equipment: 'Ausrüstung / Geräte',
+}
+
 // Build TTS script for each part type
 function buildScript(question: Question, part: ListeningPart): string {
   const c = question.content as Record<string, unknown>
@@ -220,6 +257,16 @@ function Part1View({ question, onAnswer, submitted, selected }: Part1Props) {
           <p style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.6 }}>{question.explanation}</p>
         </div>
       )}
+      {submitted && selected !== null && selected !== correct && (() => {
+        const correctText = transcript['ABCD'.indexOf(correct)] ?? ''
+        const err = detectListeningErrorType(correctText)
+        return (
+          <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderRadius: 8, background: `${err.color}10`, border: `1px solid ${err.color}30` }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: err.color, padding: '2px 8px', borderRadius: 99, background: `${err.color}20`, flexShrink: 0 }}>{err.type}</span>
+            <span style={{ fontSize: 11, color: 'var(--muted)', lineHeight: 1.4 }}>{err.tip}</span>
+          </div>
+        )
+      })()}
       {submitted && transcript.length > 0 && (
         <div style={{ marginTop: 12 }}>
           <button onClick={() => setShowTranscript(v => !v)}
@@ -313,6 +360,17 @@ function Part2View({ question, onAnswer, submitted, selected }: Part2Props) {
           <p style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.6 }}>{question.explanation}</p>
         </div>
       )}
+      {submitted && selected !== null && selected !== correct && (() => {
+        const correctIdx = 'ABC'.indexOf(correct)
+        const correctText = responses[correctIdx] ?? ''
+        const err = detectListeningErrorType(correctText)
+        return (
+          <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', borderRadius: 8, background: `${err.color}10`, border: `1px solid ${err.color}30` }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: err.color, padding: '2px 8px', borderRadius: 99, background: `${err.color}20`, flexShrink: 0 }}>{err.type}</span>
+            <span style={{ fontSize: 11, color: 'var(--muted)', lineHeight: 1.4 }}>{err.tip}</span>
+          </div>
+        )
+      })()}
       {submitted && (
         <div style={{ marginTop: 12 }}>
           <button onClick={() => setShowTranscript(v => !v)}
@@ -708,6 +766,36 @@ export default function ListeningShell({ part }: ListeningShellProps) {
             </p>
           </div>
         </div>
+
+        {(() => {
+          const allText = questions.map(q => {
+            const c = q.content as Record<string, unknown>
+            const lines: string[] = []
+            const tr = c.transcript
+            if (Array.isArray(tr)) lines.push(...(tr as string[]))
+            else if (typeof tr === 'string') lines.push(tr)
+            if (typeof c.talk === 'string') lines.push(c.talk)
+            if (Array.isArray(c.dialogue)) lines.push(...(c.dialogue as {line:string}[]).map((d: {line:string}) => d.line))
+            if (typeof c.question === 'string') lines.push(c.question)
+            if (Array.isArray(c.responses)) lines.push(...(c.responses as string[]))
+            return lines.join(' ')
+          }).join(' ').toLowerCase()
+          const found = Object.entries(TOEIC_VOCAB).filter(([word]) => allText.includes(word)).slice(0, 5)
+          if (found.length === 0) return null
+          return (
+            <div className="card" style={{ padding: '16px 20px', marginBottom: 16 }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>Session-Vokabular</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {found.map(([word, de]) => (
+                  <div key={word} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: meta.color, minWidth: 110 }}>{word}</span>
+                    <span style={{ fontSize: 12, color: 'var(--muted)' }}>{de}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )
+        })()}
 
         {answers.some(a => !a.correct) && (
           <details style={{ marginBottom: 16 }}>

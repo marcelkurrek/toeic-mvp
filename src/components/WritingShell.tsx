@@ -177,7 +177,7 @@ function WordCounter({ count, min, target, color }: { count: number; min: number
   )
 }
 
-function WritingFeedbackPanel({ fb, modelAnswer }: { fb: WritingFeedback; modelAnswer?: string }) {
+function WritingFeedbackPanel({ fb, modelAnswer, onRevise }: { fb: WritingFeedback; modelAnswer?: string; onRevise?: () => void }) {
   const dims = WRITING_DIMS.map(d => ({
     label: d.label,
     score: fb.dimensions?.[d.key] ?? fb.score,
@@ -212,13 +212,18 @@ function WritingFeedbackPanel({ fb, modelAnswer }: { fb: WritingFeedback; modelA
           <p style={{ fontSize: 13, fontStyle: 'italic', lineHeight: 1.7 }}>{modelAnswer}</p>
         </div>
       )}
+      {onRevise && (
+        <button onClick={onRevise} style={{ marginTop: 14, display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, padding: '8px 14px', borderRadius: 8, background: 'var(--card)', border: '1px solid var(--card-border)', color: 'var(--muted)', cursor: 'pointer' }}>
+          ✏️ Überarbeiten — Text verbessern
+        </button>
+      )}
     </div>
   )
 }
 
 // ── Sentence Task ─────────────────────────────────────────────────────────────
-function SentenceTask({ question, onSubmit, submitted, feedback, timerExpired }: {
-  question: Question; onSubmit: (text: string) => void; submitted: boolean; feedback: WritingFeedback | null; timerExpired: boolean
+function SentenceTask({ question, onSubmit, submitted, feedback, timerExpired, onRevise }: {
+  question: Question; onSubmit: (text: string) => void; submitted: boolean; feedback: WritingFeedback | null; timerExpired: boolean; onRevise?: () => void
 }) {
   const c = question.content as Record<string, unknown>
   const [text, setText] = useState('')
@@ -269,14 +274,14 @@ function SentenceTask({ question, onSubmit, submitted, feedback, timerExpired }:
           </button>
         </div>
       )}
-      {submitted && feedback && <WritingFeedbackPanel fb={feedback} modelAnswer={question.answer} />}
+      {submitted && feedback && <WritingFeedbackPanel fb={feedback} modelAnswer={question.answer} onRevise={onRevise} />}
     </div>
   )
 }
 
 // ── Email Task ────────────────────────────────────────────────────────────────
-function EmailTask({ question, onSubmit, submitted, feedback, timerExpired }: {
-  question: Question; onSubmit: (text: string) => void; submitted: boolean; feedback: WritingFeedback | null; timerExpired: boolean
+function EmailTask({ question, onSubmit, submitted, feedback, timerExpired, onRevise }: {
+  question: Question; onSubmit: (text: string) => void; submitted: boolean; feedback: WritingFeedback | null; timerExpired: boolean; onRevise?: () => void
 }) {
   const c = question.content as Record<string, unknown>
   const [text, setText] = useState('')
@@ -324,17 +329,18 @@ function EmailTask({ question, onSubmit, submitted, feedback, timerExpired }: {
           </button>
         </div>
       )}
-      {submitted && feedback && <WritingFeedbackPanel fb={feedback} />}
+      {submitted && feedback && <WritingFeedbackPanel fb={feedback} onRevise={onRevise} />}
     </div>
   )
 }
 
 // ── Essay Task ────────────────────────────────────────────────────────────────
-function EssayTask({ question, onSubmit, submitted, feedback, timerExpired }: {
-  question: Question; onSubmit: (text: string) => void; submitted: boolean; feedback: WritingFeedback | null; timerExpired: boolean
+function EssayTask({ question, onSubmit, submitted, feedback, timerExpired, onRevise }: {
+  question: Question; onSubmit: (text: string) => void; submitted: boolean; feedback: WritingFeedback | null; timerExpired: boolean; onRevise?: () => void
 }) {
   const c = question.content as Record<string, unknown>
   const [text, setText] = useState('')
+  const [showEssayTemplate, setShowEssayTemplate] = useState(false)
   const words = countWords(text)
   const { draftFound, dismiss, restore } = useDraftAutosave(`writing-draft-${question.id}`, text, submitted)
 
@@ -355,6 +361,32 @@ function EssayTask({ question, onSubmit, submitted, feedback, timerExpired }: {
         <p style={{ fontSize: 12, color: 'var(--muted)' }}>
           Klare Meinung + mind. 2 Begründungen. Struktur: Einleitung → Argument 1 → Argument 2 → Schluss.
         </p>
+      </div>
+      <div style={{ marginBottom: 14 }}>
+        <button onClick={() => setShowEssayTemplate(v => !v)} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: '#6366f1', background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.25)', borderRadius: 8, padding: '7px 13px', cursor: 'pointer', width: '100%', justifyContent: 'space-between' }}>
+          <span>Essay-Formel anzeigen</span>
+          <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--muted)' }}>{showEssayTemplate ? '▲' : '▼'}</span>
+        </button>
+        {showEssayTemplate && (
+          <div style={{ marginTop: 8, padding: '14px 16px', borderRadius: 10, background: 'rgba(99,102,241,0.05)', border: '1px solid rgba(99,102,241,0.2)' }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: '#6366f1', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.06em' }}>4-Absatz TOEIC Essay-Struktur</p>
+            {[
+              { num: 1, title: 'Einleitung (~50 Wörter)', desc: 'These nennen + eigene Meinung klar formulieren', example: '"In my opinion, [position]. There are two main reasons why I believe this."' },
+              { num: 2, title: 'Argument 1 (~80 Wörter)', desc: 'Ersten Grund nennen + erklären + Beispiel', example: '"First, [reason]. For example, [specific example]. This shows that [link to thesis]."' },
+              { num: 3, title: 'Argument 2 (~80 Wörter)', desc: 'Zweiten Grund nennen + erklären + Beispiel', example: '"Furthermore, [reason]. Consider the case of [example]. Therefore, [conclusion of point]."' },
+              { num: 4, title: 'Schluss (~40 Wörter)', desc: 'These wiederholen + kurze Zusammenfassung', example: '"In conclusion, [restate position]. For these reasons, I strongly believe that [thesis]."' },
+            ].map(({ num, title, desc, example }) => (
+              <div key={num} style={{ marginBottom: num < 4 ? 12 : 0 }}>
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 4 }}>
+                  <span style={{ fontSize: 12, fontWeight: 800, color: '#6366f1', minWidth: 20 }}>{num}.</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--foreground)' }}>{title}</span>
+                </div>
+                <p style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 4, paddingLeft: 28 }}>{desc}</p>
+                <p style={{ fontSize: 11, fontStyle: 'italic', color: '#6366f1', paddingLeft: 28, lineHeight: 1.5 }}>{example}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
       <PhraseBaukasten type="essay" color="#6366f1" />
       <textarea value={text} onChange={e => setText(e.target.value)} disabled={submitted || timerExpired}
@@ -383,7 +415,7 @@ function EssayTask({ question, onSubmit, submitted, feedback, timerExpired }: {
           </button>
         </div>
       )}
-      {submitted && feedback && <WritingFeedbackPanel fb={feedback} />}
+      {submitted && feedback && <WritingFeedbackPanel fb={feedback} onRevise={onRevise} />}
     </div>
   )
 }
@@ -470,6 +502,12 @@ export default function WritingShell({ writingPart }: { writingPart: WritingPart
     }
   }
 
+  const handleRevise = useCallback(() => {
+    setSubmitted(false)
+    setFeedback(null)
+    setTimerExpired(false)
+  }, [])
+
   if (loading) return (
     <div style={{ maxWidth: 700, margin: '0 auto' }}>
       <div style={{ marginBottom: 20 }}>
@@ -547,9 +585,9 @@ export default function WritingShell({ writingPart }: { writingPart: WritingPart
       </div>
 
       <div className="card" style={{ padding: '20px 24px', marginBottom: 16 }}>
-        {writingPart === 'sentences' && <SentenceTask question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} timerExpired={timerExpired} />}
-        {writingPart === 'email'     && <EmailTask    question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} timerExpired={timerExpired} />}
-        {writingPart === 'essay'     && <EssayTask    question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} timerExpired={timerExpired} />}
+        {writingPart === 'sentences' && <SentenceTask question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} timerExpired={timerExpired} onRevise={handleRevise} />}
+        {writingPart === 'email'     && <EmailTask    question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} timerExpired={timerExpired} onRevise={handleRevise} />}
+        {writingPart === 'essay'     && <EssayTask    question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} timerExpired={timerExpired} onRevise={handleRevise} />}
       </div>
 
       {submitted && (
