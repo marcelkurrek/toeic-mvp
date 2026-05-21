@@ -57,15 +57,33 @@ export default async function ProgressPage() {
     .map(([tag, v]) => ({ tag, wrong: v.wrong, total: v.total, errorRate: v.wrong / v.total }))
     .sort((a, b) => b.errorRate - a.errorRate)
 
+  // Section-aware progress maps to avoid part-number collisions across sections
+  const lProg = Object.fromEntries(progress.filter(p => p.section === 'LISTENING').map(p => [p.part, p]))
+  const rProg = Object.fromEntries(progress.filter(p => p.section === 'READING').map(p => [p.part, p]))
+  const spProg = progress.filter(p => p.section === 'SPEAKING')
+  const wrProg = progress.filter(p => p.section === 'WRITING')
+
   const PART_META = [
-    { part: 1, label: 'Listening · Part 1', desc: 'Fotos beschreiben (4 Aussagen)',                href: '/practice/part1', color: '#04FF88', subtle: 'rgba(4,255,136,0.10)' },
-    { part: 2, label: 'Listening · Part 2', desc: 'Frage-Antwort (3 Antwortmöglichkeiten)',        href: '/practice/part2', color: '#04FF88', subtle: 'rgba(4,255,136,0.10)' },
-    { part: 3, label: 'Listening · Part 3', desc: 'Gespräche (3 Fragen pro Konversation)',         href: '/practice/part3', color: '#04FF88', subtle: 'rgba(4,255,136,0.10)' },
-    { part: 4, label: 'Listening · Part 4', desc: 'Monologe / Ankündigungen (3 Fragen pro Talk)',  href: '/practice/part4', color: '#04FF88', subtle: 'rgba(4,255,136,0.10)' },
-    { part: 5, label: t.progress.parts[5].label, desc: t.progress.parts[5].desc, href: '/practice/part5', color: '#D5FD44', subtle: 'rgba(213,253,68,0.10)' },
-    { part: 6, label: t.progress.parts[6].label, desc: t.progress.parts[6].desc, href: '/practice/part6', color: '#D5FD44', subtle: 'rgba(213,253,68,0.10)' },
-    { part: 7, label: t.progress.parts[7].label, desc: t.progress.parts[7].desc, href: '/practice/part7', color: '#D5FD44', subtle: 'rgba(213,253,68,0.10)' },
+    { part: 1, section: 'LISTENING', label: 'Listening · Part 1', desc: 'Fotos beschreiben (4 Aussagen)',               href: '/practice/part1', color: '#04FF88', subtle: 'rgba(4,255,136,0.10)' },
+    { part: 2, section: 'LISTENING', label: 'Listening · Part 2', desc: 'Frage-Antwort (3 Antwortmöglichkeiten)',       href: '/practice/part2', color: '#04FF88', subtle: 'rgba(4,255,136,0.10)' },
+    { part: 3, section: 'LISTENING', label: 'Listening · Part 3', desc: 'Gespräche (3 Fragen pro Konversation)',        href: '/practice/part3', color: '#04FF88', subtle: 'rgba(4,255,136,0.10)' },
+    { part: 4, section: 'LISTENING', label: 'Listening · Part 4', desc: 'Monologe / Ankündigungen (3 Fragen pro Talk)', href: '/practice/part4', color: '#04FF88', subtle: 'rgba(4,255,136,0.10)' },
+    { part: 5, section: 'READING',   label: t.progress.parts[5].label, desc: t.progress.parts[5].desc, href: '/practice/part5', color: '#D5FD44', subtle: 'rgba(213,253,68,0.10)' },
+    { part: 6, section: 'READING',   label: t.progress.parts[6].label, desc: t.progress.parts[6].desc, href: '/practice/part6', color: '#D5FD44', subtle: 'rgba(213,253,68,0.10)' },
+    { part: 7, section: 'READING',   label: t.progress.parts[7].label, desc: t.progress.parts[7].desc, href: '/practice/part7', color: '#D5FD44', subtle: 'rgba(213,253,68,0.10)' },
   ]
+
+  const SW_META = [
+    { key: 'speaking-read-aloud',  label: 'Speaking · Vorlesen (Q1–2)',        href: '/practice/speaking/read-aloud',  color: '#fb923c', subtle: 'rgba(251,146,60,0.10)', hasProg: spProg.some(p => p.part === 1) },
+    { key: 'speaking-describe',    label: 'Speaking · Bild beschreiben (Q3–4)',href: '/practice/speaking/describe',    color: '#fb923c', subtle: 'rgba(251,146,60,0.10)', hasProg: spProg.some(p => p.part === 2) },
+    { key: 'speaking-respond',     label: 'Speaking · Fragen beantworten (Q5–7)',href: '/practice/speaking/respond',   color: '#fb923c', subtle: 'rgba(251,146,60,0.10)', hasProg: spProg.some(p => p.part === 3) },
+    { key: 'speaking-opinion',     label: 'Speaking · Meinung äußern (Q11)',   href: '/practice/speaking/opinion',    color: '#fb923c', subtle: 'rgba(251,146,60,0.10)', hasProg: spProg.some(p => p.part === 5) },
+    { key: 'writing-sentences',    label: 'Writing · Sätze schreiben (T1–5)',  href: '/practice/writing/sentences',   color: '#AE00FF', subtle: 'rgba(174,0,255,0.10)',   hasProg: wrProg.some(p => p.part === 1) },
+    { key: 'writing-email',        label: 'Writing · E-Mail verfassen (T6–7)', href: '/practice/writing/email',       color: '#AE00FF', subtle: 'rgba(174,0,255,0.10)',   hasProg: wrProg.some(p => p.part === 2) },
+    { key: 'writing-essay',        label: 'Writing · Opinion Essay (T8)',      href: '/practice/writing/essay',       color: '#6366f1', subtle: 'rgba(99,102,241,0.10)',   hasProg: wrProg.some(p => p.part === 3) },
+  ]
+
+  const hasSWProgress = spProg.length > 0 || wrProg.length > 0
 
   return (
     <div>
@@ -193,9 +211,9 @@ export default async function ProgressPage() {
 
       {/* Per-part accuracy */}
       <h2 className="text-lg font-semibold" style={{ marginBottom: 16 }}>{t.progress.accuracyByPart}</h2>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 40 }}>
-        {PART_META.map(({ part, label, desc, color, subtle, href }) => {
-          const prog = progress.find(p => p.part === part)
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: hasSWProgress ? 24 : 40 }}>
+        {PART_META.map(({ part, section, label, desc, color, subtle, href }) => {
+          const prog = section === 'LISTENING' ? lProg[part] : rProg[part]
           const pct  = prog ? Math.round(prog.accuracy * 100) : null
           return (
             <div key={part} className="card" style={{ padding: '20px 24px' }}>
@@ -239,6 +257,34 @@ export default async function ProgressPage() {
           )
         })}
       </div>
+
+      {/* Speaking & Writing progress */}
+      {hasSWProgress && (
+        <>
+          <h2 className="text-lg font-semibold" style={{ marginBottom: 16 }}>Speaking & Writing</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 40 }}>
+            {SW_META.map(({ key, label, href, color, subtle, hasProg }) => (
+              <div key={key} className="card" style={{ padding: '20px 24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: hasProg ? 14 : 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                    <div style={{ width: 36, height: 36, borderRadius: 8, background: subtle, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <span style={{ fontSize: 14, color }}>{key.startsWith('speaking') ? '🎤' : '✍️'}</span>
+                    </div>
+                    <p className="font-semibold text-sm">{label}</p>
+                  </div>
+                  {hasProg ? (
+                    <span style={{ fontSize: 11, fontWeight: 700, padding: '2px 9px', borderRadius: 99, background: 'rgba(74,222,128,0.12)', color: 'var(--success)' }}>Geübt</span>
+                  ) : (
+                    <Link href={href} className="text-xs font-medium flex items-center gap-1" style={{ color: 'var(--accent)' }}>
+                      Starten <ChevronRight size={12} />
+                    </Link>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
 
       {/* Session history */}
       <h2 className="text-lg font-semibold" style={{ marginBottom: 16 }}>{t.progress.sessionHistory}</h2>

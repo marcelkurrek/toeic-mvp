@@ -30,6 +30,36 @@ interface TaskMeta {
   targetWords: number
 }
 
+const WRITING_STRATEGY_TIPS: Record<WritingPart, { title: string; tips: string[]; color: string }> = {
+  sentences: {
+    title: 'Task 1–5 Strategie (Sätze schreiben)',
+    color: '#AE00FF',
+    tips: [
+      'Verwende BEIDE vorgegebenen Wörter — ein Satz ohne beide Wörter erhält 0 Punkte.',
+      'Ziel: grammatikalisch korrekte Sätze, die einen klaren Zusammenhang zeigen.',
+      'Empfohlene Länge: 10–15 Wörter. Zu kurz = Punktabzug, zu lang = mehr Fehlerrisiko.',
+    ],
+  },
+  email: {
+    title: 'Task 6–7 Strategie (E-Mail verfassen)',
+    color: '#fb923c',
+    tips: [
+      'Beantworte ALLE im Prompt gestellten Fragen oder Anforderungen — fehlende Punkte senken den Score.',
+      'Professioneller Ton: Eröffnung (Dear…), klarer Body, höflicher Abschluss (I look forward to…).',
+      'Mind. 100 Wörter für maximalen Score. Nutze den Phrase-Baukasten für fertige Formulierungen.',
+    ],
+  },
+  essay: {
+    title: 'Task 8 Strategie (Opinion Essay)',
+    color: '#6366f1',
+    tips: [
+      '4-Absatz-Struktur: These → Argument 1 + Beispiel → Argument 2 + Beispiel → Schluss.',
+      'Formuliere deine Meinung klar im ersten Satz: "In my opinion, …" oder "I firmly believe that …"',
+      'Mind. 300 Wörter. Nutze Verbindungswörter: Furthermore, However, Therefore, In conclusion.',
+    ],
+  },
+}
+
 const TASK_META: Record<WritingPart, TaskMeta> = {
   sentences: { label: 'Task 1–5: Sätze schreiben',   color: '#AE00FF', desc: 'Schreibe einen grammatikalisch korrekten Satz. Verwende beide vorgegebenen Wörter.', timeSec: 8 * 60,  minWords: 5,   targetWords: 15  },
   email:     { label: 'Task 6–7: E-Mail verfassen',   color: '#fb923c', desc: 'Beantworte die E-Mail vollständig mit angemessener Geschäftssprache.',                timeSec: 10 * 60, minWords: 60,  targetWords: 100 },
@@ -56,6 +86,32 @@ const ESSAY_PHRASES = [
   { cat: 'Beispiel', phrases: ['For example,...', 'A clear illustration of this is...', 'Consider the case of...', 'This can be seen in...'] },
   { cat: 'Schluss', phrases: ['In conclusion,...', 'To sum up,...', 'For these reasons, I believe that...', 'Taking everything into account,...'] },
 ]
+
+function WritingStrategyTip({ writingPart }: { writingPart: WritingPart }) {
+  const [open, setOpen] = useState(false)
+  const s = WRITING_STRATEGY_TIPS[writingPart]
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <button onClick={() => setOpen(v => !v)} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: s.color, background: `${s.color}12`, border: `1px solid ${s.color}30`, borderRadius: 8, padding: '7px 13px', cursor: 'pointer', width: '100%', justifyContent: 'space-between' }}>
+        <span>💡 TOEIC-Strategie</span>
+        <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--muted)' }}>{open ? '▲' : '▼'}</span>
+      </button>
+      {open && (
+        <div style={{ marginTop: 8, padding: '12px 16px', borderRadius: 10, background: `${s.color}08`, border: `1px solid ${s.color}20` }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: s.color, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{s.title}</p>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {s.tips.map((tip, i) => (
+              <li key={i} style={{ fontSize: 12, color: 'var(--foreground)', display: 'flex', gap: 8, lineHeight: 1.5 }}>
+                <span style={{ color: s.color, fontWeight: 700, flexShrink: 0 }}>{i + 1}.</span>
+                {tip}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  )
+}
 
 function PhraseBaukasten({ type, color }: { type: 'email' | 'essay'; color: string }) {
   const [open, setOpen] = useState(false)
@@ -274,8 +330,8 @@ function WritingFeedbackPanel({ fb, modelAnswer, onRevise, userText, taskType }:
 }
 
 // ── Sentence Task ─────────────────────────────────────────────────────────────
-function SentenceTask({ question, onSubmit, submitted, feedback, timerExpired, onRevise }: {
-  question: Question; onSubmit: (text: string) => void; submitted: boolean; feedback: WritingFeedback | null; timerExpired: boolean; onRevise?: () => void
+function SentenceTask({ question, onSubmit, submitted, feedback, timerExpired, onRevise, onRetry }: {
+  question: Question; onSubmit: (text: string) => void; submitted: boolean; feedback: WritingFeedback | null; timerExpired: boolean; onRevise?: () => void; onRetry?: () => void
 }) {
   const c = question.content as Record<string, unknown>
   const [text, setText] = useState('')
@@ -285,6 +341,7 @@ function SentenceTask({ question, onSubmit, submitted, feedback, timerExpired, o
 
   return (
     <div>
+      {!submitted && <WritingStrategyTip writingPart="sentences" />}
       {draftFound && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 8, background: 'rgba(174,0,255,0.08)', border: '1px solid rgba(174,0,255,0.25)', marginBottom: 14 }}>
           <span style={{ fontSize: 12, color: '#AE00FF', flex: 1 }}>Entwurf gefunden — wiederherstellen?</span>
@@ -326,14 +383,20 @@ function SentenceTask({ question, onSubmit, submitted, feedback, timerExpired, o
           </button>
         </div>
       )}
-      {submitted && feedback && <WritingFeedbackPanel fb={feedback} modelAnswer={question.answer} onRevise={onRevise} />}
+      {submitted && feedback && feedback.score > 0 && <WritingFeedbackPanel fb={feedback} modelAnswer={question.answer} onRevise={onRevise} />}
+      {submitted && feedback && feedback.score === 0 && feedback.feedback.includes('nicht geladen') && (
+        <div style={{ marginTop: 16, padding: '12px 16px', borderRadius: 10, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)' }}>
+          <p style={{ fontSize: 13, color: '#ef4444', marginBottom: 10 }}>Feedback konnte nicht geladen werden.</p>
+          {onRetry && <button onClick={onRetry} style={{ fontSize: 12, fontWeight: 700, padding: '6px 14px', borderRadius: 8, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', cursor: 'pointer' }}>↺ Erneut versuchen</button>}
+        </div>
+      )}
     </div>
   )
 }
 
 // ── Email Task ────────────────────────────────────────────────────────────────
-function EmailTask({ question, onSubmit, submitted, feedback, timerExpired, onRevise }: {
-  question: Question; onSubmit: (text: string) => void; submitted: boolean; feedback: WritingFeedback | null; timerExpired: boolean; onRevise?: () => void
+function EmailTask({ question, onSubmit, submitted, feedback, timerExpired, onRevise, onRetry }: {
+  question: Question; onSubmit: (text: string) => void; submitted: boolean; feedback: WritingFeedback | null; timerExpired: boolean; onRevise?: () => void; onRetry?: () => void
 }) {
   const c = question.content as Record<string, unknown>
   const [text, setText] = useState('')
@@ -342,6 +405,7 @@ function EmailTask({ question, onSubmit, submitted, feedback, timerExpired, onRe
 
   return (
     <div>
+      {!submitted && <WritingStrategyTip writingPart="email" />}
       {draftFound && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 8, background: 'rgba(251,146,60,0.08)', border: '1px solid rgba(251,146,60,0.25)', marginBottom: 14 }}>
           <span style={{ fontSize: 12, color: '#fb923c', flex: 1 }}>Entwurf gefunden — wiederherstellen?</span>
@@ -381,14 +445,20 @@ function EmailTask({ question, onSubmit, submitted, feedback, timerExpired, onRe
           </button>
         </div>
       )}
-      {submitted && feedback && <WritingFeedbackPanel fb={feedback} onRevise={onRevise} userText={text} taskType="email" />}
+      {submitted && feedback && feedback.score > 0 && <WritingFeedbackPanel fb={feedback} onRevise={onRevise} userText={text} taskType="email" />}
+      {submitted && feedback && feedback.score === 0 && feedback.feedback.includes('nicht geladen') && (
+        <div style={{ marginTop: 16, padding: '12px 16px', borderRadius: 10, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)' }}>
+          <p style={{ fontSize: 13, color: '#ef4444', marginBottom: 10 }}>Feedback konnte nicht geladen werden.</p>
+          {onRetry && <button onClick={onRetry} style={{ fontSize: 12, fontWeight: 700, padding: '6px 14px', borderRadius: 8, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', cursor: 'pointer' }}>↺ Erneut versuchen</button>}
+        </div>
+      )}
     </div>
   )
 }
 
 // ── Essay Task ────────────────────────────────────────────────────────────────
-function EssayTask({ question, onSubmit, submitted, feedback, timerExpired, onRevise }: {
-  question: Question; onSubmit: (text: string) => void; submitted: boolean; feedback: WritingFeedback | null; timerExpired: boolean; onRevise?: () => void
+function EssayTask({ question, onSubmit, submitted, feedback, timerExpired, onRevise, onRetry }: {
+  question: Question; onSubmit: (text: string) => void; submitted: boolean; feedback: WritingFeedback | null; timerExpired: boolean; onRevise?: () => void; onRetry?: () => void
 }) {
   const c = question.content as Record<string, unknown>
   const [text, setText] = useState('')
@@ -467,7 +537,13 @@ function EssayTask({ question, onSubmit, submitted, feedback, timerExpired, onRe
           </button>
         </div>
       )}
-      {submitted && feedback && <WritingFeedbackPanel fb={feedback} onRevise={onRevise} userText={text} taskType="essay" />}
+      {submitted && feedback && feedback.score > 0 && <WritingFeedbackPanel fb={feedback} onRevise={onRevise} userText={text} taskType="essay" />}
+      {submitted && feedback && feedback.score === 0 && feedback.feedback.includes('nicht geladen') && (
+        <div style={{ marginTop: 16, padding: '12px 16px', borderRadius: 10, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)' }}>
+          <p style={{ fontSize: 13, color: '#ef4444', marginBottom: 10 }}>Feedback konnte nicht geladen werden.</p>
+          {onRetry && <button onClick={onRetry} style={{ fontSize: 12, fontWeight: 700, padding: '6px 14px', borderRadius: 8, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', cursor: 'pointer' }}>↺ Erneut versuchen</button>}
+        </div>
+      )}
     </div>
   )
 }
@@ -534,7 +610,9 @@ export default function WritingShell({ writingPart }: { writingPart: WritingPart
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timer.expired])
 
+  const lastTextRef = useRef<string>('')
   const handleSubmit = useCallback(async (text: string) => {
+    lastTextRef.current = text
     setSubmitted(true)
     setIsRevising(false)
     setPrevFeedback(null)
@@ -559,6 +637,11 @@ export default function WritingShell({ writingPart }: { writingPart: WritingPart
       setFeedback({ score: 0, feedback: 'Feedback konnte nicht geladen werden.', tips: [], dimensions: undefined })
     }
   }, [questions, currentIndex])
+
+  const handleRetry = useCallback(() => {
+    setSubmitted(false)
+    setFeedback(null)
+  }, [])
 
   const handleNext = async () => {
     if (currentIndex + 1 >= questions.length) {
@@ -633,8 +716,16 @@ export default function WritingShell({ writingPart }: { writingPart: WritingPart
   if (!questions.length) return (
     <div style={{ maxWidth: 700, margin: '0 auto' }}>
       <div className="card" style={{ padding: 40, textAlign: 'center' }}>
-        <p style={{ color: 'var(--muted)', marginBottom: 8 }}>Keine Schreibaufgaben verfügbar.</p>
-        <p style={{ fontSize: 13, color: 'var(--muted)' }}>Führe <code>npm run db:seed</code> im Codespace aus.</p>
+        <p style={{ fontSize: 24, marginBottom: 12 }}>✍️</p>
+        <p style={{ fontWeight: 600, marginBottom: 8 }}>Keine Schreibaufgaben verfügbar</p>
+        <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.6, marginBottom: 20 }}>
+          Für diesen Writing-Bereich sind noch keine Aufgaben vorhanden.
+          Bitte versuche es später erneut oder wähle einen anderen Aufgabentyp.
+        </p>
+        <button onClick={() => router.push('/test-training')}
+          style={{ padding: '8px 20px', borderRadius: 10, background: meta.color + '20', border: `1.5px solid ${meta.color}50`, color: meta.color, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>
+          Zurück zur Übersicht
+        </button>
       </div>
     </div>
   )
@@ -688,16 +779,16 @@ export default function WritingShell({ writingPart }: { writingPart: WritingPart
           {/* Right: Editor */}
           <div className="card" style={{ padding: '16px 20px' }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12 }}>Überarbeitung</p>
-            {writingPart === 'sentences' && <SentenceTask question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} timerExpired={timerExpired} onRevise={handleRevise} />}
-            {writingPart === 'email'     && <EmailTask    question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} timerExpired={timerExpired} onRevise={handleRevise} />}
-            {writingPart === 'essay'     && <EssayTask    question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} timerExpired={timerExpired} onRevise={handleRevise} />}
+            {writingPart === 'sentences' && <SentenceTask question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} timerExpired={timerExpired} onRevise={handleRevise} onRetry={handleRetry} />}
+            {writingPart === 'email'     && <EmailTask    question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} timerExpired={timerExpired} onRevise={handleRevise} onRetry={handleRetry} />}
+            {writingPart === 'essay'     && <EssayTask    question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} timerExpired={timerExpired} onRevise={handleRevise} onRetry={handleRetry} />}
           </div>
         </div>
       ) : (
         <div className="card" style={{ padding: '20px 24px', marginBottom: 16 }}>
-          {writingPart === 'sentences' && <SentenceTask question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} timerExpired={timerExpired} onRevise={handleRevise} />}
-          {writingPart === 'email'     && <EmailTask    question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} timerExpired={timerExpired} onRevise={handleRevise} />}
-          {writingPart === 'essay'     && <EssayTask    question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} timerExpired={timerExpired} onRevise={handleRevise} />}
+          {writingPart === 'sentences' && <SentenceTask question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} timerExpired={timerExpired} onRevise={handleRevise} onRetry={handleRetry} />}
+          {writingPart === 'email'     && <EmailTask    question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} timerExpired={timerExpired} onRevise={handleRevise} onRetry={handleRetry} />}
+          {writingPart === 'essay'     && <EssayTask    question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} timerExpired={timerExpired} onRevise={handleRevise} onRetry={handleRetry} />}
         </div>
       )}
 

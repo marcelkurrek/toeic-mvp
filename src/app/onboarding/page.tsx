@@ -8,9 +8,10 @@ import LanguageSwitcher from '@/components/LanguageSwitcher'
 type ExamType = 'LISTENING_READING' | 'SPEAKING_WRITING' | 'FULL_CERTIFICATE'
 
 export default function OnboardingPage() {
-  const [examType, setExamType] = useState<ExamType | null>(null)
-  const [examDate, setExamDate] = useState('')
-  const [loading, setLoading]   = useState(false)
+  const [examType, setExamType]       = useState<ExamType | null>(null)
+  const [examDate, setExamDate]       = useState('')
+  const [scoreTarget, setScoreTarget] = useState('')
+  const [loading, setLoading]         = useState(false)
   const router   = useRouter()
   const supabase = createClient()
   const { t }    = useLang()
@@ -30,7 +31,7 @@ export default function OnboardingPage() {
     await fetch('/api/users/me', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ examType, examDate: examDate || null }),
+      body: JSON.stringify({ examType, examDate: examDate || null, scoreTarget: scoreTarget ? Number(scoreTarget) : null }),
     })
 
     router.push('/diagnostic')
@@ -138,6 +139,42 @@ export default function OnboardingPage() {
                 className="input-field"
                 style={{ colorScheme: 'dark' }}
               />
+            </div>
+
+            <div>
+              <label className="text-sm font-semibold" style={{ display: 'block', marginBottom: 6, color: 'var(--foreground)' }}>
+                Ziel-Score <span style={{ fontWeight: 400, color: 'var(--muted)' }}>(optional)</span>
+              </label>
+              <p className="text-xs" style={{ color: 'var(--muted)', marginBottom: 10 }}>
+                TOEIC-Score von 10 bis 990. Beliebte Ziele: 600 (Mittelstufe), 730 (gehobenes Business), 860+ (Expertenniveau).
+              </p>
+              <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                {['600', '730', '860', '990'].map(score => (
+                  <button
+                    key={score}
+                    type="button"
+                    onClick={() => setScoreTarget(scoreTarget === score ? '' : score)}
+                    style={{
+                      padding: '6px 14px', borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: 'pointer',
+                      border: `2px solid ${scoreTarget === score ? 'var(--accent)' : 'var(--card-border)'}`,
+                      background: scoreTarget === score ? 'var(--accent-subtle)' : 'transparent',
+                      color: scoreTarget === score ? 'var(--accent)' : 'var(--muted)',
+                      transition: 'all 0.15s',
+                    }}
+                  >
+                    {score}
+                  </button>
+                ))}
+                <input
+                  type="number"
+                  value={scoreTarget}
+                  onChange={e => setScoreTarget(e.target.value)}
+                  placeholder="Eigener Wert"
+                  min={10} max={990} step={10}
+                  className="input-field"
+                  style={{ width: 110, fontSize: 13 }}
+                />
+              </div>
             </div>
 
             <div style={{ marginTop: 4 }}>

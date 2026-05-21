@@ -19,11 +19,94 @@ const SPEAKING_DIMS = [
   { key: 'taskCompletion'as const, label: 'Aufgabenerfüllung', color: '#6366f1' },
 ]
 
+const SPEAKING_STRATEGY_TIPS: Record<SpeakingMode, { title: string; tips: string[]; color: string }> = {
+  'read-aloud': {
+    title: 'Read Aloud Strategie (Q1–2)',
+    color: '#04FF88',
+    tips: [
+      'Lese jeden Satz in sinnvollen Einheiten (chunks), nicht Wort für Wort.',
+      'Achte auf Satzbetonung: Inhaltsworte (Nomen, Verben) betonen, Funktionsworte schwächer.',
+      'Geschwindigkeit: Etwa 120–140 Wörter/Minute ist ideal. Nicht zu schnell, nicht stockend.',
+    ],
+  },
+  'describe': {
+    title: 'Bild beschreiben Strategie (Q3–4)',
+    color: '#D5FD44',
+    tips: [
+      'Strukturiere nach dem 6-Dimensionen-Schema: Ort → Personen → Aktivität → Details.',
+      'Beginne mit dem Setting: "The picture shows a [location/scene]…"',
+      'Erwähne mindestens 3 unterschiedliche Elemente des Bildes für maximale Punkte.',
+    ],
+  },
+  'respond': {
+    title: 'Fragen beantworten Strategie (Q5–7)',
+    color: '#fb923c',
+    tips: [
+      'Antworte direkt auf die Frage — beginne mit der Antwort, nicht mit Umschreibungen.',
+      'Gib immer einen Grund oder ein Beispiel: "Because…" oder "For example…"',
+      'Bei Fragen nach Meinungen: "In my opinion…" oder "I prefer… because…"',
+    ],
+  },
+  'respond-doc': {
+    title: 'Antwort mit Dokument Strategie (Q8–10)',
+    color: '#6366f1',
+    tips: [
+      'Lies das Dokument vollständig BEVOR du antwortest — alle Antworten stehen darin.',
+      'Zitiere konkrete Details aus dem Dokument: Uhrzeiten, Namen, Orte, Preise.',
+      'Spreche in vollständigen Sätzen: "According to the schedule, the meeting is at…"',
+    ],
+  },
+  'opinion': {
+    title: 'Meinung äußern Strategie (Q11)',
+    color: '#fbbf24',
+    tips: [
+      'Klare These im ersten Satz: "In my opinion, [position]. I have two main reasons."',
+      'Zwei Gründe mit je einem Beispiel: "First, … For instance, … Second, … Therefore, …"',
+      'Abschluss wiederholt die These: "In conclusion, I firmly believe that [position]."',
+    ],
+  },
+}
+
 const MODEL_ANSWER_TEMPLATES: Record<string, string> = {
   READ_ALOUD: '', // provided per-question
   DESCRIBE_PICTURE: 'The picture shows [setting/location]. In the foreground, I can see [main subject] who appears to be [action]. There is/are also [other elements] visible. The [clothing/objects/details] suggest that [context or purpose]. Overall, this looks like a [summary description].',
   EXPRESS_OPINION: 'In my opinion, [state clear position]. I have two main reasons for this. First, [reason 1 with brief explanation]. For instance, [concrete example]. Second, [reason 2 with detail]. Therefore, I firmly believe that [restate opinion].',
   RESPOND_FREE: 'Thank you for your question. [Direct answer to the question asked]. [Supporting detail or explanation]. [Optional: related information or follow-up if relevant].',
+}
+
+function SpeakingStrategyTip({ mode }: { mode: SpeakingMode }) {
+  const [open, setOpen] = useState(false)
+  const s = SPEAKING_STRATEGY_TIPS[mode]
+  return (
+    <div style={{ marginBottom: 16 }}>
+      <button onClick={() => setOpen(v => !v)} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 700, color: s.color, background: `${s.color}12`, border: `1px solid ${s.color}30`, borderRadius: 8, padding: '7px 13px', cursor: 'pointer', width: '100%', justifyContent: 'space-between' }}>
+        <span>💡 TOEIC-Strategie</span>
+        <span style={{ fontSize: 11, fontWeight: 400, color: 'var(--muted)' }}>{open ? '▲' : '▼'}</span>
+      </button>
+      {open && (
+        <div style={{ marginTop: 8, padding: '12px 16px', borderRadius: 10, background: `${s.color}08`, border: `1px solid ${s.color}20` }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: s.color, marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.06em' }}>{s.title}</p>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {s.tips.map((tip, i) => (
+              <li key={i} style={{ fontSize: 12, color: 'var(--foreground)', display: 'flex', gap: 8, lineHeight: 1.5 }}>
+                <span style={{ color: s.color, fontWeight: 700, flexShrink: 0 }}>{i + 1}.</span>
+                {tip}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function FeedbackError({ onRetry }: { onRetry: () => void }) {
+  return (
+    <div style={{ padding: '12px 16px', borderRadius: 10, background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.25)' }}>
+      <p style={{ fontSize: 13, color: '#ef4444', marginBottom: 10 }}>Feedback konnte nicht geladen werden.</p>
+      <button onClick={onRetry} style={{ fontSize: 12, fontWeight: 700, padding: '6px 14px', borderRadius: 8, background: 'rgba(239,68,68,0.12)', border: '1px solid rgba(239,68,68,0.3)', color: '#ef4444', cursor: 'pointer' }}>↺ Erneut versuchen</button>
+    </div>
+  )
 }
 
 function SpeakingFeedback({ feedback, transcript, onNext, isLast, questionType, modelAnswer }: { feedback: FeedbackResult; transcript: string; onNext: () => void; isLast: boolean; questionType?: string; modelAnswer?: string }) {
@@ -202,7 +285,7 @@ function ReadAloudTask({ question, onNext, isLast }: { question: Question; onNex
   const handleSubmitFeedback = useCallback(() => {
     setPhase('feedback'); setLoading(true)
     fetch('/api/speech-feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ transcript, expectedText: content.text, questionType: 'READ_ALOUD', durationSeconds: durationRef.current }) })
-      .then(r => r.json()).then(data => { setFeedback(data); setLoading(false) }).catch(() => setLoading(false))
+      .then(r => r.json()).then(data => { setFeedback(data); setLoading(false) }).catch(() => { setFeedback(null); setLoading(false) })
   }, [transcript, content.text])
   const handleReRecord = useCallback(() => { clearAudio(); setPhase('recording'); startSR(); startRecording(); startTimeRef.current = Date.now() }, [clearAudio, startSR, startRecording])
   const prepRemaining = useTimer(content.prepSeconds, phase === 'prep', handlePrepEnd)
@@ -211,6 +294,7 @@ function ReadAloudTask({ question, onNext, isLast }: { question: Question; onNex
   return (
     <div className="card" style={{ padding: '28px 28px 24px' }}>
       <p className="text-xs font-medium mb-1" style={{ color: 'var(--muted)' }}>Aufgabe: Laut vorlesen</p>
+      {phase === 'idle' && <SpeakingStrategyTip mode="read-aloud" />}
       <div className="rounded-lg p-4 mb-5 text-sm leading-relaxed" style={{ background: 'var(--surface)', border: '1px solid var(--surface-border)' }}>{content.text}</div>
       {phase === 'idle' && <button onClick={() => setPhase('prep')} className="btn-primary">Vorbereitung starten</button>}
       {phase === 'prep' && <div className="flex items-center gap-4"><div className="text-4xl font-bold" style={{ color: 'var(--accent)' }}>{prepRemaining}s</div><p style={{ color: 'var(--muted)' }}>Bereite dich vor… dann wird aufgenommen.</p></div>}
@@ -227,7 +311,7 @@ function ReadAloudTask({ question, onNext, isLast }: { question: Question; onNex
           ? <p style={{ color: 'var(--muted)' }}>Feedback wird erstellt…</p>
           : feedback
             ? <SpeakingFeedback feedback={feedback} transcript={transcript} onNext={() => onNext(feedback?.completenessPercent ?? undefined)} isLast={isLast} questionType="READ_ALOUD" modelAnswer={content.text} />
-            : <p style={{ color: '#ef4444', fontSize: 13 }}>Feedback konnte nicht geladen werden.</p>
+            : <FeedbackError onRetry={() => { setPhase('self-assessment') }} />
       )}
     </div>
   )
@@ -247,7 +331,7 @@ function DescribeTask({ question, onNext, isLast }: { question: Question; onNext
   const handleSubmitFeedback = useCallback(() => {
     setPhase('feedback'); setLoading(true)
     fetch('/api/speech-feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ transcript, questionType: 'DESCRIBE_PICTURE', durationSeconds: durationRef.current }) })
-      .then(r => r.json()).then(data => { setFeedback(data); setLoading(false) }).catch(() => setLoading(false))
+      .then(r => r.json()).then(data => { setFeedback(data); setLoading(false) }).catch(() => { setFeedback(null); setLoading(false) })
   }, [transcript])
   const handleReRecord = useCallback(() => { clearAudio(); setPhase('recording'); startSR(); startRecording(); startTimeRef.current = Date.now() }, [clearAudio, startSR, startRecording])
   const prepRemaining = useTimer(content.prepSeconds, phase === 'prep', handlePrepEnd)
@@ -256,6 +340,7 @@ function DescribeTask({ question, onNext, isLast }: { question: Question; onNext
   return (
     <div className="card" style={{ padding: '28px 28px 24px' }}>
       <p className="text-xs font-medium mb-2" style={{ color: 'var(--muted)' }}>Aufgabe: Bild beschreiben</p>
+      {phase === 'idle' && <SpeakingStrategyTip mode="describe" />}
       <div style={{ marginBottom: 16, borderRadius: 12, overflow: 'hidden', maxHeight: 280 }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={content.imageUrl} alt="Describe this picture" style={{ width: '100%', objectFit: 'cover', maxHeight: 280 }} />
@@ -277,7 +362,7 @@ function DescribeTask({ question, onNext, isLast }: { question: Question; onNext
           ? <p style={{ color: 'var(--muted)' }}>Feedback wird erstellt…</p>
           : feedback
             ? <SpeakingFeedback feedback={feedback} transcript={transcript} onNext={() => onNext(feedback?.completenessPercent ?? undefined)} isLast={isLast} questionType="DESCRIBE_PICTURE" />
-            : <p style={{ color: '#ef4444', fontSize: 13 }}>Feedback konnte nicht geladen werden.</p>
+            : <FeedbackError onRetry={() => { setPhase('self-assessment') }} />
       )}
     </div>
   )
@@ -303,7 +388,7 @@ function RespondDocTask({ question, onNext, isLast }: { question: Question; onNe
   const handleSubmitFeedback = useCallback(() => {
     setPhase('feedback'); setLoading(true)
     fetch('/api/speech-feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ transcript, questionType: 'RESPOND_INFO', durationSeconds: durationRef.current }) })
-      .then(r => r.json()).then(data => { setFeedbacks(prev => [...prev, data]); setLoading(false) }).catch(() => setLoading(false))
+      .then(r => r.json()).then(data => { setFeedbacks(prev => [...prev, data]); setLoading(false) }).catch(() => { setLoading(false) })
   }, [transcript])
   const handleReRecord = useCallback(() => { clearAudio(); setPhase('recording'); startSR(); startRecording(); startTimeRef.current = Date.now() }, [clearAudio, startSR, startRecording])
   const prepRemaining = useTimer(subQ?.prepSeconds ?? 3, phase === 'prep', handlePrepEnd)
@@ -324,6 +409,7 @@ function RespondDocTask({ question, onNext, isLast }: { question: Question; onNe
           ))}</tbody>
         </table>
       </div>
+      {phase === 'idle' && <SpeakingStrategyTip mode="respond-doc" />}
       <p className="text-xs mb-2" style={{ color: 'var(--muted)' }}>{content.scenario}</p>
       <div className="flex items-center gap-2 mb-3"><span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: 'var(--card-border)', color: 'var(--muted)' }}>Frage {subIndex + 1} / {content.questions.length}</span></div>
       <p className="text-base font-semibold mb-4">{subQ.text}</p>
@@ -341,8 +427,8 @@ function RespondDocTask({ question, onNext, isLast }: { question: Question; onNe
         loading
           ? <p style={{ color: 'var(--muted)' }}>Feedback wird erstellt…</p>
           : feedbacks[subIndex]
-            ? <SpeakingFeedback feedback={feedbacks[subIndex]} transcript={transcript} onNext={() => handleNextSub(feedbacks[subIndex])} isLast={subIndex + 1 >= content.questions.length && isLast} questionType="RESPOND_FREE" />
-            : <p style={{ color: '#ef4444', fontSize: 13 }}>Feedback konnte nicht geladen werden.</p>
+            ? <SpeakingFeedback feedback={feedbacks[subIndex]} transcript={transcript} onNext={() => handleNextSub(feedbacks[subIndex])} isLast={subIndex + 1 >= content.questions.length && isLast} questionType="RESPOND_INFO" />
+            : <FeedbackError onRetry={() => { setPhase('self-assessment') }} />
       )}
     </div>
   )
@@ -362,7 +448,7 @@ function OpinionTask({ question, onNext, isLast }: { question: Question; onNext:
   const handleSubmitFeedback = useCallback(() => {
     setPhase('feedback'); setLoading(true)
     fetch('/api/speech-feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ transcript, questionType: 'EXPRESS_OPINION', durationSeconds: durationRef.current }) })
-      .then(r => r.json()).then(data => { setFeedback(data); setLoading(false) }).catch(() => setLoading(false))
+      .then(r => r.json()).then(data => { setFeedback(data); setLoading(false) }).catch(() => { setFeedback(null); setLoading(false) })
   }, [transcript])
   const handleReRecord = useCallback(() => { clearAudio(); setPhase('recording'); startSR(); startRecording(); startTimeRef.current = Date.now() }, [clearAudio, startSR, startRecording])
   const prepRemaining = useTimer(content.prepSeconds, phase === 'prep', handlePrepEnd)
@@ -371,6 +457,7 @@ function OpinionTask({ question, onNext, isLast }: { question: Question; onNext:
   return (
     <div className="card" style={{ padding: '28px 28px 24px' }}>
       <p className="text-xs font-medium mb-2" style={{ color: 'var(--muted)' }}>Aufgabe: Meinung äußern</p>
+      {phase === 'idle' && <SpeakingStrategyTip mode="opinion" />}
       <div className="rounded-lg p-4 mb-4 text-sm leading-relaxed font-medium" style={{ background: 'var(--surface)', border: '1px solid var(--surface-border)' }}>{content.prompt}</div>
       {content.structure && (
         <div className="flex gap-2 flex-wrap mb-4">
@@ -392,7 +479,7 @@ function OpinionTask({ question, onNext, isLast }: { question: Question; onNext:
           ? <p style={{ color: 'var(--muted)' }}>Feedback wird erstellt…</p>
           : feedback
             ? <SpeakingFeedback feedback={feedback} transcript={transcript} onNext={() => onNext(feedback?.completenessPercent ?? undefined)} isLast={isLast} questionType="EXPRESS_OPINION" />
-            : <p style={{ color: '#ef4444', fontSize: 13 }}>Feedback konnte nicht geladen werden.</p>
+            : <FeedbackError onRetry={() => { setPhase('self-assessment') }} />
       )}
     </div>
   )
@@ -414,7 +501,7 @@ function RespondTask({ question, onNext, isLast }: { question: Question; onNext:
   const handleSubmitFeedback = useCallback(() => {
     setPhase('feedback'); setLoading(true)
     fetch('/api/speech-feedback', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ transcript, questionType: 'RESPOND_FREE', durationSeconds: durationRef.current }) })
-      .then(r => r.json()).then(data => { setFeedbacks(prev => [...prev, data]); setLoading(false) }).catch(() => setLoading(false))
+      .then(r => r.json()).then(data => { setFeedbacks(prev => [...prev, data]); setLoading(false) }).catch(() => { setLoading(false) })
   }, [transcript])
   const handleReRecord = useCallback(() => { clearAudio(); setPhase('recording'); startSR(); startRecording(); startTimeRef.current = Date.now() }, [clearAudio, startSR, startRecording])
   const prepRemaining = useTimer(subQ?.prepSeconds ?? 3, phase === 'prep', handlePrepEnd)
@@ -425,6 +512,7 @@ function RespondTask({ question, onNext, isLast }: { question: Question; onNext:
   return (
     <div className="card" style={{ padding: '28px 28px 24px' }}>
       <div className="rounded-lg p-3 mb-4 text-sm" style={{ background: 'var(--surface)', border: '1px solid var(--surface-border)' }}><p className="font-medium mb-1" style={{ color: 'var(--muted)' }}>Szenario:</p><p>{content.scenario}</p></div>
+      {phase === 'idle' && <SpeakingStrategyTip mode="respond" />}
       <div className="flex items-center gap-2 mb-3"><span className="text-xs px-2 py-0.5 rounded-full font-medium" style={{ background: 'var(--card-border)', color: 'var(--muted)' }}>Frage {subIndex + 1} / {content.questions.length}</span></div>
       <p className="text-base font-semibold mb-4">{subQ.text}</p>
       {phase === 'idle' && <button onClick={() => setPhase('prep')} className="btn-primary">Antwort vorbereiten</button>}
@@ -442,7 +530,7 @@ function RespondTask({ question, onNext, isLast }: { question: Question; onNext:
           ? <p style={{ color: 'var(--muted)' }}>Feedback wird erstellt…</p>
           : feedbacks[subIndex]
             ? <SpeakingFeedback feedback={feedbacks[subIndex]} transcript={transcript} onNext={() => handleNextSub(feedbacks[subIndex])} isLast={subIndex + 1 >= content.questions.length && isLast} questionType="RESPOND_FREE" />
-            : <p style={{ color: '#ef4444', fontSize: 13 }}>Feedback konnte nicht geladen werden.</p>
+            : <FeedbackError onRetry={() => { setPhase('self-assessment') }} />
       )}
     </div>
   )

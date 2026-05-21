@@ -24,17 +24,23 @@ export default async function AchievementsPage() {
     },
   })
 
-  const sessions     = dbUser?.sessions ?? []
-  const progress     = dbUser?.progress ?? []
-  const streak       = computeStreak(sessions.map(s => s.createdAt))
+  const sessions      = dbUser?.sessions ?? []
+  const progress      = dbUser?.progress ?? []
+  const streak        = computeStreak(sessions.map(s => s.createdAt))
   const totalAnswered = sessions.reduce((sum, s) => sum + s.totalQuestions, 0)
-  const avgAccuracy  = progress.length
+  const avgAccuracy   = progress.length
     ? progress.reduce((s, p) => s + p.accuracy, 0) / progress.length
     : null
-  const bestPartAcc  = progress.length
+  const bestPartAcc   = progress.length
     ? Math.max(...progress.map(p => p.accuracy))
     : null
-  const partsAttempted = new Set(progress.map(p => p.part)).size
+
+  // Section-aware part counts to avoid collision between same part numbers across sections
+  const lrProgress        = progress.filter(p => p.section === 'LISTENING' || p.section === 'READING')
+  const lrPartsAttempted  = new Set(lrProgress.map(p => `${p.section}_${p.part}`)).size
+  const readingAttempted  = progress.filter(p => p.section === 'READING').length
+  const hasSpeaking       = progress.some(p => p.section === 'SPEAKING')
+  const hasWriting        = progress.some(p => p.section === 'WRITING')
 
   const achievements = computeAchievements({
     totalSessions: sessions.length,
@@ -43,7 +49,10 @@ export default async function AchievementsPage() {
     avgAccuracy,
     bestPartAccuracy: bestPartAcc,
     diagnosticDone: dbUser?.diagnosticDone ?? false,
-    partsAttempted,
+    lrPartsAttempted,
+    readingPartsAttempted: readingAttempted,
+    hasSpeaking,
+    hasWriting,
     totalAnswered,
   })
 
