@@ -195,6 +195,14 @@ export default async function DashboardPage() {
 
   const firstName = dbUser?.name?.split(' ')[0] ?? user.email?.split('@')[0] ?? ''
 
+  const currPct = dbUser?.sessions[0]?.score != null && dbUser?.sessions[0]?.maxScore
+    ? Math.round((dbUser.sessions[0].score / dbUser.sessions[0].maxScore) * 100)
+    : null
+  const prevPct = dbUser?.sessions[1]?.score != null && dbUser?.sessions[1]?.maxScore
+    ? Math.round((dbUser.sessions[1].score / dbUser.sessions[1].maxScore) * 100)
+    : null
+  const sessionDelta = currPct !== null && prevPct !== null ? currPct - prevPct : null
+
   const SectionIcon = (s: Section) =>
     s === 'LISTENING' ? Headphones : s === 'WRITING' ? PenLine : s === 'SPEAKING' ? Mic : BookOpen
 
@@ -425,6 +433,26 @@ export default async function DashboardPage() {
           <p style={{ fontSize: 10, color: 'var(--muted)', marginTop: 8, fontStyle: 'italic' }}>
             Schätzung basiert auf deiner Übungsgenauigkeit. Echter TOEIC-Score erfordert offizielle Prüfung.
           </p>
+          <details style={{ marginTop: 10 }}>
+            <summary style={{ fontSize: 11, color: 'var(--accent)', cursor: 'pointer', fontWeight: 600 }}>
+              📊 Genauigkeit → TOEIC Punkte (Orientierungstabelle)
+            </summary>
+            <div style={{ marginTop: 8, padding: '10px 14px', borderRadius: 8, background: 'var(--background)', border: '1px solid var(--card-border)' }}>
+              {[
+                { range: '≥ 90%', score: '800 – 990', color: '#04FF88' },
+                { range: '80 – 89%', score: '650 – 800', color: '#D5FD44' },
+                { range: '70 – 79%', score: '550 – 650', color: '#fbbf24' },
+                { range: '60 – 69%', score: '450 – 550', color: '#fb923c' },
+                { range: '< 60%', score: '< 450', color: '#ef4444' },
+              ].map(({ range, score, color }) => (
+                <div key={range} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0', borderBottom: '1px solid var(--card-border)' }}>
+                  <span style={{ fontSize: 11, color: 'var(--muted)' }}>{range} Genauigkeit</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color }}>≈ {score} Punkte</span>
+                </div>
+              ))}
+              <p style={{ fontSize: 10, color: 'var(--muted)', marginTop: 6, fontStyle: 'italic' }}>Näherungswerte — offizieller Score variiert je nach Tagesform und Fragenset.</p>
+            </div>
+          </details>
         </div>
       )}
 
@@ -437,6 +465,25 @@ export default async function DashboardPage() {
               Alle ansehen <ChevronRight size={12} />
             </Link>
           </div>
+          {sessionDelta !== null && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', borderRadius: 10, marginBottom: 12,
+              background: sessionDelta >= 0 ? 'rgba(74,222,128,0.08)' : 'rgba(239,68,68,0.06)',
+              border: `1px solid ${sessionDelta >= 0 ? 'rgba(74,222,128,0.25)' : 'rgba(239,68,68,0.2)'}`,
+            }}>
+              <span style={{ fontSize: 18 }}>{sessionDelta >= 0 ? '📈' : '📉'}</span>
+              <div>
+                <span style={{ fontSize: 13, fontWeight: 700, color: sessionDelta >= 0 ? 'var(--success)' : '#ef4444' }}>
+                  {sessionDelta >= 0 ? `+${sessionDelta}%` : `${sessionDelta}%`}
+                </span>
+                <span style={{ fontSize: 12, color: 'var(--muted)', marginLeft: 6 }}>
+                  {sessionDelta >= 0
+                    ? 'besser als letzte Session'
+                    : 'schlechter als letzte Session'}
+                </span>
+                {sessionDelta >= 5 && <span style={{ fontSize: 11, color: 'var(--success)', marginLeft: 8, fontWeight: 600 }}>Auf Kurs! 🎯</span>}
+              </div>
+            </div>
+          )}
           <div className="card" style={{ overflow: 'hidden' }}>
             {dbUser.sessions.map((s, i) => {
               const pct = s.score != null && s.maxScore ? Math.round(s.score / s.maxScore * 100) : null
