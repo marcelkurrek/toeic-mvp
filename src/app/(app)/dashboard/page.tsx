@@ -124,11 +124,11 @@ export default async function DashboardPage() {
 
       if (allStrong) {
         rec = {
-          href:   '/practice/mini-exam',
-          title:  'Mini-Prüfung — du bist bereit',
-          reason: 'Alle geübten Parts liegen über 80% Genauigkeit. Teste dich unter echten Prüfungsbedingungen.',
-          color:  '#AE00FF',
-          cta:    'Mini-Prüfung starten',
+          href:   '/practice/full-exam',
+          title:  'TOEIC Vollprüfung — du bist bereit',
+          reason: 'Alle geübten Parts liegen über 80% Genauigkeit. Teste dich jetzt unter echten Prüfungsbedingungen mit Timer.',
+          color:  '#fbbf24',
+          cta:    'Vollprüfung starten',
           badge:  '🎯 Stark!',
         }
       } else {
@@ -188,7 +188,7 @@ export default async function DashboardPage() {
       mission.push({ label: best.label, href: best.href, count: '10 Fragen · Auffrischung', color: best.color, icon: best.icon })
     }
     if (mission.length < 3) {
-      mission.push({ label: 'Mini-Prüfung', href: '/practice/mini-exam', count: '15 Min · Alle Parts', color: '#6366f1', icon: '🎯' })
+      mission.push({ label: 'Vollprüfung', href: '/practice/full-exam', count: '120 Min · L+R Score', color: '#fbbf24', icon: '🏆' })
     }
   }
 
@@ -210,17 +210,63 @@ export default async function DashboardPage() {
   return (
     <div>
 
-      {(dbUser?.sessions ?? []).length === 0 && (dbUser?.progress ?? []).length === 0 && (
-        <div style={{ marginBottom: 28, padding: '20px 24px', borderRadius: 14, background: 'rgba(4,255,136,0.07)', border: '1.5px solid rgba(4,255,136,0.25)' }}>
-          <p style={{ fontSize: 15, fontWeight: 700, marginBottom: 6 }}>Starte mit dem Einstufungstest</p>
-          <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.6, marginBottom: 16 }}>
-            Der Einstufungstest analysiert dein aktuelles Level in allen 4 Bereichen und erstellt deinen personalisierten Trainingsplan. Dauert ca. 15–20 Minuten.
-          </p>
-          <a href="/diagnostic" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 20px', borderRadius: 10, background: '#04FF88', color: '#0d1b2a', fontWeight: 700, fontSize: 14, textDecoration: 'none' }}>
-            Einstufungstest starten →
-          </a>
-        </div>
-      )}
+      {/* ── Trainingsweg ──────────────────────────────────────────────── */}
+      {(() => {
+        const practicedCount = (dbUser?.progress ?? []).length
+        const step1Done = !!dbUser?.diagnosticDone
+        const step2Active = step1Done
+        const step2Pct = Math.min(100, Math.round(practicedCount / 7 * 100))
+        const step3Ready = avgAccuracy !== null && avgAccuracy >= 65
+
+        const steps = [
+          {
+            num: 1, label: 'Einstufungstest', sub: step1Done ? 'Abgeschlossen' : 'Ausstehend',
+            done: step1Done, active: !step1Done, href: '/diagnostic',
+            color: '#04FF88',
+          },
+          {
+            num: 2, label: 'Üben', sub: step2Active ? `${practicedCount} / 7 Parts geübt` : 'Nach Einstufungstest',
+            done: step2Active && practicedCount >= 7, active: step2Active && practicedCount < 7, href: '/test-training',
+            color: '#D5FD44',
+          },
+          {
+            num: 3, label: 'Prüfen', sub: step3Ready ? 'Bereit für die Prüfung' : 'Ab ≥65% Genauigkeit',
+            done: false, active: step3Ready, href: '/practice/full-exam',
+            color: '#fbbf24',
+          },
+        ]
+
+        return (
+          <div className="card" style={{ padding: '16px 20px', marginBottom: 24 }}>
+            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 14 }}>Dein Trainingsweg</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
+              {steps.map((step, i) => (
+                <div key={step.num} style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
+                  <a href={step.active || step.done ? step.href : undefined}
+                    style={{ flex: 1, textDecoration: 'none', padding: '10px 14px', borderRadius: 10, background: step.done ? `${step.color}12` : step.active ? `${step.color}10` : 'transparent', border: `1px solid ${step.done || step.active ? step.color + '40' : 'var(--card-border)'}`, opacity: !step.done && !step.active ? 0.45 : 1, transition: 'opacity 0.15s' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                      <span style={{ width: 20, height: 20, borderRadius: '50%', background: step.done ? step.color : step.active ? `${step.color}30` : 'var(--card-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 800, color: step.done ? '#0d1b2a' : step.color, flexShrink: 0 }}>
+                        {step.done ? '✓' : step.num}
+                      </span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color: step.done || step.active ? 'var(--fg)' : 'var(--muted)' }}>{step.label}</span>
+                      {step.num === 2 && step2Active && (
+                        <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 99, background: `${step.color}20`, color: step.color }}>{step2Pct}%</span>
+                      )}
+                      {step.num === 3 && step3Ready && (
+                        <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 99, background: `${step.color}20`, color: step.color }}>Bereit</span>
+                      )}
+                    </div>
+                    <p style={{ fontSize: 11, color: 'var(--muted)', paddingLeft: 28 }}>{step.sub}</p>
+                  </a>
+                  {i < steps.length - 1 && (
+                    <div style={{ width: 24, height: 1, background: 'var(--card-border)', flexShrink: 0, margin: '0 2px' }} />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+      })()}
 
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <div style={{ marginBottom: 28 }}>
