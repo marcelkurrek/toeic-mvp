@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import type { Question } from '@/types'
 import { CheckCircle, XCircle, ChevronRight, RotateCcw, Zap, Lightbulb, X, AlertTriangle, RefreshCw, Timer } from 'lucide-react'
 import { useLang } from '@/lib/i18n/client'
+import { SessionEndSummary } from './SessionEndSummary'
 
 // Part 5 — 21 Barron's grammar skill tips
 const PART5_SKILL_TIPS: Record<string, { tip: string; color: string }> = {
@@ -347,6 +348,18 @@ export default function PracticeShell({ part, wrongIds }: PracticeShellProps) {
             {pct >= 80 ? t.practice.feedback.excellent : pct >= 60 ? t.practice.feedback.good : t.practice.feedback.keep}
           </p>
         </div>
+
+        {/* Error Analysis & Feedback */}
+        {sessionId && (
+          <div style={{ marginBottom: 24 }}>
+            <SessionEndSummary
+              sessionId={sessionId}
+              totalQuestions={questions.length}
+              totalCorrect={score}
+              durationSec={answers.reduce((s, a) => s + a.timeSpentSec, 0)}
+            />
+          </div>
+        )}
 
         {/* Post-Session Debrief */}
         <div className="card" style={{ padding: '20px 24px', marginBottom: 24, borderLeft: `3px solid ${pctColor}` }}>
