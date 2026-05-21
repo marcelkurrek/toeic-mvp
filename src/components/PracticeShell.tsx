@@ -1,9 +1,9 @@
 'use client'
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { useExamStore } from '@/store/exam'
 import { useRouter } from 'next/navigation'
 import type { Question } from '@/types'
-import { CheckCircle, XCircle, ChevronRight, RotateCcw, Zap, Lightbulb, X, AlertTriangle, RefreshCw } from 'lucide-react'
+import { CheckCircle, XCircle, ChevronRight, RotateCcw, Zap, Lightbulb, X, AlertTriangle, RefreshCw, Timer } from 'lucide-react'
 import { useLang } from '@/lib/i18n/client'
 
 // Part 5 — 21 Barron's grammar skill tips
@@ -169,6 +169,12 @@ function detectPart6DocumentType(passage: string): { docType: string; hint: stri
   return null
 }
 
+const STOP_WORDS_VOCAB = new Set(['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had', 'her', 'was', 'one', 'our', 'that', 'this', 'from', 'have', 'will', 'with', 'they', 'then', 'when', 'what', 'your', 'some', 'been', 'were', 'more', 'also'])
+
+function extractKeyWords(text: string): string[] {
+  return text.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/).filter(w => w.length > 5 && !STOP_WORDS_VOCAB.has(w)).slice(0, 3)
+}
+
 interface PracticeShellProps {
   part: 5 | 6 | 7
   wrongIds?: string[]  // pre-selected wrong question IDs for review mode
@@ -187,6 +193,10 @@ export default function PracticeShell({ part, wrongIds }: PracticeShellProps) {
   const [strategyDismissed, setStrategyDismissed] = useState(false)
   const [showExitDialog, setShowExitDialog] = useState(false)
   const [exitTarget, setExitTarget] = useState<string | null>(null)
+  const [timerEnabled, setTimerEnabled] = useState(false)
+  const [secondsLeft, setSecondsLeft] = useState(45)
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const [sessionVocab, setSessionVocab] = useState<{ word: string; context: string }[]>([])
   const isReviewMode = !!(wrongIds && wrongIds.length > 0)
 
   const sessionActive = !loading && !isFinished && answers.length > 0
@@ -234,7 +244,25 @@ export default function PracticeShell({ part, wrongIds }: PracticeShellProps) {
   useEffect(() => {
     setSelected(null)
     setSubmitted(false)
+    setSecondsLeft(45)
   }, [currentIndex])
+
+  useEffect(() => {
+    if (timerRef.current) clearInterval(timerRef.current)
+    if (!timerEnabled || submitted || isFinished || loading) return
+    setSecondsLeft(45)
+    timerRef.current = setInterval(() => {
+      setSecondsLeft(prev => {
+        if (prev <= 1) {
+          clearInterval(timerRef.current!)
+          nextQuestion()
+          return 45
+        }
+        return prev - 1
+      })
+    }, 1000)
+    return () => { if (timerRef.current) clearInterval(timerRef.current) }
+  }, [timerEnabled, currentIndex, submitted, isFinished, loading, nextQuestion])
 
   useEffect(() => {
     if (!isFinished || !sessionId || saving) return
@@ -253,8 +281,20 @@ export default function PracticeShell({ part, wrongIds }: PracticeShellProps) {
 
   function handleSubmit() {
     if (!selected) return
-    submitAnswer(questions[currentIndex].id, selected)
+    if (timerRef.current) clearInterval(timerRef.current)
+    const q = questions[currentIndex]
+    const isCorrect = selected === q.answer
+    submitAnswer(q.id, selected)
     setSubmitted(true)
+    if (!isCorrect) {
+      const qText = (q.content as { question: string }).question ?? ''
+      const words = extractKeyWords(qText)
+      const newVocab = words.map(word => ({ word, context: qText.slice(0, 80) + (qText.length > 80 ? '…' : '') }))
+      setSessionVocab(prev => {
+        const existing = new Set(prev.map(v => v.word))
+        return [...prev, ...newVocab.filter(v => !existing.has(v.word))]
+      })
+    }
   }
 
   if (loading) {
@@ -460,6 +500,32 @@ export default function PracticeShell({ part, wrongIds }: PracticeShellProps) {
           )
         })()}
 
+        {sessionVocab.length > 0 && (
+          <div className="card" style={{ padding: '20px 24px', marginBottom: 24, borderLeft: '3px solid #D5FD44' }}>
+            <p style={{ fontSize: 12, fontWeight: 700, color: '#D5FD44', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>📝 Lernvokabular dieser Sitzung</p>
+            <p style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 12, lineHeight: 1.5 }}>Schlüsselwörter aus falsch beantworteten Fragen — lerne diese für bessere Ergebnisse.</p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 14 }}>
+              {sessionVocab.map((v, i) => (
+                <div key={i} style={{ display: 'flex', flexDirection: 'column', gap: 2, padding: '8px 12px', borderRadius: 8, background: 'rgba(213,253,68,0.06)', border: '1px solid rgba(213,253,68,0.2)' }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: '#D5FD44' }}>{v.word}</span>
+                  <span style={{ fontSize: 11, color: 'var(--muted)', lineHeight: 1.4 }}>{v.context}</span>
+                </div>
+              ))}
+            </div>
+            <button
+              onClick={() => {
+                const existing = JSON.parse(localStorage.getItem('toeic-vocab') ?? '[]') as { word: string; context: string }[]
+                const existingWords = new Set(existing.map((e: { word: string }) => e.word))
+                const merged = [...existing, ...sessionVocab.filter(v => !existingWords.has(v.word))]
+                localStorage.setItem('toeic-vocab', JSON.stringify(merged))
+                alert(`${sessionVocab.length} Wörter gespeichert!`)
+              }}
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 16px', borderRadius: 10, border: '1px solid rgba(213,253,68,0.4)', background: 'rgba(213,253,68,0.12)', color: '#D5FD44', cursor: 'pointer', fontSize: 12, fontWeight: 600 }}>
+              In Flashcards speichern
+            </button>
+          </div>
+        )}
+
         <div style={{ display: 'flex', gap: 12 }}>
           <button onClick={loadQuestions} className="btn-primary flex items-center gap-2">
             <RotateCcw size={16} /> {t.practice.practiceAgain}
@@ -507,9 +573,16 @@ export default function PracticeShell({ part, wrongIds }: PracticeShellProps) {
             )}
           </div>
         </div>
-        <div className="text-sm font-medium rounded-full"
-          style={{ padding: '4px 14px', background: 'var(--card-border)', whiteSpace: 'nowrap', flexShrink: 0 }}>
-          {currentIndex + 1} / {questions.length}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button
+            onClick={() => setTimerEnabled(v => !v)}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '4px 12px', borderRadius: 99, border: `1.5px solid ${timerEnabled ? 'var(--accent)' : 'var(--card-border)'}`, background: timerEnabled ? 'var(--accent-subtle)' : 'transparent', color: timerEnabled ? 'var(--accent)' : 'var(--muted)', cursor: 'pointer', fontSize: 11, fontWeight: 600 }}>
+            <Timer size={12} /> Timer {timerEnabled ? 'an' : 'aus'}
+          </button>
+          <div className="text-sm font-medium rounded-full"
+            style={{ padding: '4px 14px', background: 'var(--card-border)', whiteSpace: 'nowrap', flexShrink: 0 }}>
+            {currentIndex + 1} / {questions.length}
+          </div>
         </div>
       </div>
 
@@ -562,12 +635,14 @@ export default function PracticeShell({ part, wrongIds }: PracticeShellProps) {
         isRetry={skippedIds.includes(question.id)}
         t={t.practice}
         part={part}
+        timerEnabled={timerEnabled}
+        secondsLeft={secondsLeft}
       />
     </div>
   )
 }
 
-function QuestionCard({ question, opts, letters, selected, submitted, correctLetter, currentAnswer, onSelect, onSubmit, onNext, onSkip, isLast, isRetry, t, part }: {
+function QuestionCard({ question, opts, letters, selected, submitted, correctLetter, currentAnswer, onSelect, onSubmit, onNext, onSkip, isLast, isRetry, t, part, timerEnabled, secondsLeft }: {
   question: Question
   opts: string[]
   letters: string[]
@@ -583,7 +658,10 @@ function QuestionCard({ question, opts, letters, selected, submitted, correctLet
   isRetry: boolean
   t: { passage: string; explanation: string; correct: string; incorrect: string; submitBtn: string; nextBtn: string; resultsBtn: string }
   part: number
+  timerEnabled: boolean
+  secondsLeft: number
 }) {
+  const timerColor = secondsLeft > 20 ? '#04FF88' : secondsLeft > 10 ? '#fbbf24' : '#ef4444'
   const content = question.content as {
     question: string
     passage?: string
@@ -623,7 +701,12 @@ function QuestionCard({ question, opts, letters, selected, submitted, correctLet
   }
 
   return (
-    <div className="card" style={{ padding: '28px 28px 24px' }}>
+    <div className="card" style={{ padding: '28px 28px 24px', position: 'relative' }}>
+      {timerEnabled && !submitted && (
+        <div style={{ position: 'absolute', top: 18, right: 20, width: 40, height: 40, borderRadius: '50%', border: `3px solid ${timerColor}`, background: `${timerColor}15`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+          <span style={{ fontSize: 12, fontWeight: 800, color: timerColor, lineHeight: 1 }}>{secondsLeft}</span>
+        </div>
+      )}
       {passages.length > 0 && (
         <div style={{ marginBottom: 22 }}>
           {passages.length > 1 && (
