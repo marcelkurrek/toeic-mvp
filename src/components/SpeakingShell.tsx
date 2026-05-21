@@ -3,11 +3,53 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Mic, MicOff, RotateCcw, ChevronRight, CheckCircle, Play, Pause } from 'lucide-react'
 import type { Question } from '@/types'
+import FeedbackScorecard from './FeedbackScorecard'
 
 type SpeakingMode = 'read-aloud' | 'describe' | 'respond' | 'respond-doc' | 'opinion'
 interface SpeakingShellProps { mode: SpeakingMode }
 type Phase = 'idle' | 'prep' | 'recording' | 'self-assessment' | 'feedback' | 'done'
-interface FeedbackResult { complete: boolean; completenessPercent: number; feedback: string; missingPortion?: string | null }
+interface FeedbackDimensions { pronunciation: number; fluency: number; grammar: number; vocabulary: number; taskCompletion: number }
+interface FeedbackResult { complete: boolean; completenessPercent: number; feedback: string; missingPortion?: string | null; dimensions?: FeedbackDimensions }
+
+const SPEAKING_DIMS = [
+  { key: 'pronunciation' as const, label: 'Aussprache',    color: '#04FF88' },
+  { key: 'fluency'       as const, label: 'Flüssigkeit',   color: '#D5FD44' },
+  { key: 'grammar'       as const, label: 'Grammatik',     color: '#fb923c' },
+  { key: 'vocabulary'    as const, label: 'Wortschatz',    color: '#AE00FF' },
+  { key: 'taskCompletion'as const, label: 'Aufgabenerfüllung', color: '#6366f1' },
+]
+
+function SpeakingFeedback({ feedback, transcript, onNext, isLast }: { feedback: FeedbackResult; transcript: string; onNext: () => void; isLast: boolean }) {
+  const dims = SPEAKING_DIMS.map(d => ({
+    label: d.label,
+    score: feedback.dimensions?.[d.key] ?? feedback.completenessPercent,
+    color: d.color,
+  }))
+  return (
+    <div>
+      <div style={{ padding: '16px 20px', borderRadius: 12, background: 'var(--card)', border: '1px solid var(--card-border)', marginBottom: 16 }}>
+        <FeedbackScorecard
+          overall={feedback.completenessPercent}
+          dimensions={dims}
+          feedback={feedback.feedback}
+          complete={feedback.complete}
+          tip={feedback.missingPortion ? `Fehlender Abschnitt: "${feedback.missingPortion}"` : undefined}
+        />
+      </div>
+      {transcript && (
+        <details style={{ marginBottom: 16 }}>
+          <summary style={{ fontSize: 12, color: 'var(--muted)', cursor: 'pointer', marginBottom: 6 }}>Transkript anzeigen</summary>
+          <div style={{ padding: '10px 14px', borderRadius: 8, background: 'var(--background)', border: '1px solid var(--card-border)', fontSize: 13, fontStyle: 'italic', lineHeight: 1.6 }}>
+            {transcript}
+          </div>
+        </details>
+      )}
+      <button onClick={onNext} className="btn-primary flex items-center gap-2">
+        {isLast ? 'Fertig' : 'Weiter'} <ChevronRight size={16} />
+      </button>
+    </div>
+  )
+}
 
 function useTimer(seconds: number, running: boolean, onEnd: () => void) {
   const [remaining, setRemaining] = useState(seconds)
@@ -164,17 +206,11 @@ function ReadAloudTask({ question, onNext, isLast }: { question: Question; onNex
       )}
       {phase === 'self-assessment' && <SelfAssessmentPanel audioUrl={audioUrl} onReRecord={handleReRecord} onSubmit={handleSubmitFeedback} loading={loading} />}
       {phase === 'feedback' && (
-        <div>{loading ? <p style={{ color: 'var(--muted)' }}>Feedback wird erstellt…</p> : feedback ? (
-          <div>
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm" style={{ background: feedback.complete ? 'var(--green-subtle)' : 'var(--orange-subtle)', color: feedback.complete ? 'var(--success)' : 'var(--warning)' }}>{feedback.completenessPercent}%</div>
-              <div><p className="font-semibold text-sm">{feedback.complete ? 'Gut gemacht!' : 'Weiter üben'}</p><p className="text-xs" style={{ color: 'var(--muted)' }}>Vollständigkeit</p></div>
-            </div>
-            <div className="rounded-lg p-4 mb-4 text-sm" style={{ background: 'var(--accent-subtle)', borderLeft: '3px solid var(--accent)' }}>{feedback.feedback}</div>
-            {transcript && <div className="rounded-lg p-3 mb-4 text-sm" style={{ background: 'var(--surface)' }}><p className="font-medium mb-1" style={{ color: 'var(--muted)' }}>Dein Transcript:</p><p className="italic">{transcript}</p></div>}
-            <button onClick={onNext} className="btn-primary flex items-center gap-2">{isLast ? 'Fertig' : 'Weiter'} <ChevronRight size={16} /></button>
-          </div>
-        ) : null}</div>
+        loading
+          ? <p style={{ color: 'var(--muted)' }}>Feedback wird erstellt…</p>
+          : feedback
+            ? <SpeakingFeedback feedback={feedback} transcript={transcript} onNext={onNext} isLast={isLast} />
+            : <p style={{ color: '#ef4444', fontSize: 13 }}>Feedback konnte nicht geladen werden.</p>
       )}
     </div>
   )
@@ -220,17 +256,11 @@ function DescribeTask({ question, onNext, isLast }: { question: Question; onNext
       )}
       {phase === 'self-assessment' && <SelfAssessmentPanel audioUrl={audioUrl} onReRecord={handleReRecord} onSubmit={handleSubmitFeedback} loading={loading} />}
       {phase === 'feedback' && (
-        <div>{loading ? <p style={{ color: 'var(--muted)' }}>Feedback wird erstellt…</p> : feedback ? (
-          <div>
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm" style={{ background: feedback.complete ? 'var(--green-subtle)' : 'var(--orange-subtle)', color: feedback.complete ? 'var(--success)' : 'var(--warning)' }}>{feedback.completenessPercent}%</div>
-              <div><p className="font-semibold text-sm">{feedback.complete ? 'Gut gemacht!' : 'Weiter üben'}</p><p className="text-xs" style={{ color: 'var(--muted)' }}>Vollständigkeit</p></div>
-            </div>
-            <div className="rounded-lg p-4 mb-3 text-sm" style={{ background: 'var(--accent-subtle)', borderLeft: '3px solid var(--accent)' }}>{feedback.feedback}</div>
-            {question.explanation && <div className="rounded-lg p-3 mb-3 text-sm" style={{ background: 'var(--surface)' }}><p className="font-medium mb-1" style={{ color: 'var(--accent)' }}>TOEIC-Tipp:</p><p>{question.explanation}</p></div>}
-            <button onClick={onNext} className="btn-primary flex items-center gap-2">{isLast ? 'Fertig' : 'Weiter'} <ChevronRight size={16} /></button>
-          </div>
-        ) : null}</div>
+        loading
+          ? <p style={{ color: 'var(--muted)' }}>Feedback wird erstellt…</p>
+          : feedback
+            ? <SpeakingFeedback feedback={feedback} transcript={transcript} onNext={onNext} isLast={isLast} />
+            : <p style={{ color: '#ef4444', fontSize: 13 }}>Feedback konnte nicht geladen werden.</p>
       )}
     </div>
   )
@@ -291,12 +321,11 @@ function RespondDocTask({ question, onNext, isLast }: { question: Question; onNe
       )}
       {phase === 'self-assessment' && <SelfAssessmentPanel audioUrl={audioUrl} onReRecord={handleReRecord} onSubmit={handleSubmitFeedback} loading={loading} />}
       {phase === 'feedback' && (
-        <div>{loading ? <p style={{ color: 'var(--muted)' }}>Feedback wird erstellt…</p> : feedbacks[subIndex] ? (
-          <div>
-            <div className="rounded-lg p-4 mb-3 text-sm" style={{ background: 'var(--accent-subtle)', borderLeft: '3px solid var(--accent)' }}>{feedbacks[subIndex].feedback}</div>
-            <button onClick={handleNextSub} className="btn-primary flex items-center gap-2">{subIndex + 1 >= content.questions.length ? (isLast ? 'Fertig' : 'Weiter') : `Frage ${subIndex + 2}`} <ChevronRight size={16} /></button>
-          </div>
-        ) : null}</div>
+        loading
+          ? <p style={{ color: 'var(--muted)' }}>Feedback wird erstellt…</p>
+          : feedbacks[subIndex]
+            ? <SpeakingFeedback feedback={feedbacks[subIndex]} transcript={transcript} onNext={handleNextSub} isLast={subIndex + 1 >= content.questions.length && isLast} />
+            : <p style={{ color: '#ef4444', fontSize: 13 }}>Feedback konnte nicht geladen werden.</p>
       )}
     </div>
   )
@@ -342,17 +371,11 @@ function OpinionTask({ question, onNext, isLast }: { question: Question; onNext:
       )}
       {phase === 'self-assessment' && <SelfAssessmentPanel audioUrl={audioUrl} onReRecord={handleReRecord} onSubmit={handleSubmitFeedback} loading={loading} />}
       {phase === 'feedback' && (
-        <div>{loading ? <p style={{ color: 'var(--muted)' }}>Feedback wird erstellt…</p> : feedback ? (
-          <div>
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm" style={{ background: feedback.complete ? 'var(--green-subtle)' : 'var(--orange-subtle)', color: feedback.complete ? 'var(--success)' : 'var(--warning)' }}>{feedback.completenessPercent}%</div>
-              <div><p className="font-semibold text-sm">{feedback.complete ? 'Überzeugend!' : 'Weiter üben'}</p><p className="text-xs" style={{ color: 'var(--muted)' }}>Struktur & Inhalt</p></div>
-            </div>
-            <div className="rounded-lg p-4 mb-3 text-sm" style={{ background: 'var(--accent-subtle)', borderLeft: '3px solid var(--accent)' }}>{feedback.feedback}</div>
-            {transcript && <div className="rounded-lg p-3 mb-4 text-sm" style={{ background: 'var(--surface)' }}><p className="font-medium mb-1" style={{ color: 'var(--muted)' }}>Dein Transcript:</p><p className="italic">{transcript}</p></div>}
-            <button onClick={onNext} className="btn-primary flex items-center gap-2">{isLast ? 'Fertig' : 'Weiter'} <ChevronRight size={16} /></button>
-          </div>
-        ) : null}</div>
+        loading
+          ? <p style={{ color: 'var(--muted)' }}>Feedback wird erstellt…</p>
+          : feedback
+            ? <SpeakingFeedback feedback={feedback} transcript={transcript} onNext={onNext} isLast={isLast} />
+            : <p style={{ color: '#ef4444', fontSize: 13 }}>Feedback konnte nicht geladen werden.</p>
       )}
     </div>
   )
@@ -398,12 +421,11 @@ function RespondTask({ question, onNext, isLast }: { question: Question; onNext:
       )}
       {phase === 'self-assessment' && <SelfAssessmentPanel audioUrl={audioUrl} onReRecord={handleReRecord} onSubmit={handleSubmitFeedback} loading={loading} />}
       {phase === 'feedback' && (
-        <div>{loading ? <p style={{ color: 'var(--muted)' }}>Feedback wird erstellt…</p> : feedbacks[subIndex] ? (
-          <div>
-            <div className="rounded-lg p-4 mb-3 text-sm" style={{ background: 'var(--accent-subtle)', borderLeft: '3px solid var(--accent)' }}>{feedbacks[subIndex].feedback}</div>
-            <button onClick={handleNextSub} className="btn-primary flex items-center gap-2">{subIndex + 1 >= content.questions.length ? (isLast ? 'Fertig' : 'Weiter') : `Frage ${subIndex + 2}`} <ChevronRight size={16} /></button>
-          </div>
-        ) : null}</div>
+        loading
+          ? <p style={{ color: 'var(--muted)' }}>Feedback wird erstellt…</p>
+          : feedbacks[subIndex]
+            ? <SpeakingFeedback feedback={feedbacks[subIndex]} transcript={transcript} onNext={handleNextSub} isLast={subIndex + 1 >= content.questions.length && isLast} />
+            : <p style={{ color: '#ef4444', fontSize: 13 }}>Feedback konnte nicht geladen werden.</p>
       )}
     </div>
   )

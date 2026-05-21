@@ -10,185 +10,132 @@ function containsAny(text: string, ...patterns: RegExp[]): boolean {
 
 // ── WRITE SENTENCE ────────────────────────────────────────────────────────────
 function analyzeWriteSentence(text: string, keywords?: string[]) {
-  let score = 0
   const lower = text.toLowerCase()
   const wc = wordCount(text)
 
   const foundKeywords: string[] = []
   const missingKeywords: string[] = []
+  let keywordScore = 0
 
   if (keywords && keywords.length > 0) {
     for (const kw of keywords) {
-      if (lower.includes(kw.toLowerCase())) {
-        foundKeywords.push(kw)
-        score += 30
-      } else {
-        missingKeywords.push(kw)
-      }
+      if (lower.includes(kw.toLowerCase())) { foundKeywords.push(kw); keywordScore += 50 }
+      else missingKeywords.push(kw)
     }
+  } else {
+    keywordScore = 50
   }
 
   const isSingleSentence = !/[.?!]\s/.test(text.trim())
-  if (isSingleSentence) score += 20
+  const hasGoodLength = wc >= 8 && wc <= 25
+  const grammarScore = isSingleSentence ? 80 : 50
+  const vocabScore = hasGoodLength ? 75 : wc < 5 ? 40 : 65
 
-  if (wc >= 8 && wc <= 25) {
-    score += 10
-  } else if (wc < 5) {
-    score -= 30
+  const score = Math.max(0, Math.min(100, Math.round(keywordScore * 0.5 + grammarScore * 0.3 + vocabScore * 0.2)))
+
+  const parts: string[] = []
+  if (foundKeywords.length > 0) parts.push(`Keywords „${foundKeywords.join('" und „')}" korrekt verwendet.`)
+  if (missingKeywords.length > 0) parts.push(`Keyword „${missingKeywords.join('" und „')}" fehlt.`)
+  if (!isSingleSentence) parts.push('Schreiben Sie genau einen Satz.')
+  else parts.push('Einzelner Satz — gut.')
+
+  return {
+    score, feedback: parts.slice(0, 3).join(' '),
+    tips: ['Beide Keywords einbauen', 'Genau EINEN vollständigen Satz', 'Bezug zum Bild herstellen'],
+    dimensions: { content: keywordScore, structure: isSingleSentence ? 85 : 50, grammar: grammarScore, vocabulary: vocabScore },
   }
-
-  score = Math.max(0, Math.min(100, score))
-
-  let feedbackParts: string[] = []
-  if (foundKeywords.length > 0) {
-    feedbackParts.push(`Die Keywords „${foundKeywords.join('" und „')}" wurden korrekt verwendet.`)
-  }
-  if (missingKeywords.length > 0) {
-    feedbackParts.push(`Das Keyword ${missingKeywords.length === 1 ? `„${missingKeywords[0]}"` : `„${missingKeywords.join('" und „')}"`} fehlt im Satz.`)
-  }
-  if (!isSingleSentence) {
-    feedbackParts.push('Der Text enthält mehrere Sätze – schreiben Sie genau einen vollständigen Satz.')
-  } else {
-    feedbackParts.push('Der Text besteht aus einem einzelnen Satz.')
-  }
-  feedbackParts.push('Achten Sie auf korrekte Grammatik: Subjekt + Verb + Objekt.')
-
-  const feedback = feedbackParts.slice(0, 3).join(' ')
-
-  const tips = [
-    'Beide Keywords müssen im Satz vorkommen',
-    'Schreiben Sie genau EINEN vollständigen Satz',
-    'Bezug zum Bild herstellen',
-    'Grammatik: Subjekt + Verb + Objekt',
-  ]
-
-  return { score, feedback, tips }
 }
 
 // ── RESPOND EMAIL ─────────────────────────────────────────────────────────────
 function analyzeRespondEmail(text: string) {
-  let score = 0
   const lower = text.toLowerCase()
   const wc = wordCount(text)
 
-  if (containsAny(lower, /\bdear\b/)) score += 15
-  if (containsAny(lower, /\bregarding\b/, /\bconcerning\b/)) score += 15
-  if (containsAny(lower, /\bi am afraid\b/, /\bi am pleased\b/, /\bi regret\b/, /\bwould appreciate\b/, /\bcould you\b/)) score += 20
-  if (containsAny(lower, /\bbest regards\b/, /\bkind regards\b/, /\byours\b/)) score += 15
+  const hasGreeting    = containsAny(lower, /\bdear\b/)
+  const hasRef         = containsAny(lower, /\bregarding\b/, /\bconcerning\b/)
+  const hasPhrases     = containsAny(lower, /\bi am afraid\b/, /\bi am pleased\b/, /\bi regret\b/, /\bwould appreciate\b/, /\bcould you\b/)
+  const hasClosing     = containsAny(lower, /\bbest regards\b/, /\bkind regards\b/, /\byours\b/)
+  const hasBody        = wc >= 40
 
-  if (wc < 30) {
-    score -= 20
-  } else if (wc >= 30 && wc <= 60) {
-    score += 10
-  } else {
-    score += 20
+  const structure = [hasGreeting, hasRef || hasPhrases, hasBody, hasClosing].filter(Boolean).length
+  const structureScore = Math.round(structure / 4 * 100)
+  const contentScore = wc < 30 ? 35 : wc >= 60 ? 80 : 60
+  const grammarScore = hasPhrases ? 78 : 62
+  const vocabScore = hasRef ? 78 : 62
+  const score = Math.round(structureScore * 0.35 + contentScore * 0.3 + grammarScore * 0.2 + vocabScore * 0.15)
+
+  const parts: string[] = []
+  if (!hasGreeting) parts.push('Anrede „Dear Mr./Ms. [Name]" fehlt.')
+  else parts.push('Anrede vorhanden.')
+  if (!hasClosing) parts.push('Grußformel „Best regards" fehlt.')
+  if (wc < 30) parts.push('E-Mail zu kurz — mind. 60 Wörter.')
+  else parts.push(`Umfang (${wc} Wörter) angemessen.`)
+
+  return {
+    score, feedback: parts.slice(0, 3).join(' '),
+    tips: ['Dear Mr./Ms. [Name]', 'Regarding / Concerning', 'I am afraid that… / I am pleased to inform you…', 'Best regards'],
+    dimensions: { content: contentScore, structure: structureScore, grammar: grammarScore, vocabulary: vocabScore },
   }
-
-  score = Math.max(0, Math.min(100, score))
-
-  let feedbackParts: string[] = []
-  if (!containsAny(lower, /\bdear\b/)) {
-    feedbackParts.push('Eine formelle Anrede (z.B. „Dear Mr./Ms. [Name]") fehlt.')
-  } else {
-    feedbackParts.push('Die Anrede ist vorhanden.')
-  }
-  if (!containsAny(lower, /\bbest regards\b/, /\bkind regards\b/, /\byours\b/)) {
-    feedbackParts.push('Eine Grußformel (z.B. „Best regards") am Ende fehlt.')
-  }
-  if (wc < 30) {
-    feedbackParts.push('Die E-Mail ist zu kurz – schreiben Sie mindestens 30 Wörter für eine vollständige Antwort.')
-  } else {
-    feedbackParts.push('Der Umfang der E-Mail ist angemessen.')
-  }
-
-  const feedback = feedbackParts.slice(0, 3).join(' ')
-
-  const tips = [
-    'Dear Mr./Ms. [Name]',
-    'Regarding / Concerning',
-    'I am afraid that… / I am pleased to inform you…',
-    'Best regards',
-  ]
-
-  return { score, feedback, tips }
 }
 
 // ── OPINION ESSAY ─────────────────────────────────────────────────────────────
 function analyzeOpinionEssay(text: string) {
-  let score = 0
   const lower = text.toLowerCase()
   const wc = wordCount(text)
 
-  if (containsAny(lower, /\badvantages?\b/, /\bdisadvantages?\b/, /\bin my opinion\b/, /\bi believe\b/)) score += 20
-  if (containsAny(lower, /\bfirst of all\b/, /\bfirstly\b/, /\bfirst reason\b/)) score += 15
-  if (containsAny(lower, /\bsecondly\b/, /\bmoreover\b/, /\bfurthermore\b/, /\banother\b/)) score += 15
-  if (containsAny(lower, /\bfor example\b/, /\bfor instance\b/, /\bsuch as\b/)) score += 10
-  if (containsAny(lower, /\bin conclusion\b/, /\bto summarize\b/, /\btherefore\b/)) score += 20
+  const hasIntro  = containsAny(lower, /\badvantages?\b/, /\bin my opinion\b/, /\bi believe\b/, /\bi think\b/)
+  const hasFirst  = containsAny(lower, /\bfirst of all\b/, /\bfirstly\b/)
+  const hasSecond = containsAny(lower, /\bsecondly\b/, /\bmoreover\b/, /\bfurthermore\b/)
+  const hasExampl = containsAny(lower, /\bfor example\b/, /\bfor instance\b/, /\bsuch as\b/)
+  const hasConc   = containsAny(lower, /\bin conclusion\b/, /\bto summarize\b/, /\btherefore\b/)
 
-  if (wc < 100) {
-    score -= 20
-  } else if (wc >= 100 && wc <= 200) {
-    score += 10
-  } else {
-    score += 20
+  const structureScore = Math.round([hasIntro, hasFirst, hasSecond, hasExampl, hasConc].filter(Boolean).length / 5 * 100)
+  const contentScore = wc < 100 ? 35 : wc >= 250 ? 85 : Math.round(35 + (wc - 100) / 150 * 50)
+  const grammarScore = hasIntro && hasFirst ? 78 : 60
+  const vocabScore = hasExampl && hasSecond ? 78 : 60
+  const score = Math.round(structureScore * 0.35 + contentScore * 0.3 + grammarScore * 0.2 + vocabScore * 0.15)
+
+  const parts: string[] = []
+  if (!hasIntro) parts.push('Meinungsformulierung fehlt (z.B. „In my opinion…").')
+  else parts.push('Einleitung mit Meinung vorhanden.')
+  if (!hasConc) parts.push('Fazit fehlt (z.B. „In conclusion…").')
+  if (wc < 100) parts.push(`Zu kurz (${wc} Wörter).`)
+  else parts.push(`${wc} Wörter — guter Umfang.`)
+
+  return {
+    score, feedback: parts.slice(0, 3).join(' '),
+    tips: ['Einleitung: There are advantages… / In my opinion…', 'Erst: First of all, I believe…', 'Weiter: Another advantage is…', 'Fazit: In conclusion, although…'],
+    dimensions: { content: contentScore, structure: structureScore, grammar: grammarScore, vocabulary: vocabScore },
   }
-
-  score = Math.max(0, Math.min(100, score))
-
-  let feedbackParts: string[] = []
-  if (!containsAny(lower, /\badvantages?\b/, /\bdisadvantages?\b/, /\bin my opinion\b/, /\bi believe\b/)) {
-    feedbackParts.push('Eine klare Einleitung mit Ihrer Meinung fehlt (z.B. „In my opinion…" oder „I believe that…").')
-  } else {
-    feedbackParts.push('Die Einleitung mit Meinungsformulierung ist vorhanden.')
-  }
-  if (!containsAny(lower, /\bin conclusion\b/, /\bto summarize\b/, /\btherefore\b/)) {
-    feedbackParts.push('Ein abschließendes Fazit fehlt (z.B. „In conclusion…").')
-  }
-  if (wc < 100) {
-    feedbackParts.push(`Der Aufsatz ist zu kurz (${wc} Wörter) – mindestens 100 Wörter werden erwartet.`)
-  } else {
-    feedbackParts.push(`Mit ${wc} Wörtern hat der Aufsatz einen guten Umfang.`)
-  }
-
-  const feedback = feedbackParts.slice(0, 3).join(' ')
-
-  const tips = [
-    'Einleitung: There are advantages and disadvantages to…',
-    'Grund 1: First of all, I believe…',
-    'Grund 2: Another advantage is that…',
-    'Fazit: In conclusion, although…',
-  ]
-
-  return { score, feedback, tips }
 }
 
 // ── LOCAL DISPATCHER ──────────────────────────────────────────────────────────
-function analyzeLocally(
-  text: string,
-  questionType: string,
-  keywords?: string[],
-) {
+function analyzeLocally(text: string, questionType: string, keywords?: string[]) {
   if (questionType === 'WRITE_SENTENCE') return analyzeWriteSentence(text, keywords)
-  if (questionType === 'RESPOND_EMAIL') return analyzeRespondEmail(text)
-  if (questionType === 'OPINION_ESSAY') return analyzeOpinionEssay(text)
+  if (questionType === 'RESPOND_EMAIL')  return analyzeRespondEmail(text)
   return analyzeOpinionEssay(text)
 }
 
 // ── ROUTE HANDLER ─────────────────────────────────────────────────────────────
 export async function POST(request: Request) {
-  // Rate limit: 20 requests per 10 minutes per IP
   const ip = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
   const { checkRateLimit } = await import('@/lib/rateLimit')
   if (!checkRateLimit(`writing:${ip}`, 20, 10 * 60 * 1000)) {
     return NextResponse.json({ error: 'Zu viele Anfragen. Bitte warte kurz.' }, { status: 429 })
   }
 
-  const { text, questionType, keywords, expectedStructure } = await request.json() as {
-    text: string
-    questionType: string
+  // Accept both param naming conventions
+  const body = await request.json() as {
+    text?: string; answer?: string
+    questionType?: string; type?: string
     keywords?: string[]
     expectedStructure?: string
+    question?: Record<string, unknown>
   }
+
+  const text = body.text ?? body.answer ?? ''
+  const questionType = body.questionType ?? body.type ?? 'OPINION_ESSAY'
+  const keywords = body.keywords ?? (body.question?.keywords as string[] | undefined)
 
   if (!process.env.ANTHROPIC_API_KEY) {
     return NextResponse.json(analyzeLocally(text, questionType, keywords))
@@ -198,22 +145,25 @@ export async function POST(request: Request) {
     const { default: Anthropic } = await import('@anthropic-ai/sdk')
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
-    const prompt = `Du bist ein TOEIC-Schreibtrainer. Bewerte folgenden Text (Aufgabe: ${questionType}).
-
-TOEIC-Kriterien: Grammatik, Wortschatz, Struktur, Relevanz.
-${questionType === 'WRITE_SENTENCE' ? `Keywords die verwendet werden müssen: ${keywords?.join(', ')}` : ''}
-${questionType === 'RESPOND_EMAIL' ? 'Formelle E-Mail: Anrede, Betreff, Inhalt, Abschluss, Grußformel' : ''}
-${questionType === 'OPINION_ESSAY' ? 'Struktur: Einleitung → 2 Gründe mit Beispielen → Fazit' : ''}
-${expectedStructure ? `Erwartete Struktur: ${expectedStructure}` : ''}
+    const prompt = `Du bist ein TOEIC-Schreibtrainer. Aufgabe: ${questionType}.
+${questionType === 'WRITE_SENTENCE' ? `Pflicht-Keywords: ${keywords?.join(', ') ?? '–'}` : ''}
+${questionType === 'RESPOND_EMAIL' ? 'Formelle E-Mail: Anrede, Hauptteil mit Geschäftsphrasen, Grußformel.' : ''}
+${questionType === 'OPINION_ESSAY' ? 'Struktur: Einleitung → 2 Gründe mit Beispielen → Fazit. Mind. 300 Wörter.' : ''}
 
 Text des Schülers:
-"${text}"
+"${text || '(kein Text eingegeben)'}"
 
 Antworte NUR mit validem JSON:
 {
-  "score": number (0-100),
-  "feedback": "2-3 Sätze auf Deutsch: was gut ist, was fehlt, konkreter Tipp",
-  "tips": ["Tipp 1", "Tipp 2", "Tipp 3"] (2-4 konkrete Verbesserungsvorschläge auf Deutsch)
+  "score": number (0–100),
+  "feedback": "2–3 Sätze DE: was gut ist, was fehlt, konkreter Tipp",
+  "tips": ["Tipp 1", "Tipp 2", "Tipp 3"],
+  "dimensions": {
+    "content": number (0–100),
+    "structure": number (0–100),
+    "grammar": number (0–100),
+    "vocabulary": number (0–100)
+  }
 }`
 
     const message = await client.messages.create({

@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Play, Volume2, ChevronRight, CheckCircle, XCircle, RotateCcw, Eye, EyeOff } from 'lucide-react'
+import { Play, Volume2, ChevronRight, CheckCircle, XCircle, RotateCcw, Eye, EyeOff, TrendingUp } from 'lucide-react'
 
 type ListeningPart = 1 | 2 | 3 | 4
 type Phase = 'loading' | 'prereading' | 'ready' | 'playing' | 'answering' | 'submitted' | 'finished'
@@ -442,22 +442,60 @@ export default function ListeningShell({ part }: ListeningShellProps) {
     const total = answers.length
     const pct = total > 0 ? Math.round(correct / total * 100) : 0
     const pctColor = pct >= 80 ? 'var(--success)' : pct >= 60 ? '#fbbf24' : '#ef4444'
+    const NEXT_PARTS: Record<ListeningPart, { href: string; label: string }> = {
+      1: { href: '/practice/part2', label: 'Part 2 – Frage & Antwort' },
+      2: { href: '/practice/part3', label: 'Part 3 – Gespräche' },
+      3: { href: '/practice/part4', label: 'Part 4 – Monologe' },
+      4: { href: '/test-training',  label: 'Test Training Übersicht' },
+    }
+    const next = NEXT_PARTS[part]
     return (
       <div style={{ maxWidth: 640, margin: '0 auto' }}>
-        <div style={{ textAlign: 'center', padding: '40px 24px' }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>🎧</div>
-          <h2 className="text-2xl font-bold" style={{ marginBottom: 8 }}>Übung abgeschlossen!</h2>
-          <p style={{ fontSize: 40, fontWeight: 800, color: pctColor, margin: '16px 0' }}>{pct}%</p>
-          <p style={{ color: 'var(--muted)', marginBottom: 32 }}>{correct} von {total} richtig</p>
-          <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
-            <button onClick={() => router.push('/test-training')} style={{ padding: '10px 20px', borderRadius: 10, border: '1px solid var(--card-border)', background: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: 14 }}>
-              Zurück
-            </button>
-            <button onClick={() => { setFinished(false); setCurrentIndex(0); setAnswers([]); setSubmitted(false); setSelected(null) }}
-              style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px', borderRadius: 10, background: meta.color + '20', border: `1.5px solid ${meta.color}50`, color: meta.color, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>
-              <RotateCcw size={14} /> Nochmal
-            </button>
-          </div>
+        <div style={{ marginBottom: 24 }}>
+          <h1 className="text-2xl font-bold" style={{ marginBottom: 4 }}>{meta.label}</h1>
+          <p style={{ color: 'var(--muted)', fontSize: 14 }}>Übung abgeschlossen</p>
+        </div>
+        <div className="card" style={{ padding: '32px', textAlign: 'center', marginBottom: 16 }}>
+          <p style={{ fontSize: 64, fontWeight: 800, color: pctColor, lineHeight: 1, marginBottom: 8 }}>{pct}%</p>
+          <p className="text-lg font-semibold" style={{ marginBottom: 4 }}>{correct} von {total} richtig</p>
+          <p style={{ fontSize: 13, color: 'var(--muted)' }}>
+            {pct >= 80 ? '🏆 Ausgezeichnet — prüfungsreifes Niveau!' : pct >= 60 ? '💪 Gut! Weiter üben für volle Sicherheit.' : '📚 Weiter üben — dieser Part braucht mehr Aufmerksamkeit.'}
+          </p>
+        </div>
+        {answers.some(a => !a.correct) && (
+          <details style={{ marginBottom: 16 }}>
+            <summary style={{ cursor: 'pointer', fontSize: 13, fontWeight: 600, color: 'var(--muted)', padding: '10px 16px', borderRadius: 10, background: 'var(--card)', border: '1px solid var(--card-border)', listStyle: 'none' }}>
+              ▶ Falsche Antworten ({answers.filter(a => !a.correct).length})
+            </summary>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginTop: 8 }}>
+              {answers.filter(a => !a.correct).map((a, i) => {
+                const qIdx = answers.indexOf(a)
+                const q = questions[Math.floor(qIdx / (part === 3 || part === 4 ? 3 : 1))]
+                return (
+                  <div key={i} className="card" style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <XCircle size={15} style={{ color: '#ef4444', flexShrink: 0 }} />
+                    <div style={{ flex: 1 }}>
+                      <p style={{ fontSize: 12, color: 'var(--muted)' }}>Antwort: <strong style={{ color: '#ef4444' }}>{a.selected || '—'}</strong> → Richtig: <strong style={{ color: 'var(--success)' }}>{q?.answer ?? '?'}</strong></p>
+                      {q?.explanation && <p style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4 }}>{q.explanation}</p>}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </details>
+        )}
+        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+          <button onClick={() => { setFinished(false); setCurrentIndex(0); setAnswers([]); setSubmitted(false); setSelected(null); setMultiSelected({}) }}
+            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px', borderRadius: 10, background: meta.color + '20', border: `1.5px solid ${meta.color}50`, color: meta.color, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>
+            <RotateCcw size={14} /> Nochmal
+          </button>
+          <button onClick={() => router.push(next.href)}
+            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px', borderRadius: 10, background: 'var(--accent)', color: '#0d1b2a', border: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 700 }}>
+            <TrendingUp size={14} /> {next.label}
+          </button>
+          <button onClick={() => router.push('/test-training')} style={{ padding: '10px 20px', borderRadius: 10, border: '1px solid var(--card-border)', background: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: 14 }}>
+            Übersicht
+          </button>
         </div>
       </div>
     )

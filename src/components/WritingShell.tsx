@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Clock, CheckCircle, ChevronRight, RotateCcw, AlertTriangle } from 'lucide-react'
+import FeedbackScorecard from './FeedbackScorecard'
 
 type WritingPart = 'sentences' | 'email' | 'essay'
 
@@ -11,6 +12,13 @@ interface Question {
   content: Record<string, unknown>
   answer: string
   explanation: string | null
+}
+
+interface WritingFeedback {
+  score: number
+  feedback: string
+  tips: string[]
+  dimensions?: { content: number; structure: number; grammar: number; vocabulary: number }
 }
 
 interface TaskMeta {
@@ -23,31 +31,17 @@ interface TaskMeta {
 }
 
 const TASK_META: Record<WritingPart, TaskMeta> = {
-  sentences: {
-    label: 'Task 1–5: Sätze schreiben',
-    color: '#AE00FF',
-    desc: 'Schreibe einen grammatikalisch korrekten Satz zum Bild. Verwende beide vorgegebenen Wörter.',
-    timeSec: 8 * 60,
-    minWords: 5,
-    targetWords: 15,
-  },
-  email: {
-    label: 'Task 6–7: E-Mail verfassen',
-    color: '#fb923c',
-    desc: 'Beantworte die E-Mail vollständig. Gehe auf alle Punkte ein und verwende angemessene Geschäftssprache.',
-    timeSec: 10 * 60,
-    minWords: 60,
-    targetWords: 100,
-  },
-  essay: {
-    label: 'Task 8: Opinion Essay',
-    color: '#6366f1',
-    desc: 'Schreibe einen strukturierten Essay (mind. 300 Wörter). Formuliere eine klare Meinung mit Begründungen.',
-    timeSec: 30 * 60,
-    minWords: 250,
-    targetWords: 300,
-  },
+  sentences: { label: 'Task 1–5: Sätze schreiben',   color: '#AE00FF', desc: 'Schreibe einen grammatikalisch korrekten Satz. Verwende beide vorgegebenen Wörter.', timeSec: 8 * 60,  minWords: 5,   targetWords: 15  },
+  email:     { label: 'Task 6–7: E-Mail verfassen',   color: '#fb923c', desc: 'Beantworte die E-Mail vollständig mit angemessener Geschäftssprache.',                timeSec: 10 * 60, minWords: 60,  targetWords: 100 },
+  essay:     { label: 'Task 8: Opinion Essay',        color: '#6366f1', desc: 'Schreibe einen strukturierten Essay (mind. 300 Wörter) mit klarer Meinung.',          timeSec: 30 * 60, minWords: 250, targetWords: 300 },
 }
+
+const WRITING_DIMS = [
+  { key: 'content'   as const, label: 'Inhalt & Relevanz', color: '#04FF88' },
+  { key: 'structure' as const, label: 'Struktur',          color: '#D5FD44' },
+  { key: 'grammar'   as const, label: 'Grammatik',         color: '#fb923c' },
+  { key: 'vocabulary'as const, label: 'Wortschatz',        color: '#AE00FF' },
+]
 
 function useCountdownTimer(totalSecs: number, running: boolean) {
   const [remaining, setRemaining] = useState(totalSecs)
@@ -100,13 +94,48 @@ function WordCounter({ count, min, target, color }: { count: number; min: number
   )
 }
 
-// ── Sentence Task (Part 1) ──────────────────────────────────────────────────
+function WritingFeedbackPanel({ fb, modelAnswer }: { fb: WritingFeedback; modelAnswer?: string }) {
+  const dims = WRITING_DIMS.map(d => ({
+    label: d.label,
+    score: fb.dimensions?.[d.key] ?? fb.score,
+    color: d.color,
+  }))
+  return (
+    <div style={{ marginTop: 16 }}>
+      <div style={{ padding: '16px 20px', borderRadius: 12, background: 'var(--card)', border: '1px solid var(--card-border)', marginBottom: 12 }}>
+        <FeedbackScorecard
+          overall={fb.score}
+          dimensions={dims}
+          feedback={fb.feedback}
+          complete={fb.score >= 65}
+        />
+      </div>
+      {fb.tips && fb.tips.length > 0 && (
+        <div style={{ padding: '12px 16px', borderRadius: 10, background: 'var(--accent-subtle)', border: '1px solid rgba(99,102,241,0.2)', marginBottom: 12 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--accent)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.06em' }}>TOEIC-Tipps</p>
+          <ul style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            {fb.tips.map((tip, i) => (
+              <li key={i} style={{ fontSize: 12, color: 'var(--foreground)', display: 'flex', gap: 8 }}>
+                <span style={{ color: 'var(--accent)', fontWeight: 700, flexShrink: 0 }}>{i + 1}.</span>
+                {tip}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {modelAnswer && (
+        <div style={{ padding: '12px 16px', borderRadius: 10, background: 'var(--background)', border: '1px solid var(--card-border)' }}>
+          <p style={{ fontSize: 11, fontWeight: 600, color: 'var(--muted)', marginBottom: 6 }}>Beispielantwort</p>
+          <p style={{ fontSize: 13, fontStyle: 'italic', lineHeight: 1.7 }}>{modelAnswer}</p>
+        </div>
+      )}
+    </div>
+  )
+}
 
-function SentenceTask({ question, onSubmit, submitted, feedback }: {
-  question: Question
-  onSubmit: (text: string) => void
-  submitted: boolean
-  feedback: string | null
+// ── Sentence Task ─────────────────────────────────────────────────────────────
+function SentenceTask({ question, onSubmit, submitted, feedback, timerExpired }: {
+  question: Question; onSubmit: (text: string) => void; submitted: boolean; feedback: WritingFeedback | null; timerExpired: boolean
 }) {
   const c = question.content as Record<string, unknown>
   const [text, setText] = useState('')
@@ -129,44 +158,34 @@ function SentenceTask({ question, onSubmit, submitted, feedback }: {
           ))}
         </div>
       )}
-      <textarea
-        value={text}
-        onChange={e => setText(e.target.value)}
-        disabled={submitted}
-        placeholder="Schreibe hier deinen Satz…"
-        rows={3}
+      <textarea value={text} onChange={e => setText(e.target.value)} disabled={submitted || timerExpired}
+        placeholder="Schreibe hier deinen Satz…" rows={3}
         style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: '1px solid var(--card-border)', background: 'var(--card)', color: 'var(--fg)', fontSize: 14, resize: 'vertical', outline: 'none', boxSizing: 'border-box' }}
       />
       <WordCounter count={words} min={5} target={12} color="#AE00FF" />
-      {!submitted && (
-        <button onClick={() => onSubmit(text)} disabled={words < 3}
-          style={{ marginTop: 12, padding: '10px 24px', borderRadius: 10, background: words >= 5 ? '#AE00FF' : 'var(--card-border)', color: words >= 5 ? '#fff' : 'var(--muted)', border: 'none', cursor: words >= 3 ? 'pointer' : 'not-allowed', fontSize: 14, fontWeight: 600 }}>
+      {!submitted && !timerExpired && (
+        <button onClick={() => onSubmit(text)} disabled={words < 5}
+          style={{ marginTop: 12, padding: '10px 24px', borderRadius: 10, background: words >= 5 ? '#AE00FF' : 'var(--card-border)', color: words >= 5 ? '#fff' : 'var(--muted)', border: 'none', cursor: words >= 5 ? 'pointer' : 'not-allowed', fontSize: 14, fontWeight: 600 }}>
           Einreichen
         </button>
       )}
-      {submitted && feedback && (
-        <div style={{ marginTop: 16, padding: '16px', borderRadius: 10, background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)' }}>
-          <p style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>Feedback:</p>
-          <p style={{ fontSize: 13, color: 'var(--fg)', lineHeight: 1.7 }}>{feedback}</p>
-          {question.answer && (
-            <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--card-border)' }}>
-              <p style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 4 }}>Beispielantwort:</p>
-              <p style={{ fontSize: 13, fontStyle: 'italic', color: 'var(--fg)' }}>{question.answer}</p>
-            </div>
-          )}
+      {timerExpired && !submitted && (
+        <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <AlertTriangle size={14} style={{ color: '#fbbf24' }} />
+          <span style={{ fontSize: 13, color: '#fbbf24' }}>Zeit abgelaufen — </span>
+          <button onClick={() => onSubmit(text)} style={{ fontSize: 13, color: '#fbbf24', fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>
+            Jetzt trotzdem einreichen
+          </button>
         </div>
       )}
+      {submitted && feedback && <WritingFeedbackPanel fb={feedback} modelAnswer={question.answer} />}
     </div>
   )
 }
 
-// ── Email Task (Part 2) ─────────────────────────────────────────────────────
-
-function EmailTask({ question, onSubmit, submitted, feedback }: {
-  question: Question
-  onSubmit: (text: string) => void
-  submitted: boolean
-  feedback: string | null
+// ── Email Task ────────────────────────────────────────────────────────────────
+function EmailTask({ question, onSubmit, submitted, feedback, timerExpired }: {
+  question: Question; onSubmit: (text: string) => void; submitted: boolean; feedback: WritingFeedback | null; timerExpired: boolean
 }) {
   const c = question.content as Record<string, unknown>
   const [text, setText] = useState('')
@@ -174,53 +193,45 @@ function EmailTask({ question, onSubmit, submitted, feedback }: {
 
   return (
     <div>
-      {/* Email to respond to */}
       <div style={{ padding: '16px 20px', borderRadius: 10, background: 'rgba(251,146,60,0.06)', border: '1px solid rgba(251,146,60,0.2)', marginBottom: 20 }}>
         <p style={{ fontSize: 11, fontWeight: 700, color: '#fb923c', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Eingehende E-Mail</p>
         {c.from && <p style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 4 }}>Von: {c.from as string}</p>}
         {c.subject && <p style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 12 }}>Betreff: {c.subject as string}</p>}
         <p style={{ fontSize: 13, lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{(c.body ?? c.prompt) as string}</p>
       </div>
-
       {c.instructions && (
         <div style={{ padding: '10px 14px', borderRadius: 8, background: 'var(--card-border)', marginBottom: 16 }}>
           <p style={{ fontSize: 12, color: 'var(--muted)' }}>Aufgabe: {c.instructions as string}</p>
         </div>
       )}
-
-      <textarea
-        value={text}
-        onChange={e => setText(e.target.value)}
-        disabled={submitted}
-        placeholder="Schreibe hier deine Antwort-E-Mail…"
-        rows={8}
+      <textarea value={text} onChange={e => setText(e.target.value)} disabled={submitted || timerExpired}
+        placeholder="Schreibe hier deine Antwort-E-Mail…" rows={8}
         style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: '1px solid var(--card-border)', background: 'var(--card)', color: 'var(--fg)', fontSize: 14, resize: 'vertical', outline: 'none', boxSizing: 'border-box' }}
       />
       <WordCounter count={words} min={60} target={100} color="#fb923c" />
-
-      {!submitted && (
+      {!submitted && !timerExpired && (
         <button onClick={() => onSubmit(text)} disabled={words < 20}
           style={{ marginTop: 12, padding: '10px 24px', borderRadius: 10, background: words >= 60 ? '#fb923c' : 'var(--card-border)', color: words >= 60 ? '#fff' : 'var(--muted)', border: 'none', cursor: words >= 20 ? 'pointer' : 'not-allowed', fontSize: 14, fontWeight: 600 }}>
           Einreichen
         </button>
       )}
-      {submitted && feedback && (
-        <div style={{ marginTop: 16, padding: '16px', borderRadius: 10, background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)' }}>
-          <p style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>Feedback:</p>
-          <p style={{ fontSize: 13, lineHeight: 1.7 }}>{feedback}</p>
+      {timerExpired && !submitted && (
+        <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <AlertTriangle size={14} style={{ color: '#fbbf24' }} />
+          <span style={{ fontSize: 13, color: '#fbbf24' }}>Zeit abgelaufen — </span>
+          <button onClick={() => onSubmit(text)} style={{ fontSize: 13, color: '#fbbf24', fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>
+            Jetzt trotzdem einreichen
+          </button>
         </div>
       )}
+      {submitted && feedback && <WritingFeedbackPanel fb={feedback} />}
     </div>
   )
 }
 
-// ── Essay Task (Part 3) ─────────────────────────────────────────────────────
-
-function EssayTask({ question, onSubmit, submitted, feedback }: {
-  question: Question
-  onSubmit: (text: string) => void
-  submitted: boolean
-  feedback: string | null
+// ── Essay Task ────────────────────────────────────────────────────────────────
+function EssayTask({ question, onSubmit, submitted, feedback, timerExpired }: {
+  question: Question; onSubmit: (text: string) => void; submitted: boolean; feedback: WritingFeedback | null; timerExpired: boolean
 }) {
   const c = question.content as Record<string, unknown>
   const [text, setText] = useState('')
@@ -232,60 +243,56 @@ function EssayTask({ question, onSubmit, submitted, feedback }: {
         <p style={{ fontSize: 11, fontWeight: 700, color: '#6366f1', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Aufgabenstellung</p>
         <p style={{ fontSize: 14, lineHeight: 1.7, fontWeight: 500 }}>{(c.prompt ?? c.question) as string}</p>
       </div>
-
       <div style={{ padding: '10px 14px', borderRadius: 8, background: 'var(--card-border)', marginBottom: 16 }}>
         <p style={{ fontSize: 12, color: 'var(--muted)' }}>
-          Formuliere eine klare Meinung und stütze sie mit mindestens 2 Begründungen. Empfehlung: Einleitung → Argument 1 → Argument 2 → Schluss.
+          Klare Meinung + mind. 2 Begründungen. Struktur: Einleitung → Argument 1 → Argument 2 → Schluss.
         </p>
       </div>
-
-      <textarea
-        value={text}
-        onChange={e => setText(e.target.value)}
-        disabled={submitted}
-        placeholder="Schreibe hier deinen Essay (mind. 300 Wörter)…"
-        rows={14}
+      <textarea value={text} onChange={e => setText(e.target.value)} disabled={submitted || timerExpired}
+        placeholder="Schreibe hier deinen Essay (mind. 300 Wörter)…" rows={14}
         style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: '1px solid var(--card-border)', background: 'var(--card)', color: 'var(--fg)', fontSize: 14, resize: 'vertical', outline: 'none', boxSizing: 'border-box', lineHeight: 1.7 }}
       />
       <WordCounter count={words} min={250} target={300} color="#6366f1" />
-
       {words > 0 && words < 250 && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
           <AlertTriangle size={13} style={{ color: '#fbbf24' }} />
           <p style={{ fontSize: 12, color: '#fbbf24' }}>Noch {250 - words} Wörter bis zum Minimum</p>
         </div>
       )}
-
-      {!submitted && (
+      {!submitted && !timerExpired && (
         <button onClick={() => onSubmit(text)} disabled={words < 100}
           style={{ marginTop: 12, padding: '10px 24px', borderRadius: 10, background: words >= 250 ? '#6366f1' : 'var(--card-border)', color: words >= 250 ? '#fff' : 'var(--muted)', border: 'none', cursor: words >= 100 ? 'pointer' : 'not-allowed', fontSize: 14, fontWeight: 600 }}>
           Essay einreichen
         </button>
       )}
-      {submitted && feedback && (
-        <div style={{ marginTop: 16, padding: '16px', borderRadius: 10, background: 'rgba(99,102,241,0.08)', border: '1px solid rgba(99,102,241,0.2)' }}>
-          <p style={{ fontSize: 12, fontWeight: 600, marginBottom: 6 }}>Feedback:</p>
-          <p style={{ fontSize: 13, lineHeight: 1.7 }}>{feedback}</p>
+      {timerExpired && !submitted && (
+        <div style={{ marginTop: 12, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <AlertTriangle size={14} style={{ color: '#fbbf24' }} />
+          <span style={{ fontSize: 13, color: '#fbbf24' }}>Zeit abgelaufen — </span>
+          <button onClick={() => onSubmit(text)} style={{ fontSize: 13, color: '#fbbf24', fontWeight: 700, background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>
+            Jetzt trotzdem einreichen
+          </button>
         </div>
       )}
+      {submitted && feedback && <WritingFeedbackPanel fb={feedback} />}
     </div>
   )
 }
 
 // ── Main Shell ────────────────────────────────────────────────────────────────
-
 export default function WritingShell({ writingPart }: { writingPart: WritingPart }) {
   const router = useRouter()
   const meta = TASK_META[writingPart]
   const [questions, setQuestions] = useState<Question[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [submitted, setSubmitted] = useState(false)
-  const [feedback, setFeedback] = useState<string | null>(null)
+  const [feedback, setFeedback] = useState<WritingFeedback | null>(null)
   const [loading, setLoading] = useState(true)
   const [timerRunning, setTimerRunning] = useState(false)
+  const [timerExpired, setTimerExpired] = useState(false)
   const [finished, setFinished] = useState(false)
   const [scores, setScores] = useState<number[]>([])
-  const timer = useCountdownTimer(meta.timeSec, timerRunning)
+  const timer = useCountdownTimer(meta.timeSec, timerRunning && !timerExpired)
 
   const typeMap: Record<WritingPart, string> = {
     sentences: 'WRITE_SENTENCE',
@@ -303,33 +310,45 @@ export default function WritingShell({ writingPart }: { writingPart: WritingPart
       setTimerRunning(true)
     }
     load()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [writingPart])
 
   useEffect(() => {
     setSubmitted(false)
     setFeedback(null)
+    setTimerExpired(false)
   }, [currentIndex])
 
+  // When timer runs out: freeze the textarea but don't auto-submit with empty text
   useEffect(() => {
-    if (timer.expired && !submitted && questions.length > 0) handleSubmit('')
+    if (timer.expired && timerRunning && !submitted) {
+      setTimerRunning(false)
+      setTimerExpired(true)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timer.expired])
 
   const handleSubmit = useCallback(async (text: string) => {
     setSubmitted(true)
     setTimerRunning(false)
+    setTimerExpired(false)
     const q = questions[currentIndex]
     if (!q) return
     try {
       const res = await fetch('/api/writing-feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ questionId: q.id, type: q.type, answer: text, question: q.content }),
+        body: JSON.stringify({
+          text,
+          questionType: q.type,
+          keywords: (q.content as Record<string, unknown>).keywords,
+        }),
       })
       const data = await res.json()
-      setFeedback(data.feedback ?? data.error ?? 'Feedback wird geladen…')
+      setFeedback(data.error ? null : data)
       setScores(prev => [...prev, data.score ?? 0])
     } catch {
-      setFeedback('Feedback konnte nicht geladen werden.')
+      setFeedback({ score: 0, feedback: 'Feedback konnte nicht geladen werden.', tips: [], dimensions: undefined })
     }
   }, [questions, currentIndex])
 
@@ -353,20 +372,33 @@ export default function WritingShell({ writingPart }: { writingPart: WritingPart
   )
 
   if (finished) {
-    const avg = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length * 20) : 0
+    const avg = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0
+    const avgColor = avg >= 75 ? 'var(--success)' : avg >= 55 ? '#fbbf24' : '#ef4444'
     return (
-      <div style={{ maxWidth: 700, margin: '0 auto', textAlign: 'center', padding: '40px 24px' }}>
-        <div style={{ fontSize: 48, marginBottom: 16 }}>✍️</div>
-        <h2 className="text-2xl font-bold" style={{ marginBottom: 8 }}>Writing abgeschlossen!</h2>
-        <p style={{ color: 'var(--muted)', marginBottom: 32 }}>{questions.length} Aufgabe{questions.length !== 1 ? 'n' : ''} bearbeitet</p>
-        <div style={{ display: 'flex', gap: 12, justifyContent: 'center' }}>
+      <div style={{ maxWidth: 700, margin: '0 auto', padding: '40px 0' }}>
+        <div className="card" style={{ padding: '36px 32px', textAlign: 'center', marginBottom: 20 }}>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>✍️</div>
+          <h2 className="text-2xl font-bold" style={{ marginBottom: 8 }}>Writing abgeschlossen!</h2>
+          <p style={{ fontSize: 44, fontWeight: 800, color: avgColor, margin: '12px 0 4px' }}>{avg}</p>
+          <p style={{ color: 'var(--muted)', fontSize: 13, marginBottom: 20 }}>
+            Ø Score · {questions.length} Aufgabe{questions.length !== 1 ? 'n' : ''}
+          </p>
+          <p style={{ fontSize: 14, color: 'var(--muted)' }}>
+            {avg >= 75 ? '🏆 Sehr gut! Weiter so — regelmäßiges Schreiben sichert den Score.' : avg >= 55 ? '💪 Guter Fortschritt — achte auf Struktur und Pflicht-Phrasen.' : '📚 Übe regelmäßig. Fokus: Pflicht-Vokabeln und Satzstruktur.'}
+          </p>
+        </div>
+        <div style={{ display: 'flex', gap: 12 }}>
           <button onClick={() => router.push('/test-training')}
             style={{ padding: '10px 20px', borderRadius: 10, border: '1px solid var(--card-border)', background: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: 14 }}>
             Zurück
           </button>
-          <button onClick={() => { setFinished(false); setCurrentIndex(0); setSubmitted(false); setFeedback(null); setTimerRunning(true) }}
+          <button onClick={() => { setFinished(false); setCurrentIndex(0); setSubmitted(false); setFeedback(null); setTimerRunning(true); setScores([]) }}
             style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px', borderRadius: 10, background: meta.color + '20', border: `1.5px solid ${meta.color}50`, color: meta.color, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>
             <RotateCcw size={14} /> Nochmal
+          </button>
+          <button onClick={() => router.push('/progress')}
+            style={{ padding: '10px 20px', borderRadius: 10, background: 'var(--card)', border: '1px solid var(--card-border)', color: 'var(--foreground)', cursor: 'pointer', fontSize: 14 }}>
+            Fortschritt ansehen
           </button>
         </div>
       </div>
@@ -391,27 +423,24 @@ export default function WritingShell({ writingPart }: { writingPart: WritingPart
         <p style={{ color: 'var(--muted)', fontSize: 14 }}>{meta.desc}</p>
       </div>
 
-      <TimerBar mins={timer.mins} secs={timer.secs} pct={timer.pct} color={meta.color} />
+      {timerExpired ? (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px', borderRadius: 10, background: 'rgba(251,191,36,0.1)', border: '1px solid rgba(251,191,36,0.3)', marginBottom: 20 }}>
+          <AlertTriangle size={14} style={{ color: '#fbbf24' }} />
+          <span style={{ fontSize: 13, color: '#fbbf24', fontWeight: 600 }}>Zeit abgelaufen — reiche deinen Text noch ein.</span>
+        </div>
+      ) : (
+        <TimerBar mins={timer.mins} secs={timer.secs} pct={timer.pct} color={meta.color} />
+      )}
 
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-        <p style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>
-          Aufgabe {currentIndex + 1} / {questions.length}
-        </p>
-        <span style={{ fontSize: 11, padding: '2px 10px', borderRadius: 99, background: meta.color + '15', color: meta.color, fontWeight: 700 }}>
-          WRITING
-        </span>
+        <p style={{ fontSize: 12, color: 'var(--muted)', fontWeight: 600 }}>Aufgabe {currentIndex + 1} / {questions.length}</p>
+        <span style={{ fontSize: 11, padding: '2px 10px', borderRadius: 99, background: meta.color + '15', color: meta.color, fontWeight: 700 }}>WRITING</span>
       </div>
 
       <div className="card" style={{ padding: '20px 24px', marginBottom: 16 }}>
-        {writingPart === 'sentences' && (
-          <SentenceTask question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} />
-        )}
-        {writingPart === 'email' && (
-          <EmailTask question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} />
-        )}
-        {writingPart === 'essay' && (
-          <EssayTask question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} />
-        )}
+        {writingPart === 'sentences' && <SentenceTask question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} timerExpired={timerExpired} />}
+        {writingPart === 'email'     && <EmailTask    question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} timerExpired={timerExpired} />}
+        {writingPart === 'essay'     && <EssayTask    question={q} onSubmit={handleSubmit} submitted={submitted} feedback={feedback} timerExpired={timerExpired} />}
       </div>
 
       {submitted && (

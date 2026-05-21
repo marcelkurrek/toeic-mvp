@@ -326,9 +326,19 @@ function QuestionCard({ question, opts, letters, selected, submitted, correctLet
 
       {submitted && question.explanation && (
         <div className="rounded-lg text-sm"
-          style={{ background: 'var(--accent-subtle)', borderLeft: '3px solid var(--accent)', padding: '14px 16px', marginBottom: 20 }}>
+          style={{ background: 'var(--accent-subtle)', borderLeft: '3px solid var(--accent)', padding: '14px 16px', marginBottom: 12 }}>
           <p className="font-medium" style={{ color: 'var(--accent)', marginBottom: 6 }}>{t.explanation}</p>
           <p style={{ color: 'var(--foreground)', lineHeight: 1.6 }}>{question.explanation}</p>
+        </div>
+      )}
+      {submitted && question.tags && question.tags.length > 0 && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap', marginBottom: 20 }}>
+          <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Grammatik:</span>
+          {(question.tags as string[]).map(tag => (
+            <span key={tag} style={{ fontSize: 11, padding: '2px 8px', borderRadius: 99, background: 'rgba(213,253,68,0.15)', color: '#D5FD44', border: '1px solid rgba(213,253,68,0.3)', fontWeight: 600 }}>
+              {tag}
+            </span>
+          ))}
         </div>
       )}
 
