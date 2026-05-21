@@ -30,7 +30,23 @@ interface Question {
   tags: string[]
 }
 
+interface DrillAnswer {
+  questionId: string
+  userAnswer: string
+  isCorrect: boolean
+  timeSpentSec: number
+}
+
 const LETTERS = ['A', 'B', 'C', 'D']
+
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
 
 export default function DrillClient() {
   const params = useSearchParams()
@@ -40,17 +56,34 @@ export default function DrillClient() {
   const [currentIdx, setCurrentIdx] = useState(0)
   const [selected, setSelected] = useState<string | null>(null)
   const [submitted, setSubmitted] = useState(false)
-  const [answers, setAnswers] = useState<{ correct: boolean; time: number }[]>([])
+  const [answers, setAnswers] = useState<DrillAnswer[]>([])
   const [finished, setFinished] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
   const startRef = useRef(Date.now())
+  const sessionIdRef = useRef<string | null>(null)
 
   useEffect(() => {
     if (!pattern) return
     setLoading(true)
     fetch(`/api/questions?part=5&section=READING&tag=${encodeURIComponent(pattern)}&limit=10`)
       .then(r => r.json())
-      .then(data => { setQuestions(data.questions ?? []); setLoading(false) })
+      .then(data => {
+        const qs: Question[] = data.questions ?? []
+        setQuestions(shuffle(qs))
+        setLoading(false)
+        // Create a session to track drill progress
+        if (qs.length > 0) {
+          fetch('/api/sessions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ mode: 'drill', section: 'READING', parts: [5], totalQuestions: qs.length }),
+          })
+            .then(r => r.json())
+            .then(s => { if (s.id) sessionIdRef.current = s.id })
+            .catch(() => {})
+        }
+      })
   }, [pattern])
 
   const patternLabel = PATTERN_LABELS[pattern] ?? pattern
@@ -64,7 +97,12 @@ export default function DrillClient() {
     const q = questions[currentIdx]
     const correct = selected === q.answer
     const time = Math.round((Date.now() - startRef.current) / 1000)
-    setAnswers(prev => [...prev, { correct, time }])
+    setAnswers(prev => [...prev, {
+      questionId: q.id,
+      userAnswer: selected,
+      isCorrect: correct,
+      timeSpentSec: time,
+    }])
     setSubmitted(true)
   }
 
@@ -77,6 +115,57 @@ export default function DrillClient() {
       setSubmitted(false)
       startRef.current = Date.now()
     }
+  }
+
+  async function saveSession(finalAnswers: DrillAnswer[]) {
+    const sessionId = sessionIdRef.current
+    if (!sessionId) return
+    setSaving(true)
+    const correct = finalAnswers.filter(a => a.isCorrect).length
+    try {
+      await fetch(`/api/sessions/${sessionId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          score: correct,
+          maxScore: finalAnswers.length,
+          durationSec: finalAnswers.reduce((s, a) => s + a.timeSpentSec, 0),
+          answers: finalAnswers,
+        }),
+      })
+    } catch {}
+    setSaving(false)
+  }
+
+  // Save when finished changes to true (captures final answer array)
+  useEffect(() => {
+    if (finished && answers.length > 0) {
+      saveSession(answers)
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [finished])
+
+  function handleReset() {
+    setFinished(false)
+    setCurrentIdx(0)
+    setAnswers([])
+    setSelected(null)
+    setSubmitted(false)
+    sessionIdRef.current = null
+    startRef.current = Date.now()
+    // Create new session for the retry
+    if (questions.length > 0) {
+      fetch('/api/sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'drill', section: 'READING', parts: [5], totalQuestions: questions.length }),
+      })
+        .then(r => r.json())
+        .then(s => { if (s.id) sessionIdRef.current = s.id })
+        .catch(() => {})
+    }
+    // Re-shuffle questions
+    setQuestions(prev => shuffle([...prev]))
   }
 
   if (!pattern) return (
@@ -95,10 +184,10 @@ export default function DrillClient() {
   )
 
   if (finished) {
-    const correct = answers.filter(a => a.correct).length
+    const correct = answers.filter(a => a.isCorrect).length
     const total = answers.length
     const pct = total > 0 ? Math.round(correct / total * 100) : 0
-    const avgTime = total > 0 ? Math.round(answers.reduce((s, a) => s + a.time, 0) / total) : 0
+    const avgTime = total > 0 ? Math.round(answers.reduce((s, a) => s + a.timeSpentSec, 0) / total) : 0
     const pctColor = pct >= 80 ? 'var(--success)' : pct >= 60 ? '#fbbf24' : '#ef4444'
     return (
       <div style={{ maxWidth: 640, margin: '0 auto' }}>
@@ -115,10 +204,10 @@ export default function DrillClient() {
           <p style={{ fontSize: 13, color: 'var(--muted)' }}>
             {pct >= 80 ? '✅ Dieses Muster sitzt! Weiter mit dem nächsten schwachen Muster.' : pct >= 60 ? '💪 Gut — nochmals üben bis 80%+.' : '📚 Weiter üben — dieses Muster braucht mehr Attention.'}
           </p>
+          {saving && <p style={{ fontSize: 11, color: 'var(--muted)', marginTop: 8 }}>Ergebnis wird gespeichert…</p>}
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
-          <button onClick={() => { setFinished(false); setCurrentIdx(0); setAnswers([]); setSelected(null); setSubmitted(false); startRef.current = Date.now() }}
-            className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14 }}>
+          <button onClick={handleReset} className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14 }}>
             <RotateCcw size={14} /> Nochmal
           </button>
           <button onClick={() => router.push('/progress')}
@@ -190,8 +279,8 @@ export default function DrillClient() {
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           {submitted ? (
-            <span style={{ fontSize: 13, fontWeight: 600, color: answers[answers.length-1]?.correct ? 'var(--success)' : '#ef4444', display: 'flex', alignItems: 'center', gap: 6 }}>
-              {answers[answers.length-1]?.correct ? <><CheckCircle size={15} /> Richtig!</> : <><XCircle size={15} /> Falsch — Antwort: {q.answer}</>}
+            <span style={{ fontSize: 13, fontWeight: 600, color: answers[answers.length-1]?.isCorrect ? 'var(--success)' : '#ef4444', display: 'flex', alignItems: 'center', gap: 6 }}>
+              {answers[answers.length-1]?.isCorrect ? <><CheckCircle size={15} /> Richtig!</> : <><XCircle size={15} /> Falsch — Antwort: {q.answer}</>}
             </span>
           ) : <div />}
           {!submitted ? (

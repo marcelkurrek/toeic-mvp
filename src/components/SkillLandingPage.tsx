@@ -1,6 +1,7 @@
 'use client'
 import { useRouter } from 'next/navigation'
 import { Zap, List, Sparkles, ChevronRight } from 'lucide-react'
+import { useLang } from '@/lib/i18n/client'
 
 interface Task {
   id: string
@@ -31,20 +32,35 @@ export default function SkillLandingPage({
   partAccuracy,
 }: SkillLandingPageProps) {
   const router = useRouter()
+  const { lang } = useLang()
+  const isDE = lang === 'de'
+  void icon
+
+  const UI = {
+    chooseTasks:      isDE ? 'Aufgaben wählen'                                         : 'Choose task',
+    notPracticed:     isDE ? 'Noch nicht geübt'                                        : 'Not practiced yet',
+    questionsAnswered: isDE ? 'Fragen beantwortet'                                     : 'questions answered',
+    startAll:         isDE ? 'Alle Aufgaben starten'                                   : 'Start all tasks',
+    startAllSub:      isDE ? 'Von oben nach unten alle verfügbaren Aufgaben durcharbeiten' : 'Work through all available tasks from top to bottom',
+    adaptive:         isDE ? 'Adaptives Training'                                      : 'Adaptive training',
+    adaptiveSub:      isDE ? 'Fragen werden automatisch an dein Niveau angepasst'      : 'Questions are automatically adjusted to your level',
+    dodiagnostic:     isDE ? 'Einstufungstest zuerst'                                  : 'Take the placement test first',
+    dodiagnosticSub:  isDE ? 'Starte mit dem Einstufungstest für personalisierte Empfehlungen' : 'Start with the placement test for personalized recommendations',
+  }
 
   return (
     <div>
-      {/* Header — same structure as all other pages */}
+      {/* Header */}
       <div style={{ marginBottom: 28 }}>
         <h1 className="text-3xl font-bold" style={{ marginBottom: 4 }}>{title}</h1>
         <p style={{ color: 'var(--muted)', fontSize: 14 }}>{description}</p>
       </div>
 
-      {/* Per-part cards (when accuracy data available) */}
+      {/* Per-part cards */}
       {tasks.length > 0 && (
         <>
           <h2 className="text-sm font-semibold" style={{ color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 14 }}>
-            Aufgaben wählen
+            {UI.chooseTasks}
           </h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 28 }}>
             {tasks.map(task => {
@@ -78,10 +94,10 @@ export default function SkillLandingPage({
                           </div>
                           <span style={{ fontSize: 11, fontWeight: 700, color: pctColor, flexShrink: 0 }}>{pct}%</span>
                         </div>
-                        <p style={{ fontSize: 10, color: 'var(--muted)' }}>{prog.sampleSize} Fragen beantwortet</p>
+                        <p style={{ fontSize: 10, color: 'var(--muted)' }}>{prog.sampleSize} {UI.questionsAnswered}</p>
                       </div>
                     ) : (
-                      <p style={{ fontSize: 11, color: 'var(--muted)' }}>Noch nicht geübt</p>
+                      <p style={{ fontSize: 11, color: 'var(--muted)' }}>{UI.notPracticed}</p>
                     )}
                   </div>
                   <ChevronRight size={15} style={{ color: 'var(--muted)', flexShrink: 0 }} />
@@ -108,8 +124,8 @@ export default function SkillLandingPage({
             <List size={18} style={{ color }} />
           </div>
           <div>
-            <p className="font-semibold text-sm">Alle Aufgaben starten</p>
-            <p style={{ color: 'var(--muted)', fontSize: 12, marginTop: 2 }}>Von oben nach unten alle verfügbaren Aufgaben durcharbeiten</p>
+            <p className="font-semibold text-sm">{UI.startAll}</p>
+            <p style={{ color: 'var(--muted)', fontSize: 12, marginTop: 2 }}>{UI.startAllSub}</p>
           </div>
           <ChevronRight size={15} style={{ color, flexShrink: 0, marginLeft: 'auto' }} />
         </button>
@@ -128,12 +144,10 @@ export default function SkillLandingPage({
           </div>
           <div>
             <p className="font-semibold text-sm">
-              {hasDiagnostic ? 'Adaptives Training' : 'Einstufungstest zuerst'}
+              {hasDiagnostic ? UI.adaptive : UI.dodiagnostic}
             </p>
             <p style={{ color: 'var(--muted)', fontSize: 12, marginTop: 2 }}>
-              {hasDiagnostic
-                ? 'Fragen werden automatisch an dein Niveau angepasst'
-                : 'Starte mit dem Einstufungstest für personalisierte Empfehlungen'}
+              {hasDiagnostic ? UI.adaptiveSub : UI.dodiagnosticSub}
             </p>
           </div>
           <ChevronRight size={15} style={{ color: 'var(--muted)', flexShrink: 0, marginLeft: 'auto' }} />
