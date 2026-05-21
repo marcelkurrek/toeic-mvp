@@ -208,6 +208,85 @@ Antwort ablehnend: I'm sorry, I can't / Regretfully, no / Not at all, I'd be gla
 - Du musst den Akzent NICHT erkennen
 - Tipp: Hör Nachrichten aus USA, UK, Australien, Kanada, Neuseeland, Indien — gewöhne dich an natürliche Variationen
 
+### Offizielle TIPs pro Part 4 Skill (direkt aus Buch — nur Prinzip, kein Originaltext)
+- Skill 1 (Events/Facts): Antwortoptionen VOR dem Audio lesen → dann gezielt auf Event/Fact-Clues hören
+- Skill 2 (Reasons): Antwortoptionen VOR dem Audio lesen → Antworten beginnen manchmal mit WHAT statt WHY
+- Skill 3 (Numbers): Zahlen UND Wörter die wie Zahlen klingen gleichzeitig tracken
+- Skill 4 (Main Topics): Nach dem übergeordneten ZWECK suchen, nicht nach Details
+- Skill 5 (Paraphrases): Auf Synonyme und ähnliche Phrasen achten die denselben Sinn ausdrücken
+- Skill 6 (Graphic): Grafik ZUERST scannen → dann Audio → man kann Frage NICHT allein durch die Grafik beantworten, Audio gibt den entscheidenden Clue
+- Skill 7 (Implied Meaning): Bedeutung kommt aus dem KONTEXT des ganzen Talks
+- Skill 8 (Multiple Accents): Nachrichten aus USA/UK/Australien/Kanada/Neuseeland/Indien hören
+
+### Grafik-Übungstypen mit konkreten Beispieldaten (Part 4 Skill 6)
+Alle 5 Grafiktypen die im Buch als Übungen vorkommen:
+1. **Fahrplan-Tabelle**: Züge mit Abfahrt/Ankunft-Zeiten (4 Züge × 2 Städte)
+2. **Tortendiagramm (Budget)**: Gehälter 45% / Werbung 25% / Materialien 20% / Overhead 10%
+3. **Karte (Park/Natur)**: Nature Center, Rose Garden, Butterfly Garden, Pine Grove — Frage: Wo findet X statt?
+4. **Balkendiagramm (Regionen)**: Units Sold — Northwest/Southwest/Northeast/Southeast — Southeast führt
+5. **Catering-Tabelle**: Kim's Catering — Small:15 Personen / Medium:25 / Large:50 / Extra Large:75
+
+### Part 4 Zahlen-Fallen (Skill 3) — vollständige Konfusionsmuster
+Ähnlich klingende Zahlen: 7/11, 13/30, 14/40, 15/50, 16/60, 17/70, 18/80, 19/90, 50/60
+Zahlen die wie Wörter klingen: 2=to/too, 2days=today/Tuesday, 3=free, 4=for/forget, 6=picks/sick, 8=ate/wait, 9=fine/time, 10=then/when, 20=plenty
+Mengenphrasen: over 20 = more than 20, under 20 = fewer than 20, at least 20 = 20 or more, up to 20 = no more than 20
+
+### Part 1 Skill 1 — Assumptions-Format (T/F/PT)
+Das Buch trainiert Part 1 mit einem T/F/PT-System:
+- **T** (True) = Aussage ist klar und vollständig korrekt
+- **F** (False) = Aussage ist falsch
+- **PT** (Partially True) = Aussage ist teilweise richtig, enthält aber ein falsches oder nicht sichtbares Detail
+→ Produkt-Implikation: Training-Modus wo Nutzer für jede Aussage T/F/PT wählt
+
+### Part 1 Skill 5 — Context Clues für General Locations
+Methode: Objekte im Foto → schließe auf Ort
+- Bänke + Gras + Bäume + Büsche + Fußweg + Zaun + Laternenpfahl → Park
+- Tische + Teller + Gläser + Servietten + Gabeln → Restaurant/Cafeteria
+- Regale + Bücher + Hängemappen → Büro/Bibliothek/Lager
+- Werkzeug + Maschinen + Schutzkleidung → Fabrik/Werkstatt
+
+### Part 3 Skill 9 — Incomplete Sentences (Kurzsatzphrasen mit Bedeutung)
+Häufige TOEIC-Fragmente mit exakter Bedeutung:
+- "Get it" / "Got it" = I understand / I understood
+- "Right" = I agree / That's correct
+- "Wish I could" = I want to but I can't
+- "Fine with me" = I agree / That's acceptable to me
+- "Sure" = Yes / Of course
+- "Of course" = Certainly / That's expected
+
+### Part 3 — Gemischte Skill-Typen in einer Konversation
+Eine Part 3-Konversation testet IMMER mehrere Skill-Typen gleichzeitig — Beispiel:
+- Frage 1: Fact/Activity (was hatte sie im Café?)
+- Frage 2: Implied Meaning (was impliziert er über das Café?)
+- Frage 3: Future Activity (was werden sie morgen tun?)
+→ Implication: Beim Üben immer den Skill-Typ jeder Frage benennen bevor man antwortet
+
+### Part 4 — Implizierte Bedeutung (Skill 7) konkrete Beispiele
+- "This appointment has been rescheduled several times already" → implies Frustration / es passiert zum ersten Mal nicht
+- "The stadium isn't big enough to hold the crowds" → implies event was more popular than expected
+- "They were a bit disappointed by the turnout" → implies they expected more people
+- "I don't know if we're going on the right track" → implies the speaker thinks things aren't working
+- Ticket-Maschine: impliziert bestimmte Zahlungsart durch Kontext
+
+### Offizielles Summary of Tips (Barron's Chapter 2 — Prinzipien, kein Originaltext)
+**Part 1 Photographs:**
+- Gesamtbedeutung des Satzes verstehen → bestes Match auswählen
+- Foto analysieren: Anzahl/Geschlecht/Ort/Beruf/Handlung der Personen
+- Kontext nutzen um Objekte und Ort zu identifizieren
+
+**Part 2 Question-Response:**
+- Bedeutung der Frage UND der Antwortoptionen verstehen
+- Nicht durch ähnliche Klänge, verwandte Wörter, Homonyme täuschen lassen
+- Suggestions, Offers, Requests erkennen
+
+**Part 3 Conversations + Part 4 Talks:**
+- Verschiedene Fragetypen erkennen: People, Occupations, Place, Time, etc.
+- Bedeutung von Wörtern/Phrasen im Kontext verstehen
+- Paraphrasen des Gesagten erkennen
+- Implizierte Bedeutung verstehen
+- Bei Grafik-Fragen: erst Grafik scannen, dann Audio → Grafik allein reicht nicht
+- Verschiedene Akzente gewohnt sein
+
 ### Part-spezifische Strategien (Zusammenfassung)
 **Part 1:** 6-Dimensions-Framework → Number/Gender/Location/Description/Activity/Occupation. Präpositionen genau prüfen. Keine Aussagen mit nicht sichtbaren Details.
 **Part 2:** Fragewort/Typ sofort erkennen: Suggestion/Offer/Request/Similar Sounds/Homonym/Related Words. Kontext prüft immer welches Wort gemeint ist.
