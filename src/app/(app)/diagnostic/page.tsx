@@ -253,6 +253,22 @@ export default function DiagnosticPage() {
 
   // ── Results ────────────────────────────────────────────────────────────────
   if (phase === 'results') {
+    const SKILL_ROUTES: Record<Section, string> = {
+      LISTENING: '/listening',
+      READING: '/reading',
+      SPEAKING: '/speaking',
+      WRITING: '/writing',
+    }
+    const SKILL_LABELS: Record<Section, string> = {
+      LISTENING: 'Listening',
+      READING: 'Reading',
+      SPEAKING: 'Speaking',
+      WRITING: 'Writing',
+    }
+    const weakest = levels.length > 0
+      ? levels.reduce((min, lv) => lv.score < min.score ? lv : min)
+      : null
+
     return (
       <div style={{ maxWidth: 560, margin: '0 auto' }}>
         <div style={{ textAlign: 'center', marginBottom: 36 }}>
@@ -268,12 +284,21 @@ export default function DiagnosticPage() {
               {levels.map(lv => {
                 const color = SECTION_COLORS[lv.section]
                 const cefrColor = CEFR_COLORS[lv.cefr] ?? 'var(--accent)'
+                const isWeakest = weakest?.section === lv.section
                 return (
-                  <div key={lv.section} className="card" style={{ padding: '20px 24px' }}>
+                  <div key={lv.section} className="card" style={{
+                    padding: '20px 24px',
+                    border: isWeakest ? `1.5px solid ${color}50` : undefined,
+                  }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <span style={{ color }}>{SECTION_ICONS[lv.section]}</span>
                         <span className="font-semibold">{d.section[lv.section]}</span>
+                        {isWeakest && (
+                          <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 7px', borderRadius: 99, background: `${color}20`, color, letterSpacing: '0.05em', textTransform: 'uppercase' }}>
+                            Fokus
+                          </span>
+                        )}
                       </div>
                       <span className="font-bold text-xl" style={{ color: cefrColor }}>{lv.cefr}</span>
                     </div>
@@ -285,10 +310,31 @@ export default function DiagnosticPage() {
                 )
               })}
             </div>
-            <button className="btn-primary w-full" style={{ height: 52, fontSize: 16 }}
-              onClick={() => router.push('/dashboard')}>
-              {d.results.toDashboard} <ChevronRight size={16} />
-            </button>
+
+            {weakest && (
+              <div className="card" style={{ padding: '20px 24px', marginBottom: 16, background: `${SECTION_COLORS[weakest.section]}08`, border: `1px solid ${SECTION_COLORS[weakest.section]}30` }}>
+                <p style={{ fontSize: 13, fontWeight: 600, marginBottom: 4, color: SECTION_COLORS[weakest.section] }}>
+                  Empfehlung: Starte mit {SKILL_LABELS[weakest.section]}
+                </p>
+                <p style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.6 }}>
+                  Dein {SKILL_LABELS[weakest.section]}-Level ist dein größter Hebel — gezieltes Training hier bringt den schnellsten Score-Anstieg.
+                </p>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {weakest && (
+                <button className="btn-primary w-full" style={{ height: 52, fontSize: 15, fontWeight: 700 }}
+                  onClick={() => router.push(SKILL_ROUTES[weakest.section])}>
+                  {SKILL_LABELS[weakest.section]} jetzt üben →
+                </button>
+              )}
+              <button
+                onClick={() => router.push('/dashboard')}
+                style={{ height: 44, width: '100%', borderRadius: 10, border: '1px solid var(--card-border)', background: 'transparent', cursor: 'pointer', fontSize: 14, color: 'var(--muted)', fontWeight: 500 }}>
+                {d.results.toDashboard}
+              </button>
+            </div>
           </>
         )}
       </div>

@@ -150,13 +150,6 @@ export default function OnboardingPage() {
                 {loading ? l.submitLoading : l.submitBtn}
               </button>
 
-              <button
-                onClick={() => router.push('/dashboard')}
-                className="w-full text-sm text-center"
-                style={{ marginTop: 16, padding: '8px 0', color: 'var(--muted)', cursor: 'pointer' }}
-              >
-                {l.skip}
-              </button>
             </div>
           </div>
         </div>

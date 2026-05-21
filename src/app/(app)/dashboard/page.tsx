@@ -210,6 +210,18 @@ export default async function DashboardPage() {
   return (
     <div>
 
+      {(dbUser?.sessions ?? []).length === 0 && (dbUser?.progress ?? []).length === 0 && (
+        <div style={{ marginBottom: 28, padding: '20px 24px', borderRadius: 14, background: 'rgba(4,255,136,0.07)', border: '1.5px solid rgba(4,255,136,0.25)' }}>
+          <p style={{ fontSize: 15, fontWeight: 700, marginBottom: 6 }}>Starte mit dem Einstufungstest</p>
+          <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.6, marginBottom: 16 }}>
+            Der Einstufungstest analysiert dein aktuelles Level in allen 4 Bereichen und erstellt deinen personalisierten Trainingsplan. Dauert ca. 15–20 Minuten.
+          </p>
+          <a href="/diagnostic" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 20px', borderRadius: 10, background: '#04FF88', color: '#0d1b2a', fontWeight: 700, fontSize: 14, textDecoration: 'none' }}>
+            Einstufungstest starten →
+          </a>
+        </div>
+      )}
+
       {/* ── Header ─────────────────────────────────────────────────────── */}
       <div style={{ marginBottom: 28 }}>
         <h1 className="text-3xl font-bold" style={{ marginBottom: 4 }}>

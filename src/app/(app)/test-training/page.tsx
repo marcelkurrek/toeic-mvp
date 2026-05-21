@@ -70,6 +70,18 @@ export default async function TestTrainingPage() {
         ))}
       </div>
 
+      {progress.length === 0 && (
+        <div style={{ marginBottom: 28, padding: '16px 20px', borderRadius: 12, background: 'rgba(251,191,36,0.08)', border: '1px solid rgba(251,191,36,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+          <div>
+            <p style={{ fontSize: 14, fontWeight: 600, marginBottom: 4, color: '#fbbf24' }}>Einstufungstest noch ausstehend</p>
+            <p style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.5 }}>Ohne Einstufungstest kann die App dein Training nicht personalisieren.</p>
+          </div>
+          <a href="/diagnostic" style={{ flexShrink: 0, padding: '8px 16px', borderRadius: 8, background: '#fbbf24', color: '#0d1b2a', fontWeight: 700, fontSize: 13, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+            Jetzt starten
+          </a>
+        </div>
+      )}
+
       {/* Skill cards */}
       <h2 style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12 }}>
         Bereiche
