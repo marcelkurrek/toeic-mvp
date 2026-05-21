@@ -453,9 +453,23 @@ function MultiQuestionView({ question, part, onAnswers, submitted, selected }: M
     <div>
       {/* Pre-reading phase */}
       {phase === 'prereading' && (
-        <div style={{ padding: '12px 16px', borderRadius: 10, background: `${color}10`, border: `1px solid ${color}40`, marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <p style={{ fontSize: 13, color, fontWeight: 600 }}>Fragen vorab lesen — {remaining} Sek.</p>
-          <button onClick={() => setPhase('ready')} style={{ fontSize: 12, color, background: 'none', border: 'none', cursor: 'pointer' }}>Überspringen</button>
+        <div style={{ padding: '14px 16px', borderRadius: 10, background: `${color}10`, border: `1px solid ${color}40`, marginBottom: 16 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+            <p style={{ fontSize: 13, color, fontWeight: 700 }}>📖 Fragen vorab lesen — {remaining} Sek.</p>
+            <button onClick={() => setPhase('ready')} style={{ fontSize: 12, color, background: 'none', border: 'none', cursor: 'pointer' }}>Überspringen</button>
+          </div>
+          <p style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 8 }}>Scanne die Fragen nach diesen Informationen:</p>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {(part === 3
+              ? ['👤 Wer spricht?', '💬 Was wollen sie?', '🔧 Problem / Lösung']
+              : ['🎙 Wer spricht?', '📍 Kontext / Ort?', '🔢 Zahlen & Daten']
+            ).map(chip => (
+              <span key={chip} style={{
+                fontSize: 11, padding: '4px 10px', borderRadius: 99,
+                background: `${color}20`, color, fontWeight: 600, border: `1px solid ${color}35`,
+              }}>{chip}</span>
+            ))}
+          </div>
         </div>
       )}
 

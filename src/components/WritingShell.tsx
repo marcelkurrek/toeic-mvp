@@ -177,7 +177,58 @@ function WordCounter({ count, min, target, color }: { count: number; min: number
   )
 }
 
-function WritingFeedbackPanel({ fb, modelAnswer, onRevise }: { fb: WritingFeedback; modelAnswer?: string; onRevise?: () => void }) {
+function AnnotatedPhraseFeedback({ userText, taskType, color }: { userText: string; taskType: 'email' | 'essay'; color: string }) {
+  const phraseGroups = taskType === 'email' ? EMAIL_PHRASES : ESSAY_PHRASES
+  const STRUCTURAL_CONNECTORS = ['first', 'furthermore', 'however', 'in addition', 'therefore', 'consequently', 'in conclusion', 'to sum up', 'on the other hand', 'for example', 'for instance', 'in my opinion', 'i believe', 'i strongly believe']
+
+  const lowerText = userText.toLowerCase()
+
+  // Find matched phrases from banks
+  const matched: { phrase: string; cat: string }[] = []
+  phraseGroups.forEach(({ cat, phrases }) => {
+    phrases.forEach(phrase => {
+      if (lowerText.includes(phrase.toLowerCase().slice(0, 20))) {
+        matched.push({ phrase, cat })
+      }
+    })
+  })
+
+  // Find structural connectors used
+  const usedConnectors = STRUCTURAL_CONNECTORS.filter(c => lowerText.includes(c))
+
+  if (matched.length === 0 && usedConnectors.length === 0) return null
+
+  return (
+    <div style={{ padding: '12px 16px', borderRadius: 10, background: 'var(--background)', border: '1px solid var(--card-border)', marginBottom: 12 }}>
+      <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 10 }}>Deine Text-Analyse</p>
+      {matched.length > 0 && (
+        <div style={{ marginBottom: usedConnectors.length > 0 ? 10 : 0 }}>
+          <p style={{ fontSize: 11, color: 'var(--success)', fontWeight: 600, marginBottom: 6 }}>✓ Gute Phrasen erkannt ({matched.length})</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            {matched.map(({ phrase, cat }) => (
+              <div key={phrase} style={{ display: 'flex', gap: 8, alignItems: 'baseline' }}>
+                <span style={{ fontSize: 10, padding: '1px 7px', borderRadius: 99, background: 'rgba(74,222,128,0.15)', color: 'var(--success)', fontWeight: 600, flexShrink: 0 }}>{cat}</span>
+                <span style={{ fontSize: 12, color: 'var(--fg)', fontStyle: 'italic' }}>{phrase}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      {usedConnectors.length > 0 && (
+        <div>
+          <p style={{ fontSize: 11, color: '#6366f1', fontWeight: 600, marginBottom: 6 }}>✓ Strukturwörter verwendet ({usedConnectors.length})</p>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {usedConnectors.map(c => (
+              <span key={c} style={{ fontSize: 11, padding: '2px 10px', borderRadius: 99, background: 'rgba(99,102,241,0.12)', color: '#6366f1', fontWeight: 600 }}>{c}</span>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function WritingFeedbackPanel({ fb, modelAnswer, onRevise, userText, taskType }: { fb: WritingFeedback; modelAnswer?: string; onRevise?: () => void; userText?: string; taskType?: 'email' | 'essay' }) {
   const dims = WRITING_DIMS.map(d => ({
     label: d.label,
     score: fb.dimensions?.[d.key] ?? fb.score,
@@ -193,6 +244,7 @@ function WritingFeedbackPanel({ fb, modelAnswer, onRevise }: { fb: WritingFeedba
           complete={fb.score >= 65}
         />
       </div>
+      {userText && taskType && <AnnotatedPhraseFeedback userText={userText} taskType={taskType} color="var(--accent)" />}
       {fb.tips && fb.tips.length > 0 && (
         <div style={{ padding: '12px 16px', borderRadius: 10, background: 'var(--accent-subtle)', border: '1px solid rgba(99,102,241,0.2)', marginBottom: 12 }}>
           <p style={{ fontSize: 11, fontWeight: 700, color: 'var(--accent)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.06em' }}>TOEIC-Tipps</p>
@@ -329,7 +381,7 @@ function EmailTask({ question, onSubmit, submitted, feedback, timerExpired, onRe
           </button>
         </div>
       )}
-      {submitted && feedback && <WritingFeedbackPanel fb={feedback} onRevise={onRevise} />}
+      {submitted && feedback && <WritingFeedbackPanel fb={feedback} onRevise={onRevise} userText={text} taskType="email" />}
     </div>
   )
 }
@@ -415,7 +467,7 @@ function EssayTask({ question, onSubmit, submitted, feedback, timerExpired, onRe
           </button>
         </div>
       )}
-      {submitted && feedback && <WritingFeedbackPanel fb={feedback} onRevise={onRevise} />}
+      {submitted && feedback && <WritingFeedbackPanel fb={feedback} onRevise={onRevise} userText={text} taskType="essay" />}
     </div>
   )
 }
