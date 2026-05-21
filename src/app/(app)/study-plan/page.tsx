@@ -39,7 +39,11 @@ const PART_LABEL: Record<number, string> = {
   7: 'Part 7 – Reading Comprehension',
 }
 
-const DAYS = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag', 'Samstag', 'Sonntag']
+// Generate weekday labels Mon–Sun in German (ISO week order)
+const DAYS = Array.from({ length: 7 }, (_, i) => {
+  const d = new Date(2024, 0, 1 + i) // 2024-01-01 is Monday
+  return d.toLocaleDateString('de-DE', { weekday: 'long' })
+})
 
 interface DayPlan {
   day: string
@@ -52,10 +56,11 @@ function buildStudyPlan(params: {
   examType: string | null
   daysUntilExam: number | null
   progByPart: Record<number, { accuracy: number; sampleSize: number }>
+  lProgByPart: Record<number, { accuracy: number; sampleSize: number }>
   levels: { section: string; cefr: string; score: number }[]
   diagnosticDone: boolean
 }): { plan: DayPlan[]; advice: string; targetScore: string } {
-  const { examType, daysUntilExam, progByPart, levels, diagnosticDone } = params
+  const { examType, daysUntilExam, progByPart, lProgByPart, levels, diagnosticDone } = params
 
   // Determine active sections
   const sections: Section[] = examType === 'LISTENING_READING'
@@ -92,7 +97,8 @@ function buildStudyPlan(params: {
     : '600+ Punkte'
 
   function getPriority(section: Section, part: number): string {
-    const acc = progByPart[part]?.accuracy
+    const progMap = section === 'LISTENING' ? lProgByPart : progByPart
+    const acc = progMap[part]?.accuracy
     if (acc === undefined) return 'Noch nicht geübt — starte hier'
     if (acc < 0.5)  return `Schwacher Bereich — Genauigkeit: ${Math.round(acc * 100)}%`
     if (acc < 0.7)  return `Ausbaufähig — Genauigkeit: ${Math.round(acc * 100)}%`
@@ -198,12 +204,17 @@ export default async function StudyPlanPage() {
     ? Math.ceil((new Date(dbUser.examDate).getTime() - Date.now()) / 86400000)
     : null
 
-  const progByPart = Object.fromEntries(dbUser.progress.map(p => [p.part, p]))
+  // Section-aware maps to avoid part-number collisions (LISTENING Part 1 ≠ SPEAKING Part 1)
+  const lProgByPart = Object.fromEntries(dbUser.progress.filter(p => p.section === 'LISTENING').map(p => [p.part, p]))
+  const rProgByPart = Object.fromEntries(dbUser.progress.filter(p => p.section === 'READING').map(p => [p.part, p]))
+  // Legacy flat map for reading parts 5/6/7 (safe since reading parts don't collide with other sections here)
+  const progByPart = { ...rProgByPart }
 
   const { plan, advice, targetScore } = buildStudyPlan({
     examType: dbUser.examType,
     daysUntilExam,
     progByPart,
+    lProgByPart,
     levels: dbUser.levels,
     diagnosticDone: dbUser.diagnosticDone,
   })

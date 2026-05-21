@@ -610,9 +610,7 @@ export default function WritingShell({ writingPart }: { writingPart: WritingPart
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [timer.expired])
 
-  const lastTextRef = useRef<string>('')
   const handleSubmit = useCallback(async (text: string) => {
-    lastTextRef.current = text
     setSubmitted(true)
     setIsRevising(false)
     setPrevFeedback(null)
