@@ -346,6 +346,362 @@ Echte Talk-Formate die im TOEIC vorkommen:
 
 **Distractor-Qualität:** Falsche Antworten sollen Wörter aus dem Text/Dialog nutzen (Sound-alike-Trap), Zeit/Ort/Person verwechseln (Context-Swap) oder partiell wahr sein (Partial-Truth-Trap).
 
+---
+
+## Reading Section (Parts 5–7) — Barron's Premium 10th Edition
+
+### Überblick Reading
+
+- **Part 5 — Incomplete Sentences:** 30 Fragen, 13 Skill-Kategorien (Grammar + Vocabulary)
+- **Part 6 — Text Completion:** 16 Fragen, 4 Textpassagen à 4 Lücken — Kontext der ganzen Passage entscheidet
+- **Part 7 — Reading Comprehension:** 54 Fragen — 29 Single Passages + 25 Multiple Passages (2–3 Texte gleichzeitig)
+
+---
+
+### Part 5 — Incomplete Sentences (30 Fragen, 13 Skills)
+
+#### Skill 1 — Word Families
+Gleiche Wurzel, verschiedene Wortklassen: Nomen / Verb / Adjektiv / Adverb
+- Wortbau durch Suffixe: `-tion/-sion` (Nomen) | `-ment` (Nomen) | `-ful/-ous/-al/-ic/-ive/-able` (Adjektiv) | `-ly` (Adverb) | `-ize/-ify/-en` (Verb)
+- Strategie: Welche Wortklasse passt grammatisch in die Lücke? → Nur diese Option kann richtig sein
+- Beispiel: "The ___ of the project was delayed" → Nomen gefragt → "completion" nicht "complete"
+
+#### Skill 2 — Similar Meanings (Confusables)
+Wörter die ähnlich klingen oder bedeuten, aber unterschiedlich verwendet werden:
+- **commute** (pendeln/täglich reisen) vs. **travel** (reisen allgemein)
+- **borrow** (borgen/nehmen) vs. **lend** (verleihen/geben)
+- **raise** (transitiv: etwas anheben) vs. **rise** (intransitiv: von selbst steigen)
+- **lay** (transitiv: legen) vs. **lie** (intransitiv: liegen)
+- Strategie: transitive vs. intransitive Verben prüfen; Kontext wer handelt
+
+#### Skill 3 — Similar Forms
+Wörter die ähnlich aussehen/klingen, aber unterschiedliche Bedeutung haben:
+- Gruppe 1: reduce/produce/deduce/induce — alle auf `-duce`, aber verschiedene Bedeutungen
+- Gruppe 2: omit/permit/emit/admit — alle auf `-mit`
+- Gruppe 3: piece/pierce — ähnliches Schriftbild
+- Strategie: Kontext exakt lesen; Bedeutung nicht aus Wortähnlichkeit ableiten
+
+#### Skill 4 — Subject-Verb Agreement with Prepositional Phrases
+Beim S-V-Agreement gilt das HAUPTSUBJEKT, nicht das nächste Nomen:
+- "The list of items **is** ready" — `list` (singular) ist Subjekt, nicht `items`
+- "Members of the committee **are** present" — `members` (plural) ist Subjekt
+- Falle: Zwischen Subjekt und Verb steht eine Präpositionalphrase die das Subjekt verschleiert
+
+#### Skill 5 — Singular and Plural (Tricky Rules)
+Besondere Singular/Plural-Regeln:
+- **Geld:** money / information / advice / news = IMMER SINGULAR
+- **Firmenname:** Always Industries / The company = SINGULAR auch wenn Pluralform
+- **Indefinitpronomen:** everybody / nobody / everyone / someone / nothing = SINGULAR
+- **Collective nouns:** committee / team / staff = meist SINGULAR (amerikanisches Englisch)
+- **Neither/Either allein:** SINGULAR — "Neither of the reports **is** complete"
+- **Both:** PLURAL — "Both reports **are** complete"
+
+#### Skill 6 — Verb Tenses
+Zeitsignal-Wörter erkennen und passendes Tempus wählen:
+- **Simple Present:** every day, usually, often, always, sometimes, never, on Mondays
+- **Present Continuous:** now, right now, at the moment, currently
+- **Present Perfect:** already, just, yet, recently, since, for (+ Zeitraum)
+- **Simple Past:** yesterday, last week, last year, ago, in 2020, when (+ abgeschlossene Zeit)
+- **Simple Future:** tomorrow, next week, soon, in the future, will, be going to
+- **Past Perfect:** before + Simple Past; after + Past Perfect (Reihenfolge in Vergangenheit)
+
+#### Skill 7 — Comparisons
+Drei Steigerungsgrade: Positiv / Komparativ / Superlativ
+
+**Ein- und zweisilbige Adjektive & Adverbien** (Endung `-er`/`-est`):
+- pretty → prettier → the prettiest
+- narrow → narrower → the narrowest
+- far → farther → the farthest
+- soon → sooner → the soonest
+
+**Mehrsilbige Adjektive & Adverbien** (`more`/`most` davor):
+- popular → more popular → the most popular
+- competent → more competent → the most competent
+- efficiently → more efficiently → the most efficiently
+- quickly → more quickly → the most quickly
+
+**Unregelmäßige Formen:**
+- good → better → the best
+- bad → worse → the worst
+- well → better → the best
+- little → less → the least
+
+TIP: Superlative werden IMMER von `the` begleitet.
+TIP: Zweier-Vergleich → Komparativ + `than`; Dreier+ → Superlativ + `the`
+
+#### Skill 8 — Pronouns
+Pronomen stimmt in Person und Numerus mit seinem Antezedens überein:
+
+| Subject | Object | Possessive Adj | Possessive Pronoun | Reflexive |
+|---------|--------|---------------|-------------------|-----------|
+| I | me | my | mine | myself |
+| you | you | your | yours | yourself |
+| he/she/it | him/her/it | his/her/its | his/hers/its | himself/herself/itself |
+| we | us | our | ours | ourselves |
+| you | you | your | yours | yourselves |
+| they | them | their | theirs | themselves |
+
+TIP: Antezedens identifizieren → Person und Numerus bestimmen → passendes Pronomen wählen
+
+#### Skill 9 — Subject Relative Pronouns
+
+**Restrictive Clauses** (notwendig zur Identifikation — keine Kommas):
+| Antecedent | Relative Pronoun |
+|------------|-----------------|
+| People | who / that |
+| Things | which / that |
+| Possession | whose |
+
+Beispiele:
+- "The woman **who** shares this office is very good with computers."
+- "The packages **that** arrived this morning are on your desk."
+- "The man **whose** office is next door wants to meet you."
+
+**Nonrestrictive Clauses** (Zusatzinfo — MIT Kommas):
+- People: who, whose
+- Things: which, whose
+- Keine Verwendung von `that` in nonrestrictive clauses
+- "Mr. Maurice, **who** has worked here for a long time, will retire soon."
+- "My car, **which** is constantly breaking down, is at the mechanic's."
+
+TIP: Der Adjektivsatz folgt DIREKT dem Antezedens.
+
+#### Skill 10 — Object Relative Pronouns
+
+**Restrictive Clauses** — wenn Relativpronomen das Objekt des Relativsatzes ist:
+| Antecedent | Relative Pronoun |
+|------------|-----------------|
+| People | whom / who / that / nothing (omittierbar) |
+| Things | which / that / nothing (omittierbar) |
+| Possession | whose |
+
+Beispiele:
+- "The accountant **whom** we hired last month used to work for Ibex International."
+- "The office **that** we rented is very close to the subway station."
+
+**Nonrestrictive Clauses** — MIT Kommas:
+- People: whom / who
+- Things: which
+- Possession: whose
+- "My neighbor, **whom** I have known for many years, is moving away next month."
+- "The City Museum, **which** I visit almost every day, has many interesting exhibits."
+
+TIP: Wenn das Relativpronomen das Subjekt des Relativsatzes ist → Subject Relative Pronoun verwenden. Wenn es das Objekt ist → Object Relative Pronoun. Für `whose` immer Object Pronoun nutzen.
+
+#### Skill 11 — Passive Voice
+Passiv = Subjekt empfängt die Handlung (Agens unbekannt/unwichtig)
+Bildung: **be** (in beliebigem Tempus) + **Past Participle**
+
+| Tempus | Aktiv-Beispiel | Passiv-Bildung |
+|--------|----------------|----------------|
+| Simple Present | pays | is/are + paid |
+| Simple Past | delivered | was/were + delivered |
+| Present Perfect | has held | has been + held |
+| Future | will distribute | will be + distributed |
+
+Beispiele:
+- "Employees **are paid** every Friday." (Simple Present Passive)
+- "The mail **was delivered** at 10:00 this morning." (Simple Past Passive)
+- "The annual conference **has been held** in this city every year since 2005." (Present Perfect Passive)
+- "The report **will be distributed** at tomorrow's meeting." (Future Passive)
+
+Wenn der Agens genannt wird → mit `by`: "The letter **was signed by** the accountant."
+
+TIP: Prüfe ob Subjekt die Handlung AUSFÜHRT (aktiv) oder EMPFÄNGT (passiv).
+
+#### Skill 12 — Word Meaning
+Richtiges Vokabular aus Kontext erschließen:
+- Nie nur die Lücke selbst betrachten — UMLIEGENDE Sätze geben die Bedeutung vor
+- Beispiel: Workshop-Ankündigung → Leute die teilnehmen = **participants** (nicht consultants/customers/reviewers)
+- Beispiel: Schwieriger Arzttermin → Person die einen Termin bekommt = **fortunate** (nicht wise/necessary/persistent)
+- Strategie: Was beschreibt der ganze Kontext? Welches Wort passt zur Gesamtsituation?
+
+#### Skill 13 — Sentence Choice
+Beim Einfügen eines ganzen Satzes in eine Passage:
+- TIP: Identifiziere BOTH the TOPIC and the PURPOSE of the passage
+- Der einzufügende Satz muss THEMA UND ZWECK der Passage widerspiegeln
+- Beispiel Thema=Gesundheitsversicherung, Zweck=Meeting ankündigen → Satz muss über das Meeting informieren, nicht über Krankenversicherung oder Vertragsdetails
+- Falsche Antworten: Erwähnen den richtigen Kontext (z.B. Gesundheit) aber passen nicht zum Zweck (z.B. Vertragsfeedback statt Meeting-Info)
+
+---
+
+### Part 6 — Text Completion (16 Fragen, 4 Passagen)
+
+**Grundprinzip:** Kurze Textpassagen (Memo, Email, Brief, Bekanntmachung) mit 4 Lücken. Anders als Part 5 reicht das isolierte Betrachten einer Lücke nicht — der Kontext der ganzen Passage entscheidet.
+
+#### Skill 1 — Adverbs of Frequency
+Häufigkeitsskala (abnehmend):
+always → usually → frequently → often → sometimes → occasionally → seldom → rarely → never
+
+Positionierung: Meist VOR dem Hauptverb, NACH `be`: "She **is always** late" / "He **rarely** attends"
+
+#### Skill 2 — Gerunds and Infinitives after Main Verbs
+
+**Gerund (Verb + -ing) nach diesen Verben:**
+appreciate / avoid / consider / delay / discuss / enjoy / finish / mind / miss / postpone / quit / risk / suggest
+
+**Infinitiv (to + base form) nach diesen Verben:**
+agree / attempt / claim / decide / demand / fail / hesitate / hope / intend / learn / need / offer / plan / prepare / refuse / seem / want
+
+#### Skill 3 — Gerunds and Infinitives after Prepositions
+Nach Präpositionen IMMER Gerund (nicht Infinitiv):
+- "She is interested **in attending** the conference."
+- "He is responsible **for completing** the report."
+- "They succeeded **in getting** the contract."
+- Wichtige Phrasen: in addition to / instead of / prior to / after / before (wenn Präp, nicht Konj)
+
+#### Skill 4 — Causative Verbs
+
+**Causative + Basisform (ohne to):**
+- **have** someone do: "She **had** her assistant **schedule** the meeting."
+- **let** someone do: "The manager **let** employees **leave** early."
+- **make** someone do: "The boss **made** everyone **work** overtime."
+
+**Causative + Infinitiv (mit to):**
+- allow / cause / force / get / order / permit / require + someone + **to** + base form
+- "The policy **requires** employees **to** submit reports weekly."
+- "The director **ordered** the team **to** revise the proposal."
+
+---
+
+### Part 7 — Reading Comprehension (54 Fragen, 13 Dokument-Typen)
+
+**Aufbau:** 29 Single Passage + 25 Multiple Passage (2–3 Texte gleichzeitig)
+Jeder Passagen-Set hat 2–5 Fragen.
+
+#### PSRA Strategy (vollständig)
+
+**P — Predict:**
+- Lies die Einführungszeile VOR dem Text (z.B. "Questions 1-3 refer to the following memo")
+- Diese Zeile verrät was für ein Dokumenttyp es ist und hilft Vorhersagen zu treffen
+- Schau auf den Look des Textes (fax / phone message / graph / memo) für Hinweise
+
+**S — Scan:**
+- Schau die FRAGEN an BEVOR du den Text liest
+- Finde die Key Words in den Fragen UND in den Antwortoptionen
+- Beim Lesen des Textes: suche nach diesen Key Words und Synonymen
+- Key Words in Fragen: equipment / multiple uses; im Text: "answering machines" / "tablet computers"
+
+**R — Read:**
+- Lies den Text schnell — du weißt schon was du suchst
+- Bestätige deine Predictions durch Lesen
+- Beantworte zuerst alle einfachen Fragen, fang dann mit dem Rest an
+- Markiere NICHT auf dem Antwortbogen bis du alle Fragen zur Passage bearbeitet hast
+
+**A — Answer:**
+- Jetzt markieren auf dem Antwortbogen
+- Für jede Frage: Key Words suchen, ähnliche Bedeutungen suchen
+- Wenn du keine Antwort weißt: RATE (kein Abzug im TOEIC)
+- Antwortoptionen folgen der Sequenz des Textes — erste Frage meist aus erstem Textabschnitt
+
+#### Part 7 — Fragetypen
+
+1. **Main Idea** — "What is the purpose of this ...?" / "Who is this written for?" → Auf Zweck, nicht Details achten
+2. **Detail** — "What is indicated about X?" → Im Text direkt oder als Paraphrase
+3. **Vocabulary** — "The word '...' is closest in meaning to ..." → Kontext entscheidet, nicht Wörterbuchdefinition
+4. **Sentence Insertion** — "[1][2][3][4]" Positionen → Prüfe ob Satz thematisch zum Absatz passt UND zum Zweck der Passage
+5. **Meaning in Context** — "What does X mean when he/she writes '...'?" → Bedeutung im Kontext des gesamten Gesprächs/Texts
+
+**Für NOT/EXCEPT-Fragen:** Drei Antworten sind im Text richtig, EINE ist es nicht — diese ist die Antwort.
+
+#### Part 7 — 13 Dokument-Typen (alle Skills)
+
+**Skill 1 — Advertisements** (Anzeigen)
+In Zeitungen, Magazinen, Internet; über Produkte, Dienstleistungen, Immobilien, Jobs
+- Werbeanzeige = oft kurz, prägnant, mit Kontaktinfo
+- Beispiel: "ATTENTION MANUFACTURERS! We introduce and distribute your products to 125,000 distributors in 155 countries, FREE!"
+
+**Skill 2 — Forms** (Formulare)
+Template für Einzelpersonen: subscription forms, purchase orders, reservation forms, invoices, application forms
+- Enthält strukturierte Felder: Name, Company, Payment, Total etc.
+- Beispiel: Journal subscription form mit Name/Email/Company/Payment/Total
+
+**Skill 3 — Letters** (Briefe)
+Wichtige Info steht im BODY des Briefes. Struktur: Greeting (Dear Mr./Ms. ...) → Body → Closing (Sincerely yours / Sincerely)
+- Formaler Ton; klare Angabe des Zwecks im ersten Absatz
+- Beispiel: X-Cellent Corporation letter about property appraisal
+
+**Skill 4 — Memos** (Memoranda)
+Interne Kommunikation innerhalb einer Firma; heute oft als Email gesendet
+- Struktur: To / From / Date / Subject → dann Body-Text
+- Computer-generated language oft verwendet
+- Beispiel: Personnel Officer → All Employees re: Company Travel Policy
+
+**Skill 5 — Tables and Charts** (Tabellen und Diagramme)
+Daten zur schnellen Übersicht; fast jedes Thema möglich
+- Welttemperaturen-Tabelle: Stadt + Hi/Lo Temperatur (C/F) + Wetterkode (s=sunny, c=cloudy, sh=showers, pc=partly cloudy, r=rain, t=thunderstorms)
+
+**Skill 6 — Graphs** (Grafiken)
+Zeigen Beziehungen zwischen Variablen; Typen: Liniendiagramm, Balkendiagramm, Tortendiagramm
+- Beispiel: Hotel Chain Market Share Pie Chart: Stillon 55%, Lowit 25%, Torte 15%, Other 5%
+
+**Skill 7 — Announcements** (Bekanntmachungen)
+Formale Statements über Neuigkeiten: Personalveränderungen, neue Produkte, besondere Events
+- Erster Satz/Absatz enthält die Kernaussage
+- Beispiel: City Chamber of Commerce Job Fair-Ankündigung (City Convention Center, pre-registration required)
+
+**Skill 8 — Notices** (Hinweise/Aushänge)
+Info für Öffentlichkeit oder spezifische Produktnutzer; oft an Wänden/Gebäuden oder in Produktliteratur
+- Themen: Regeländerungen, Richtlinienänderungen, wichtige Hinweise
+- Beispiel: Corporate Policy Change — Moving Expenses (nur wenn neue Heimat ≥ 50 Meilen entfernt)
+
+**Skill 9 — Articles** (Artikel)
+Texte für Zeitungen, Magazine, Newsletter; allgemeines oder spezifisches Interesse; Ton und Länge hängt von Publikation ab
+- Struktur: Einleitung (Hauptaussage) → Entwicklung → Schluss
+- Beispiel: Restaurant-Artikel über Kochkurse als Marketingmaßnahme
+
+**Skill 10 — Schedules** (Zeitpläne)
+Listen von Zeiten/Daten für Events/Aufgaben: Bahn-/Busfahrpläne, Zahlungspläne, Kurspläne, Projektpläne
+- Wichtig: Fußnoten und Legende lesen (T=Tunnel, W=Bus, Fettdruck=Peak Fares)
+- Beispiel: Bus Route Schedule (7th & Market / East Rise P&R / Tunnel / 122nd East & 16th)
+
+**Skill 11 — Emails** (E-Mails)
+Elektronische Post; kann jede Art Korrespondenz sein; enthält Heading (From/To/Subject)
+- Charakteristisch: informellerer Ton als formelle Briefe; schnelle Kommunikation
+- Beispiel: Melinda Ligos an Misha Polentesky re: Meeting in Orlando
+
+**Skill 12 — Webpages** (Webseiten)
+Viele verschiedene Webseiten im TOEIC; Layout und Terminologie vertraut machen (HOME/ABOUT/FAQ/PRICING/REVIEWS)
+- Enthalten Navigation-Menü, Hauptinhalt, oft Links zu weiteren Infos
+- Beispiel: Domestic Designs — Interior Decorating Company webpage
+
+**Skill 13 — Text Messages and Online Chats** (Textnachrichten und Online-Chats)
+Häufige Kommunikationsformen; IMMER eine "Meaning in Context"-Frage dabei
+- Format: Zeitstempel + Name + Nachricht (chronologisch)
+- Gängige Phrasen: "Got it." / "Right." / "I'm sorry?" / "Sounds good."
+- Beispiel: Lin Lee / Jim Hart chat (traffic/bus late, work agreement signing)
+
+### Part 7 — Authentische Dokumentbeispiele (aus Barron's-Übungen)
+
+- **Advertisement:** "ATTENTION MANUFACTURERS! We introduce and distribute your products to 125,000 distributors in 155 countries, FREE! Tel: (310) 553-4434, Ext. 105; Fax: (310) 553-5555; GRAND TECHNOLOGIES LIMITED" — Zielgruppe: Manufacturers, nicht Distributors
+- **Form:** Journal of Business News Monthly subscription form (Anne Kwok, Pharmaceutical Supply Company, Xtra Card, 1 year = $199.99, 2 years = $349.99) — Fragen: Wie oft erscheint das Journal? (yearly), Wie bekommt sie es? (online + paper), Wie viel kostet ein Jahr?
+- **Letter:** X-Cellent Corporation property appraisal letter (Mark Wilson an George Hendries; first payment = 50% of total report price before work begins; report delivered by end of next month)
+- **Memo:** Simon Gonzales (Personnel Officer) → All Employees, Company Travel Policy: Business Class erlaubt wenn Flug >5 Stunden; kein First Class; effective June 1
+- **Table/Chart:** World Temperatures January 5 (Amsterdam/Athens/Bangkok/Beijing/Brussels/Budapest/Frankfurt/Jakarta/Kuala Lampur/Madrid/Manila/Seoul/Taipei/Tokyo; Hi/Lo in C and F; Weather codes)
+- **Graph:** Hotel Chain Market Share (Stillon 55%, Lowit 25%, Torte 15%, Other 5%) — Zielgruppe: Competing hotels
+- **Announcement:** City Job Fair at City Convention Center March 11; workshops on résumé writing, interview skills; no charge but pre-registration required; open to public; Sentence Insertion positions [1][2][3][4]
+- **Notice:** Corporate Policy Change — Moving Expenses: reimbursed only if new home ≥ 50 miles from former home; household goods and personal effects covered; meals/pre-move househunting/temporary quarters NOT reimbursed
+- **Article:** Restaurant cooking classes article (cooking classes als Werbemittel; attract more business; low costs, high return)
+- **Schedule:** Bus route (7th & Market / East Rise P&R / Tunnel / 122nd East & 16th); T=Tunnel (opens 8am, departs 5min prior to time stop at 12th & Meridian); W=Bus; Bold=peak fares
+- **Email:** Melinda Ligos → Misha Polentesky re: Meeting in Orlando (client loved proposal, no changes, paperwork by end of week, dinner at Sparazza's, back at home office Thursday)
+- **Webpage:** Domestic Designs (HOME/ABOUT/FAQ/PRICING/REVIEWS; 20 years experience; free first consultation; portfolio link)
+- **Text Messages:** Lin Lee/Jim Hart (traffic heavy/bus slow, client arriving, will be there shortly, you have the papers?, work agreement to sign) — Meaning in Context: "I'm sorry?" = wants Jim to repeat
+
+### Summary of Tips — Reading Section (Barron's p.180)
+
+**Part 5: Incomplete Sentences und Part 6: Text Completion**
+- Unterscheide Wörter mit ähnlichen aber verschiedenen Bedeutungen oder Formen
+- Bestimme das richtige Wort, den richtigen Ausdruck oder Satz für den Kontext
+- Erkenne verschiedene Verbformen
+- Erkenne Singular- und Pluralnomen
+- Erkenne verschiedene Klausel-Typen
+- Verstehe verschiedene Verwendungen von Präpositionen
+
+**Part 7: Reading Comprehension**
+- Kenne die verschiedenen Textpassagen-Typen im TOEIC (alle 13 Skill-Typen)
+- Kenne die verschiedenen Fragetypen im TOEIC (Main Idea / Detail / Vocabulary / Sentence Insertion / Meaning in Context)
+- Nutze die PSRA-Strategie: Predict → Scan → Read → Answer
+
 ## Produkt-Prinzipien
 
 - Der User soll nicht überlegen müssen was er tut — das System führt ihn guided
