@@ -429,7 +429,15 @@ function MultiQuestionView({ question, part, onAnswers, submitted, selected }: M
   const [showTranscript, setShowTranscript] = useState(false)
   const prereadSecs = 30
   const remaining = useTimer(prereadSecs, phase === 'prereading', () => setPhase('ready'))
-  const questions = (c.questions as { stem: string; options: string[]; answer: string }[]) ?? []
+
+  // Support both grouped format (content.questions[]) and flat format (content.question + top-level options)
+  const groupedQuestions = c.questions as { stem: string; options: string[]; answer: string }[] | undefined
+  const questions: { stem: string; options: string[]; answer: string }[] = groupedQuestions && groupedQuestions.length > 0
+    ? groupedQuestions
+    : (c.question as string)
+      ? [{ stem: c.question as string, options: (question.options as string[]) ?? [], answer: question.answer }]
+      : []
+
   const graphic   = c.graphic as { type: string; title: string; headers?: string[]; rows: (string[])[] } | undefined
   const color = part === 3 ? '#fb923c' : '#AE00FF'
   const transcriptText = (c.transcript as string) ?? (c.talk as string) ?? ''
@@ -721,7 +729,12 @@ export default function ListeningShell({ part }: ListeningShellProps) {
       const correct = selected === getCorrectAnswer(q)
       setAnswers(prev => [...prev, { questionId: q.id, selected, correct, timeSpentSec: timeSpent }])
     } else {
-      const subQs = (q.content as Record<string, unknown>).questions as { answer: string }[] ?? []
+      const c = q.content as Record<string, unknown>
+      // Support both grouped (content.questions[]) and flat (content.question + top-level answer)
+      const groupedQs = c.questions as { answer: string }[] | undefined
+      const subQs = groupedQs && groupedQs.length > 0
+        ? groupedQs
+        : c.question ? [{ answer: q.answer }] : []
       subQs.forEach((sq, i) => {
         const sel = multiSelected[i] ?? ''
         const correct = sel === sq.answer
