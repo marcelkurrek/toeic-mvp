@@ -1,6 +1,6 @@
 'use client'
 import { useRouter } from 'next/navigation'
-import { ClipboardList, Zap, BookOpen, ChevronRight, Trophy } from 'lucide-react'
+import { ClipboardList, BookOpen, ChevronRight, Trophy } from 'lucide-react'
 
 const CARDS = [
   {
@@ -19,14 +19,6 @@ const CARDS = [
     label: 'Mini-Prüfung',
     sub: '15 Min · 11 Fragen',
     desc: 'Simuliere eine echte TOEIC-Prüfungssituation im Kurzformat',
-  },
-  {
-    href: '/diagnostic',
-    icon: Zap,
-    color: '#fbbf24',
-    label: 'Einstufungstest',
-    sub: 'Alle Bereiche',
-    desc: 'Finde heraus wo du stehst und erhalte personalisierte Empfehlungen',
   },
   {
     href: '/guide',
