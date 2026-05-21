@@ -487,6 +487,8 @@ export default function WritingShell({ writingPart }: { writingPart: WritingPart
   const [timerExpired, setTimerExpired] = useState(false)
   const [finished, setFinished] = useState(false)
   const [scores, setScores] = useState<number[]>([])
+  const [sessionId, setSessionId] = useState<string | null>(null)
+  const startTimeRef = useRef<number>(Date.now())
   const timer = useCountdownTimer(meta.timeSec, timerRunning && !timerExpired)
 
   const typeMap: Record<WritingPart, string> = {
@@ -500,9 +502,18 @@ export default function WritingShell({ writingPart }: { writingPart: WritingPart
       const res = await fetch(`/api/questions?section=WRITING&limit=3`)
       const data = await res.json()
       const filtered = (data.questions ?? []).filter((q: Question) => q.type === typeMap[writingPart])
-      setQuestions(filtered.length > 0 ? filtered : data.questions ?? [])
+      const finalQuestions = filtered.length > 0 ? filtered : data.questions ?? []
+      setQuestions(finalQuestions)
       setLoading(false)
       setTimerRunning(true)
+      const sessRes = await fetch('/api/sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'PART_PRACTICE', section: 'WRITING', parts: [writingPart === 'sentences' ? 1 : writingPart === 'email' ? 2 : 3], totalQuestions: finalQuestions.length }),
+      })
+      const sessData = await sessRes.json()
+      setSessionId(sessData.id ?? null)
+      startTimeRef.current = Date.now()
     }
     load()
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -549,9 +560,18 @@ export default function WritingShell({ writingPart }: { writingPart: WritingPart
     }
   }, [questions, currentIndex])
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentIndex + 1 >= questions.length) {
       setFinished(true)
+      if (sessionId && scores.length > 0) {
+        const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+        const durationSec = Math.round((Date.now() - startTimeRef.current) / 1000)
+        await fetch(`/api/sessions/${sessionId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ score: avg, maxScore: 100, durationSec, answers: [] }),
+        })
+      }
     } else {
       setCurrentIndex(i => i + 1)
       setTimerRunning(true)
@@ -597,7 +617,7 @@ export default function WritingShell({ writingPart }: { writingPart: WritingPart
             style={{ padding: '10px 20px', borderRadius: 10, border: '1px solid var(--card-border)', background: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: 14 }}>
             Zurück
           </button>
-          <button onClick={() => { setFinished(false); setCurrentIndex(0); setSubmitted(false); setFeedback(null); setTimerRunning(true); setScores([]) }}
+          <button onClick={() => { setFinished(false); setCurrentIndex(0); setSubmitted(false); setFeedback(null); setTimerRunning(true); setScores([]); startTimeRef.current = Date.now() }}
             style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 20px', borderRadius: 10, background: meta.color + '20', border: `1.5px solid ${meta.color}50`, color: meta.color, cursor: 'pointer', fontSize: 14, fontWeight: 600 }}>
             <RotateCcw size={14} /> Nochmal
           </button>
