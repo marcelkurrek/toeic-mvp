@@ -78,42 +78,22 @@ async function main() {
   }
   console.log(`✅ Part 5 extra: ${part5Extra.length} questions`)
 
-  // ── READING: Part 6 – 2 additional text completion passages ──────────────
+  // ── READING: Part 6 – additional text completion questions ───────────────
+  const memoText = 'MEMORANDUM\nTo: All Staff\nFrom: Human Resources\nRe: Updated Leave Policy\n\nEffective January 1, all employees must submit leave requests at least two weeks [141]. This change has been [142] to ensure adequate staffing during peak periods. Requests submitted without sufficient notice may be [143] at the discretion of your department manager. We appreciate your [144] in helping us maintain smooth operations throughout the year.'
+
+  const cateringText = 'Dear Ms. Thornton,\n\nThank you for your inquiry about our corporate catering services. We are pleased to [145] that we offer full-service catering for events of all sizes. Our team will work closely with you to create a menu that [146] your guests\' dietary needs and preferences.\n\nFor events of 50 or more people, we require a deposit of 30 percent of the total cost at the time of booking. [147]. The remaining balance is due one week before the event date.\n\nPlease do not hesitate to contact us if you have any questions. We look forward to [148] your upcoming event a memorable one.'
+
   const part6Extra = [
-    {
-      id: 'p6-memo-e1',
-      content: {
-        passage: 'MEMORANDUM\nTo: All Staff\nFrom: Human Resources\nRe: Updated Leave Policy\n\nEffective January 1, all employees must submit leave requests at least two weeks [1]. This change has been [2] to ensure adequate staffing during peak periods. Requests submitted without sufficient notice may be [3] at the discretion of your department manager. We appreciate your [4] in helping us maintain smooth operations throughout the year.',
-        blanks: [
-          { index: 1, options: ['in advance', 'on advance', 'in advanced', 'with advance'], answer: 'A', explanation: '"In advance" is the correct preposition phrase meaning "ahead of time."' },
-          { index: 2, options: ['implementing', 'implementation', 'implemented', 'implement'], answer: 'C', explanation: '"Has been implemented" — present perfect passive. The policy received the action of implementation.' },
-          { index: 3, options: ['denied', 'denying', 'denial', 'denies'], answer: 'A', explanation: '"May be denied" — passive modal. Requests could receive a denial.' },
-          { index: 4, options: ['understand', 'understanding', 'understood', 'understandable'], answer: 'B', explanation: '"Your understanding" — noun following possessive adjective "your."' },
-        ],
-      },
-      options: null,
-      answer: 'ABCA',
-      explanation: 'Memo about updated leave policy requiring two weeks advance notice.',
-      tags: ['memo', 'hr', 'policy'],
-      isDiagnostic: false,
-    },
-    {
-      id: 'p6-email-e2',
-      content: {
-        passage: 'Dear Ms. Thornton,\n\nThank you for your inquiry about our corporate catering services. We are pleased to [1] that we offer full-service catering for events of all sizes. Our team will work closely with you to create a menu that [2] your guests\' dietary needs and preferences.\n\nFor events of 50 or more people, we require a deposit of 30 percent of the total cost at the time of booking. [3]. The remaining balance is due one week before the event date.\n\nPlease do not hesitate to contact us if you have any questions. We look forward to [4] your upcoming event a memorable one.',
-        blanks: [
-          { index: 1, options: ['inform', 'advise', 'say', 'tell'], answer: 'B', explanation: '"Pleased to advise" is a formal business English expression. "Tell" requires an indirect object.' },
-          { index: 2, options: ['accommodate', 'accommodates', 'accommodating', 'accommodated'], answer: 'B', explanation: '"A menu that accommodates" — relative clause with third-person singular subject "menu."' },
-          { index: 3, options: ['This amount is non-refundable in case of cancellation.', 'We do not offer any cancellation policies.', 'The deposit ensures priority booking for your date.', 'A deposit is sometimes required for small events.'], answer: 'A', explanation: 'A sentence about the deposit policy (non-refundable on cancellation) fits logically after mentioning the deposit requirement.' },
-          { index: 4, options: ['make', 'making', 'made', 'makes'], answer: 'B', explanation: '"Look forward to making" — "to" here is a preposition, so gerund (-ing) is required.', },
-        ],
-      },
-      options: null,
-      answer: 'BABB',
-      explanation: 'Business email from catering company responding to corporate inquiry.',
-      tags: ['email', 'catering', 'business'],
-      isDiagnostic: false,
-    },
+    // Memo passage
+    { id: 'p6-memo-141', content: { passage: memoText, question: 'Choose the best word for blank [141]: "...at least two weeks [141]."' }, options: ['in advance', 'on advance', 'in advanced', 'with advance'], answer: 'A', explanation: '"In advance" is the correct preposition phrase meaning "ahead of time." The other forms are incorrect.', tags: ['preposition', 'fixed-phrase'], isDiagnostic: false },
+    { id: 'p6-memo-142', content: { passage: memoText, question: 'Choose the best word for blank [142]: "This change has been [142] to ensure..."' }, options: ['implementing', 'implementation', 'implemented', 'implement'], answer: 'C', explanation: '"Has been implemented" — present perfect passive. The policy received the action of implementation.', tags: ['passive', 'present-perfect'], isDiagnostic: false },
+    { id: 'p6-memo-143', content: { passage: memoText, question: 'Choose the best word for blank [143]: "...requests...may be [143] at the discretion..."' }, options: ['denied', 'denying', 'denial', 'denies'], answer: 'A', explanation: '"May be denied" — passive modal. The subject (requests) receives the action of denial.', tags: ['passive', 'modal'], isDiagnostic: false },
+    { id: 'p6-memo-144', content: { passage: memoText, question: 'Choose the best word for blank [144]: "We appreciate your [144]..."' }, options: ['understand', 'understanding', 'understood', 'understandable'], answer: 'B', explanation: '"Your understanding" — gerund/noun following the possessive "your." This is a fixed polite expression.', tags: ['word-form', 'noun'], isDiagnostic: false },
+    // Catering email passage
+    { id: 'p6-catering-145', content: { passage: cateringText, question: 'Choose the best word for blank [145]: "We are pleased to [145] that..."' }, options: ['inform', 'advise', 'say', 'tell'], answer: 'B', explanation: '"Pleased to advise" is formal business English. "Tell" needs an indirect object; "say" and "inform" fit less naturally in this phrase.', tags: ['vocabulary', 'business-english'], isDiagnostic: false },
+    { id: 'p6-catering-146', content: { passage: cateringText, question: 'Choose the best word for blank [146]: "...a menu that [146] your guests\' dietary needs..."' }, options: ['accommodate', 'accommodates', 'accommodating', 'accommodated'], answer: 'B', explanation: '"A menu that accommodates" — the relative clause verb must agree with "menu" (singular, third person).', tags: ['subject-verb-agreement', 'relative-clause'], isDiagnostic: false },
+    { id: 'p6-catering-147', content: { passage: cateringText, question: 'Choose the best sentence for blank [147] (after the deposit mention).' }, options: ['This amount is non-refundable in case of cancellation.', 'We do not accept credit card payments.', 'The deposit ensures priority booking for your date.', 'A deposit is sometimes required for small events.'], answer: 'A', explanation: 'A sentence about the deposit being non-refundable on cancellation logically follows the deposit requirement and gives important policy information.', tags: ['sentence-insertion', 'coherence'], isDiagnostic: false },
+    { id: 'p6-catering-148', content: { passage: cateringText, question: 'Choose the best word for blank [148]: "We look forward to [148] your upcoming event a memorable one."' }, options: ['make', 'making', 'made', 'makes'], answer: 'B', explanation: '"Look forward to making" — "to" here is a preposition (not part of the infinitive), so the gerund (-ing) is required.', tags: ['gerund', 'preposition'], isDiagnostic: false },
   ]
 
   for (const q of part6Extra) {
@@ -123,7 +103,7 @@ async function main() {
       create: { ...q, section: 'READING', part: 6, type: 'TEXT_COMPLETION', difficulty: 3, isDiagnostic: false },
     })
   }
-  console.log(`✅ Part 6 extra: ${part6Extra.length} passages`)
+  console.log(`✅ Part 6 extra: ${part6Extra.length} questions (2 passages)`)
 
   // ── READING: Part 7 – Additional single passages ──────────────────────────
   const part7ExtraSingle = [
@@ -463,6 +443,163 @@ Operations Manager, TechBridge Solutions`,
     })
   }
   console.log(`✅ Writing extra: ${writingExtra.length} tasks`)
+
+  // ─── LISTENING: Part 1 – Additional Photographs ──────────────────────────
+  const part1Extra = [
+    {
+      id: 'p1-lab-13',
+      content: {
+        imageUrl: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?fm=jpg&q=60&w=1200&auto=format&fit=crop',
+        transcript: [
+          'Scientists are working in the laboratory.',
+          'A person is examining samples under a microscope.',
+          'The lab equipment is being cleaned.',
+          'Researchers are leaving the building.',
+        ],
+      },
+      options: ['A', 'B', 'C', 'D'], answer: 'B',
+      explanation: 'The correct description is B: a person examining samples under a microscope, which is the most likely activity shown in a laboratory setting.',
+      tags: ['photograph', 'laboratory', 'science'], isDiagnostic: false,
+    },
+    {
+      id: 'p1-train-14',
+      content: {
+        imageUrl: 'https://images.unsplash.com/photo-1474487548417-781cb71495f3?fm=jpg&q=60&w=1200&auto=format&fit=crop',
+        transcript: [
+          'Passengers are boarding the train.',
+          'The train is stopped at the platform.',
+          'A conductor is checking tickets on the platform.',
+          'Luggage is being loaded onto the train.',
+        ],
+      },
+      options: ['A', 'B', 'C', 'D'], answer: 'B',
+      explanation: 'B best describes the train at rest at a station platform, which is the central subject of the photograph.',
+      tags: ['photograph', 'transportation', 'station'], isDiagnostic: false,
+    },
+    {
+      id: 'p1-park-15',
+      content: {
+        imageUrl: 'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?fm=jpg&q=60&w=1200&auto=format&fit=crop',
+        transcript: [
+          'People are jogging through the park.',
+          'Trees are being planted along a path.',
+          'A park bench is placed beside a tree.',
+          'Workers are trimming the grass.',
+        ],
+      },
+      options: ['A', 'B', 'C', 'D'], answer: 'C',
+      explanation: 'C correctly describes a bench positioned next to a tree in a park — the primary elements visible in the image.',
+      tags: ['photograph', 'outdoor', 'park'], isDiagnostic: false,
+    },
+    {
+      id: 'p1-shipping-16',
+      content: {
+        imageUrl: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?fm=jpg&q=60&w=1200&auto=format&fit=crop',
+        transcript: [
+          'Workers are stacking boxes in a warehouse.',
+          'A forklift is being repaired.',
+          'Shelves are being assembled by employees.',
+          'Packages are lined up on a conveyor belt.',
+        ],
+      },
+      options: ['A', 'B', 'C', 'D'], answer: 'A',
+      explanation: 'A correctly describes workers stacking or organizing boxes in a warehouse/storage environment.',
+      tags: ['photograph', 'warehouse', 'logistics'], isDiagnostic: false,
+    },
+    {
+      id: 'p1-hotel-17',
+      content: {
+        imageUrl: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?fm=jpg&q=60&w=1200&auto=format&fit=crop',
+        transcript: [
+          'A receptionist is checking in a guest.',
+          'Guests are gathered in the hotel lobby.',
+          'Hotel staff are arranging chairs in the lobby.',
+          'A suitcase is being carried to the elevator.',
+        ],
+      },
+      options: ['A', 'B', 'C', 'D'], answer: 'A',
+      explanation: 'A describes the most typical hotel lobby interaction — a receptionist checking in a guest at the front desk.',
+      tags: ['photograph', 'hotel', 'service'], isDiagnostic: false,
+    },
+  ]
+
+  for (const q of part1Extra) {
+    await prisma.question.upsert({
+      where: { id: q.id },
+      update: {},
+      create: { ...q, section: 'LISTENING', part: 1, type: 'PHOTOGRAPH', difficulty: 2, isDiagnostic: false },
+    })
+  }
+  console.log(`✅ Part 1 extra: ${part1Extra.length} photographs`)
+
+  // ─── LISTENING: Part 2 – Additional Q&A pairs ────────────────────────────
+  const part2ExtraB = [
+    {
+      id: 'p2-extra-b1',
+      content: { question: "What time does the board meeting start tomorrow?", responses: ["At two o'clock in the afternoon.", "Yes, the board approved it.", "In the large conference room."] },
+      options: ['A', 'B', 'C'], answer: 'A',
+      explanation: '"What time" asks for a specific time. A gives a direct time answer. B answers a yes/no, C answers "where."',
+      tags: ['question-response', 'time'], isDiagnostic: false,
+    },
+    {
+      id: 'p2-extra-b2',
+      content: { question: "Have you seen the quarterly sales report?", responses: ["It was submitted last Friday.", "I haven't had a chance to look at it yet.", "Yes, the sales team did a great job."] },
+      options: ['A', 'B', 'C'], answer: 'B',
+      explanation: 'B directly answers "Have you seen...?" with "I haven\'t had a chance to look at it yet." — a natural negative response.',
+      tags: ['question-response', 'present-perfect'], isDiagnostic: false,
+    },
+    {
+      id: 'p2-extra-b3',
+      content: { question: "Who is handling the Johnson account while Ms. Torres is on leave?", responses: ["The account was opened last year.", "Mr. Kim from the client services team.", "She'll be back on the 15th."] },
+      options: ['A', 'B', 'C'], answer: 'B',
+      explanation: '"Who is handling" asks for a person. B gives a person\'s name and their role. A and C do not answer who.',
+      tags: ['question-response', 'who'], isDiagnostic: false,
+    },
+    {
+      id: 'p2-extra-b4',
+      content: { question: "Could you send me the updated project schedule?", responses: ["I'll email it to you right away.", "The project was completed on time.", "No, the schedule has not changed."] },
+      options: ['A', 'B', 'C'], answer: 'A',
+      explanation: '"Could you send me" is a polite request. A accepts and promises immediate action — the most natural response.',
+      tags: ['question-response', 'request'], isDiagnostic: false,
+    },
+    {
+      id: 'p2-extra-b5',
+      content: { question: "The printer on the third floor isn't working again, is it?", responses: ["I'll call maintenance right now.", "It was installed two months ago.", "Yes, the third floor has a great view."] },
+      options: ['A', 'B', 'C'], answer: 'A',
+      explanation: 'This negative tag question implies a problem. A responds appropriately with a practical action.',
+      tags: ['question-response', 'tag-question'], isDiagnostic: false,
+    },
+    {
+      id: 'p2-extra-b6',
+      content: { question: "Why was the client presentation rescheduled?", responses: ["Because the client requested more preparation time.", "It's in Room 204 on the second floor.", "The presentation was very well received."] },
+      options: ['A', 'B', 'C'], answer: 'A',
+      explanation: '"Why was it rescheduled?" asks for a reason. A gives a "because" clause — the only response that answers why.',
+      tags: ['question-response', 'why', 'reason'], isDiagnostic: false,
+    },
+    {
+      id: 'p2-extra-b7',
+      content: { question: "Where should I submit the expense reimbursement forms?", responses: ["They need to be approved first.", "To the finance department on the second floor.", "The reimbursement takes about two weeks."] },
+      options: ['A', 'B', 'C'], answer: 'B',
+      explanation: '"Where should I submit" asks for a location. B gives a specific place — the finance department and its location.',
+      tags: ['question-response', 'where'], isDiagnostic: false,
+    },
+    {
+      id: 'p2-extra-b8',
+      content: { question: "Isn't the new employee handbook available on the company intranet?", responses: ["Yes, it was uploaded yesterday.", "The handbook covers 50 pages.", "New employees start on Monday."] },
+      options: ['A', 'B', 'C'], answer: 'A',
+      explanation: 'Negative question expects confirmation or denial. A confirms it was uploaded — directly answering the yes/no question.',
+      tags: ['question-response', 'negative-question'], isDiagnostic: false,
+    },
+  ]
+
+  for (const q of part2ExtraB) {
+    await prisma.question.upsert({
+      where: { id: q.id },
+      update: {},
+      create: { ...q, section: 'LISTENING', part: 2, type: 'QUESTION_RESPONSE', difficulty: 3, isDiagnostic: false },
+    })
+  }
+  console.log(`✅ Part 2 extra B: ${part2ExtraB.length} Q&A pairs`)
 
   // ─── SPEAKING: Respond using Document (Task 8–10) ────────────────────────
   const speakingRespondDoc = [

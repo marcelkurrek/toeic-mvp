@@ -5,9 +5,9 @@ import Link from 'next/link'
 import { AlertTriangle, TrendingUp, ChevronRight, CheckCircle2, BookOpen, Sparkles, FileEdit } from 'lucide-react'
 
 const PART_META: Record<number, { label: string; href: string; desc: string; color: string }> = {
-  5: { label: 'Part 5', href: '/practice/part5', desc: 'Grammatik & Wortschatz', color: '#22d3ee' },
-  6: { label: 'Part 6', href: '/practice/part6', desc: 'Textergänzung',          color: '#4ade80' },
-  7: { label: 'Part 7', href: '/practice/part7', desc: 'Leseverständnis',         color: '#fb923c' },
+  5: { label: 'Part 5', href: '/practice/part5', desc: 'Grammatik & Wortschatz', color: '#D5FD44' },
+  6: { label: 'Part 6', href: '/practice/part6', desc: 'Textergänzung',          color: '#D5FD44' },
+  7: { label: 'Part 7', href: '/practice/part7', desc: 'Leseverständnis',         color: '#D5FD44' },
 }
 
 function AccuracyBar({ pct, color }: { pct: number; color: string }) {

@@ -22,7 +22,7 @@ const SECTION_COLORS: Record<Section, string> = {
 
 const CEFR_COLORS: Record<string, string> = {
   A1: '#f87171', A2: '#fb923c', B1: '#fbbf24',
-  B2: '#4ade80', C1: '#22d3ee', C2: '#a78bfa',
+  B2: '#D5FD44', C1: '#04FF88', C2: '#AE00FF',
 }
 
 const PART_HREFS: Record<number, string> = {
@@ -115,7 +115,7 @@ export default async function DashboardPage() {
         href:   '/practice/part5',
         title:  'Erste Übung starten',
         reason: 'Du hast noch keine Reading-Übungen abgeschlossen. Starte mit Part 5 — Grammatik & Wortschatz.',
-        color:  '#22d3ee',
+        color:  '#D5FD44',
         cta:    'Part 5 starten',
       }
     } else {
@@ -126,7 +126,7 @@ export default async function DashboardPage() {
           href:   '/practice/mini-exam',
           title:  'Mini-Prüfung — du bist bereit',
           reason: 'Alle geübten Parts liegen über 80% Genauigkeit. Teste dich unter echten Prüfungsbedingungen.',
-          color:  '#a78bfa',
+          color:  '#AE00FF',
           cta:    'Mini-Prüfung starten',
           badge:  '🎯 Stark!',
         }

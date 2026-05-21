@@ -242,6 +242,29 @@ function QuestionCard({ question, opts, letters, selected, submitted, correctLet
   const passages = content.passages?.map((p, i) => ({ label: p.title ?? p.label ?? `Dokument ${i + 1}`, text: p.text }))
     ?? (content.passage ? [{ label: 'Text', text: content.passage }] : [])
 
+  // For Part 6: highlight the active blank number in the passage
+  const activeBlankMatch = content.question?.match(/\[(\d+)\]/)
+  const activeBlankTag   = activeBlankMatch ? `[${activeBlankMatch[1]}]` : null
+
+  function renderPassageWithHighlight(text: string) {
+    if (!activeBlankTag) return <p className="whitespace-pre-wrap">{text}</p>
+    const parts = text.split(activeBlankTag)
+    return (
+      <p className="whitespace-pre-wrap">
+        {parts.map((part, i) => (
+          <span key={i}>
+            {part}
+            {i < parts.length - 1 && (
+              <mark style={{ background: 'var(--accent)', color: '#0d1b2a', borderRadius: 3, padding: '0 4px', fontWeight: 700 }}>
+                {activeBlankTag}
+              </mark>
+            )}
+          </span>
+        ))}
+      </p>
+    )
+  }
+
   return (
     <div className="card" style={{ padding: '28px 28px 24px' }}>
       {passages.length > 0 && (
@@ -261,7 +284,7 @@ function QuestionCard({ question, opts, letters, selected, submitted, correctLet
           <div className="rounded-lg text-sm leading-relaxed"
             style={{ background: 'var(--background)', borderLeft: '3px solid var(--accent)', color: 'var(--foreground)', padding: '16px 18px' }}>
             {passages.length === 1 && <p className="text-xs font-medium" style={{ color: 'var(--muted)', marginBottom: 8 }}>{t.passage}</p>}
-            <p className="whitespace-pre-wrap">{passages[activePassage]?.text}</p>
+            {renderPassageWithHighlight(passages[activePassage]?.text ?? '')}
           </div>
         </div>
       )}
