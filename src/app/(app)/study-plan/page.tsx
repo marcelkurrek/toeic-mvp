@@ -7,16 +7,16 @@ import { CalendarDays, BookOpen, Headphones, Mic, PenLine, Zap, ChevronRight, Ta
 type Section = 'LISTENING' | 'READING' | 'SPEAKING' | 'WRITING'
 
 const SECTION_COLORS: Record<string, string> = {
-  LISTENING: '#22d3ee',
-  READING:   '#4ade80',
+  LISTENING: '#04FF88',
+  READING:   '#D5FD44',
   SPEAKING:  '#fb923c',
-  WRITING:   '#a78bfa',
+  WRITING:   '#AE00FF',
 }
 const SECTION_SUBTLE: Record<string, string> = {
-  LISTENING: 'rgba(34,211,238,0.12)',
-  READING:   'rgba(74,222,128,0.12)',
+  LISTENING: 'rgba(4,255,136,0.10)',
+  READING:   'rgba(213,253,68,0.10)',
   SPEAKING:  'rgba(251,146,60,0.12)',
-  WRITING:   'rgba(167,139,250,0.12)',
+  WRITING:   'rgba(174,0,255,0.10)',
 }
 const SECTION_ICON: Record<string, React.ElementType> = {
   LISTENING: Headphones,
@@ -234,7 +234,7 @@ export default async function StudyPlanPage() {
         {[
           { icon: <Target size={16} style={{ color: 'var(--accent)' }} />, bg: 'var(--accent-subtle)', label: 'Ziel-Score', value: targetScore },
           { icon: <Clock size={16} style={{ color: '#fb923c' }} />, bg: 'rgba(251,146,60,0.12)', label: 'Bis zur Prüfung', value: daysUntilExam !== null ? (daysUntilExam > 0 ? `${daysUntilExam} Tage` : 'Heute!') : 'Kein Datum' },
-          { icon: <CalendarDays size={16} style={{ color: '#4ade80' }} />, bg: 'rgba(74,222,128,0.12)', label: 'Lerntage / Woche', value: plan.filter(d => !d.restDay).length.toString() },
+          { icon: <CalendarDays size={16} style={{ color: '#04FF88' }} />, bg: 'rgba(4,255,136,0.10)', label: 'Lerntage / Woche', value: plan.filter(d => !d.restDay).length.toString() },
         ].map(({ icon, bg, label, value }) => (
           <div key={label} className="card" style={{ padding: '18px 20px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>

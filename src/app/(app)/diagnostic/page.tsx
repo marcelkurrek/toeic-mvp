@@ -36,15 +36,15 @@ const SECTION_ICONS: Record<Section, React.ReactNode> = {
 }
 
 const SECTION_COLORS: Record<Section, string> = {
-  LISTENING: '#22d3ee',
-  READING:   '#4ade80',
+  LISTENING: '#04FF88',
+  READING:   '#D5FD44',
   SPEAKING:  '#fb923c',
-  WRITING:   '#a78bfa',
+  WRITING:   '#AE00FF',
 }
 
 const CEFR_COLORS: Record<string, string> = {
   A1: '#f87171', A2: '#fb923c', B1: '#fbbf24',
-  B2: '#4ade80', C1: '#22d3ee', C2: '#a78bfa',
+  B2: '#D5FD44', C1: '#04FF88', C2: '#AE00FF',
 }
 
 function cefrFromScore(score: number): string {

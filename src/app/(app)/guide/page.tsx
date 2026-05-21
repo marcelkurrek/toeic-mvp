@@ -120,8 +120,8 @@ function FaqItem({ q, a }: { q: string; a: string | React.ReactNode }) {
 // ── Tab content components ────────────────────────────────────────────────────
 
 function FormatTab({ isDE }: { isDE: boolean }) {
-  const L = '#22d3ee'
-  const R = '#4ade80'
+  const L = '#04FF88'
+  const R = '#D5FD44'
   return (
     <div>
       {/* Overview strip */}
@@ -281,8 +281,8 @@ function FaqTab({ isDE }: { isDE: boolean }) {
 }
 
 function PrepTab({ isDE }: { isDE: boolean }) {
-  const L = '#22d3ee'
-  const R = '#4ade80'
+  const L = '#04FF88'
+  const R = '#D5FD44'
   const timeline = isDE ? [
     { week: 'Woche 1–2', label: 'Diagnose & Grundlagen', desc: 'Einstufungstest absolvieren, Schwächen identifizieren, Testformat kennenlernen.' },
     { week: 'Woche 3–5', label: 'Grundlagen festigen', desc: 'Fokus auf schwächste Bereiche (Grammar für Part 5, Wortschatz für Part 6 & 7). Täglich 30–45 Min. üben.' },
@@ -443,9 +443,9 @@ function ScoresTab({ isDE }: { isDE: boolean }) {
     { cefr: 'A1', color: '#f87171', range: '10 – 224',   de: 'Grundstufe / Beginner',       en: 'Beginner',             desc: isDE ? 'Versteht vereinzelte bekannte Wörter' : 'Understands isolated familiar words' },
     { cefr: 'A2', color: '#fb923c', range: '225 – 549',  de: 'Grundlegende Kenntnisse',      en: 'Elementary',           desc: isDE ? 'Versteht einfache Alltagsausdrücke' : 'Understands simple everyday expressions' },
     { cefr: 'B1', color: '#fbbf24', range: '550 – 784',  de: 'Mittelstufe / Intermediate',   en: 'Intermediate',         desc: isDE ? 'Versteht klare Standardsprache zu vertrauten Themen' : 'Understands clear standard language on familiar topics' },
-    { cefr: 'B2', color: '#4ade80', range: '785 – 899',  de: 'Gehobene Mittelstufe',         en: 'Upper Intermediate',   desc: isDE ? 'Versteht komplexe Texte und abstrakte Themen' : 'Understands complex texts and abstract topics' },
-    { cefr: 'C1', color: '#22d3ee', range: '900 – 989',  de: 'Fortgeschrittene Kenntnisse',  en: 'Advanced',             desc: isDE ? 'Versteht anspruchsvolle, längere Texte flüssig' : 'Understands demanding, longer texts fluently' },
-    { cefr: 'C2', color: '#a78bfa', range: '990',        de: 'Kompetente Sprachverwendung',  en: 'Proficiency',          desc: isDE ? 'Versteht praktisch alles Gehörte und Gelesene' : 'Understands virtually everything heard or read' },
+    { cefr: 'B2', color: '#D5FD44', range: '785 – 899',  de: 'Gehobene Mittelstufe',         en: 'Upper Intermediate',   desc: isDE ? 'Versteht komplexe Texte und abstrakte Themen' : 'Understands complex texts and abstract topics' },
+    { cefr: 'C1', color: '#04FF88', range: '900 – 989',  de: 'Fortgeschrittene Kenntnisse',  en: 'Advanced',             desc: isDE ? 'Versteht anspruchsvolle, längere Texte flüssig' : 'Understands demanding, longer texts fluently' },
+    { cefr: 'C2', color: '#AE00FF', range: '990',        de: 'Kompetente Sprachverwendung',  en: 'Proficiency',          desc: isDE ? 'Versteht praktisch alles Gehörte und Gelesene' : 'Understands virtually everything heard or read' },
   ]
 
   return (
@@ -512,7 +512,7 @@ function PolicyTab({ isDE }: { isDE: boolean }) {
     {
       title: 'Ausweisanforderungen',
       icon: <FileText size={15} />,
-      color: '#22d3ee',
+      color: '#04FF88',
       items: [
         'Ein amtlicher Lichtbildausweis ist zwingend erforderlich — ohne Ausweis kein Testzugang.',
         'Akzeptierte Dokumente: Reisepass, nationaler Personalausweis, Führerschein (je nach Land).',
@@ -536,7 +536,7 @@ function PolicyTab({ isDE }: { isDE: boolean }) {
     {
       title: 'Barrierefreiheit & Besondere Umstände',
       icon: <Info size={15} />,
-      color: '#a78bfa',
+      color: '#AE00FF',
       items: [
         'Prüflinge mit Behinderungen oder besonderen Bedürfnissen können Sonderregelungen beantragen.',
         'Beispiele: Verlängerte Testzeit, Vergrößerte Schrift, Assistive Technologien, separate Räumlichkeit.',
@@ -547,7 +547,7 @@ function PolicyTab({ isDE }: { isDE: boolean }) {
     {
       title: 'Stornierung & Umbuchung',
       icon: <CalendarCheck size={15} />,
-      color: '#4ade80',
+      color: '#D5FD44',
       items: [
         'Stornierungen und Umbuchungen sind je nach Anbieter mit Fristen verbunden.',
         'In den meisten Ländern ist eine kostenlose Umbuchung bis zu einem bestimmten Datum möglich.',
@@ -560,7 +560,7 @@ function PolicyTab({ isDE }: { isDE: boolean }) {
     {
       title: 'Identification Requirements',
       icon: <FileText size={15} />,
-      color: '#22d3ee',
+      color: '#04FF88',
       items: [
         'A valid government-issued photo ID is mandatory — no ID means no access to the test.',
         'Accepted documents: passport, national identity card, driver\'s licence (varies by country).',
@@ -584,7 +584,7 @@ function PolicyTab({ isDE }: { isDE: boolean }) {
     {
       title: 'Accessibility & Special Circumstances',
       icon: <Info size={15} />,
-      color: '#a78bfa',
+      color: '#AE00FF',
       items: [
         'Test-takers with disabilities or special needs may apply for accommodations.',
         'Examples: Extended time, enlarged print, assistive technology, separate testing room.',
@@ -595,7 +595,7 @@ function PolicyTab({ isDE }: { isDE: boolean }) {
     {
       title: 'Cancellation & Rescheduling',
       icon: <CalendarCheck size={15} />,
-      color: '#4ade80',
+      color: '#D5FD44',
       items: [
         'Cancellation and rescheduling policies vary by provider and include deadlines.',
         'In most countries, free rescheduling is possible up to a certain date before the test.',

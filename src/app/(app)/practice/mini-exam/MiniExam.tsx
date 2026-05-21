@@ -20,7 +20,7 @@ const EXAM_CONFIG = {
   questionsPerPart: { 5: 5, 6: 3, 7: 3 } as const,
   totalTime: 15 * 60, // 15 minutes
   partNames: { 5: 'Part 5 — Incomplete Sentence', 6: 'Part 6 — Text Completion', 7: 'Part 7 — Reading Comprehension' } as const,
-  partColors: { 5: '#22d3ee', 6: '#4ade80', 7: '#fb923c' } as const,
+  partColors: { 5: '#D5FD44', 6: '#D5FD44', 7: '#D5FD44' } as const,
 }
 
 const LETTERS = ['A', 'B', 'C', 'D']
