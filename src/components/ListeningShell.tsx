@@ -414,6 +414,35 @@ function MultiQuestionView({ question, part, onAnswers, submitted, selected }: M
         </div>
       )}
 
+      {/* Sub-question progress indicator */}
+      {questions.length > 1 && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 14 }}>
+          <span style={{ fontSize: 11, color: 'var(--muted)', fontWeight: 600 }}>Fragen:</span>
+          {questions.map((_, qi) => {
+            const answered = selected[qi] !== undefined
+            const isActive = !submitted && !answered
+            return (
+              <div key={qi} style={{
+                width: answered || submitted ? 28 : 24,
+                height: answered || submitted ? 28 : 24,
+                borderRadius: 99,
+                background: submitted ? (selected[qi] === questions[qi].answer ? 'rgba(74,222,128,0.2)' : 'rgba(239,68,68,0.15)') : answered ? `${color}25` : 'var(--card-border)',
+                border: `1.5px solid ${submitted ? (selected[qi] === questions[qi].answer ? 'rgba(74,222,128,0.6)' : 'rgba(239,68,68,0.4)') : answered ? color : isActive ? color : 'var(--card-border)'}`,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 10, fontWeight: 700,
+                color: submitted ? (selected[qi] === questions[qi].answer ? 'var(--success)' : '#ef4444') : answered ? color : 'var(--muted)',
+                transition: 'all 0.2s',
+              }}>{qi + 1}</div>
+            )
+          })}
+          {!submitted && (
+            <span style={{ fontSize: 11, color: 'var(--muted)', marginLeft: 4 }}>
+              {Object.keys(selected).length}/{questions.length} beantwortet
+            </span>
+          )}
+        </div>
+      )}
+
       {/* Questions preview during prereading */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 20 }}>
         {questions.map((q, qi) => (
