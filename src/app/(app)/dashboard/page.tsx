@@ -60,7 +60,7 @@ export default async function DashboardPage() {
   const totalQuestionsAnswered = (dbUser?.progress ?? []).reduce((sum, p) => sum + (p.sampleSize ?? 0), 0)
   const allProgress    = [...(dbUser?.progress ?? [])].sort((a, b) => b.accuracy - a.accuracy)
   const bestPartEntry  = allProgress.length > 0 ? allProgress[0] : null
-  const bestPart       = bestPartEntry ? { part: bestPartEntry.part, pct: Math.round(bestPartEntry.accuracy * 100) } : null
+  const bestPart       = bestPartEntry ? { part: bestPartEntry.part, section: bestPartEntry.section, pct: Math.round(bestPartEntry.accuracy * 100) } : null
 
   const scoreTarget    = (dbUser as { scoreTarget?: number | null } | null)?.scoreTarget ?? null
   const levels         = dbUser?.levels ?? []
@@ -93,8 +93,33 @@ export default async function DashboardPage() {
       ? ['SPEAKING', 'WRITING']
       : ['LISTENING', 'READING', 'SPEAKING', 'WRITING']
 
-  const levelMap   = Object.fromEntries((dbUser?.levels   ?? []).map(l => [l.section, l]))
-  const progByPart = Object.fromEntries((dbUser?.progress ?? []).map(p => [p.part, p]))
+  const levelMap   = Object.fromEntries((dbUser?.levels ?? []).map(l => [l.section, l]))
+  // Section-aware progress maps to avoid part-number collisions between sections
+  const lProg = Object.fromEntries((dbUser?.progress ?? []).filter(p => p.section === 'LISTENING').map(p => [p.part, p]))
+  const rProg = Object.fromEntries((dbUser?.progress ?? []).filter(p => p.section === 'READING').map(p => [p.part, p]))
+  const spProg = (dbUser?.progress ?? []).filter(p => p.section === 'SPEAKING')
+  const wrProg = (dbUser?.progress ?? []).filter(p => p.section === 'WRITING')
+  // Legacy map for backwards compat (best part, etc)
+  const progByPart = Object.fromEntries((dbUser?.progress ?? []).map(p => [`${p.section}_${p.part}`, p]))
+
+  // All L+R parts with their section-aware accuracy
+  const ALL_LR_PARTS = [
+    { part: 1, section: 'LISTENING', label: 'Listening Part 1 · Fotos beschreiben',   href: '/practice/part1', color: '#04FF88', prog: lProg[1] },
+    { part: 2, section: 'LISTENING', label: 'Listening Part 2 · Frage & Antwort',     href: '/practice/part2', color: '#04FF88', prog: lProg[2] },
+    { part: 3, section: 'LISTENING', label: 'Listening Part 3 · Gespräche',            href: '/practice/part3', color: '#04FF88', prog: lProg[3] },
+    { part: 4, section: 'LISTENING', label: 'Listening Part 4 · Monologe',             href: '/practice/part4', color: '#04FF88', prog: lProg[4] },
+    { part: 5, section: 'READING',   label: 'Reading Part 5 · Grammatik & Wortschatz', href: '/practice/part5', color: '#D5FD44', prog: rProg[5] },
+    { part: 6, section: 'READING',   label: 'Reading Part 6 · Textergänzung',          href: '/practice/part6', color: '#D5FD44', prog: rProg[6] },
+    { part: 7, section: 'READING',   label: 'Reading Part 7 · Leseverständnis',        href: '/practice/part7', color: '#D5FD44', prog: rProg[7] },
+  ]
+  const ALL_SW_CONFIGS = [
+    { label: 'Speaking Read Aloud',  href: '/practice/speaking/read-aloud', color: '#fb923c', icon: '🎤', hasProgress: spProg.some(p => p.part === 1 || p.part === 2) },
+    { label: 'Speaking Beschreiben', href: '/practice/speaking/describe',   color: '#fb923c', icon: '🎤', hasProgress: spProg.some(p => p.part === 3 || p.part === 4) },
+    { label: 'Speaking Meinung',     href: '/practice/speaking/opinion',    color: '#fb923c', icon: '🎤', hasProgress: spProg.some(p => p.part === 11) },
+    { label: 'Writing E-Mail',       href: '/practice/writing/email',       color: '#AE00FF', icon: '✍️', hasProgress: wrProg.some(p => p.part === 6 || p.part === 7) },
+    { label: 'Writing Essay',        href: '/practice/writing/essay',       color: '#AE00FF', icon: '✍️', hasProgress: wrProg.some(p => p.part === 8) },
+    { label: 'Writing Sätze',        href: '/practice/writing/sentences',   color: '#AE00FF', icon: '✍️', hasProgress: wrProg.some(p => p.part <= 5) },
+  ]
 
   // ── Smart recommendation ──────────────────────────────────────────────────
   type Rec = { href: string; title: string; reason: string; color: string; cta: string; badge?: string }
@@ -108,44 +133,45 @@ export default async function DashboardPage() {
       color:  '#fb923c',
       cta:    'Jetzt einstufen',
     }
+  } else if (examType === 'SPEAKING_WRITING') {
+    // For Speaking/Writing users — recommend based on what they haven't practiced
+    const spDone = spProg.length > 0
+    const wrDone = wrProg.length > 0
+    if (!spDone) {
+      rec = { href: '/practice/speaking/read-aloud', title: 'Speaking üben — Read Aloud', reason: 'Starte dein Speaking-Training. Vorlesen ist der beste Einstieg für Aussprache und Flüssigkeit.', color: '#fb923c', cta: 'Jetzt starten' }
+    } else if (!wrDone) {
+      rec = { href: '/practice/writing/email', title: 'Writing üben — E-Mail verfassen', reason: 'Du hast Speaking geübt. Jetzt: Writing. E-Mail-Aufgaben sind der meistgeprufte Writing-Part im TOEIC.', color: '#AE00FF', cta: 'Jetzt starten' }
+    } else {
+      const spAvg = spProg.length ? Math.round(spProg.reduce((s, p) => s + p.accuracy, 0) / spProg.length * 100) : 0
+      const wrAvg = wrProg.length ? Math.round(wrProg.reduce((s, p) => s + p.accuracy, 0) / wrProg.length * 100) : 0
+      const weakSection = spAvg <= wrAvg ? { href: '/speaking', label: 'Speaking', pct: spAvg, color: '#fb923c' } : { href: '/writing', label: 'Writing', pct: wrAvg, color: '#AE00FF' }
+      rec = { href: weakSection.href, title: `${weakSection.label} verbessern`, reason: `Dein ${weakSection.label}-Bereich liegt bei ${weakSection.pct}% — gezielte Wiederholung bringt dich am schnellsten voran.`, color: weakSection.color, cta: 'Weiter üben', badge: `${weakSection.pct}%` }
+    }
   } else {
-    const practicedParts = ([5, 6, 7] as const).filter(p => progByPart[p])
+    // LISTENING_READING or FULL — check all 7 L+R parts
+    const relevantParts = examType === 'FULL_CERTIFICATE' ? ALL_LR_PARTS : ALL_LR_PARTS
+    const practicedParts = relevantParts.filter(p => p.prog)
+    const unpracticed = relevantParts.filter(p => !p.prog)
 
     if (practicedParts.length === 0) {
       rec = {
-        href:   '/practice/part5',
-        title:  'Erste Übung starten',
-        reason: 'Du hast noch keine Reading-Übungen abgeschlossen. Starte mit Part 5 — Grammatik & Wortschatz.',
-        color:  '#D5FD44',
-        cta:    'Part 5 starten',
+        href:   '/practice/part1',
+        title:  'Erste Übung starten — Listening Part 1',
+        reason: 'Du hast noch keine Übungen abgeschlossen. Starte mit Listening Part 1 — Fotos beschreiben ist der einfachste Einstieg.',
+        color:  '#04FF88',
+        cta:    'Listening starten',
       }
     } else {
-      const allStrong = practicedParts.every(p => (progByPart[p]?.accuracy ?? 0) >= 0.80)
-
-      if (allStrong) {
-        rec = {
-          href:   '/practice/full-exam',
-          title:  'TOEIC Vollprüfung — du bist bereit',
-          reason: 'Alle geübten Parts liegen über 80% Genauigkeit. Teste dich jetzt unter echten Prüfungsbedingungen mit Timer.',
-          color:  '#fbbf24',
-          cta:    'Vollprüfung starten',
-          badge:  '🎯 Stark!',
-        }
+      const allStrong = practicedParts.every(p => (p.prog?.accuracy ?? 0) >= 0.80)
+      if (allStrong && unpracticed.length === 0) {
+        rec = { href: '/practice/full-exam', title: 'TOEIC Vollprüfung — du bist bereit', reason: 'Alle Parts liegen über 80% Genauigkeit. Teste dich jetzt unter echten Prüfungsbedingungen mit Timer.', color: '#fbbf24', cta: 'Vollprüfung starten', badge: '🎯 Stark!' }
+      } else if (unpracticed.length > 0 && practicedParts.length >= 3) {
+        const next = unpracticed[0]
+        rec = { href: next.href, title: next.label, reason: `Du hast ${practicedParts.length} Parts geübt. Expand jetzt auf ungeübte Bereiche — ${next.label.split('·')[0].trim()} als nächstes.`, color: next.color, cta: 'Neu starten' }
       } else {
-        const weakest = [...practicedParts].sort(
-          (a, b) => (progByPart[a]?.accuracy ?? 0) - (progByPart[b]?.accuracy ?? 0)
-        )[0]
-        const pct  = Math.round((progByPart[weakest]?.accuracy ?? 0) * 100)
-        const href = PART_HREFS[weakest]
-        const names: Record<number, string> = { 5: 'Part 5 · Grammatik & Wortschatz', 6: 'Part 6 · Textergänzung', 7: 'Part 7 · Leseverständnis' }
-        rec = {
-          href,
-          title:  names[weakest] ?? `Part ${weakest} üben`,
-          reason: `Dein schwächster Bereich liegt bei ${pct}% Genauigkeit. Gezieltes Training hier bringt dich am schnellsten voran.`,
-          color:  pct < 60 ? '#ef4444' : '#fbbf24',
-          cta:    'Jetzt üben',
-          badge:  `${pct}%`,
-        }
+        const weakest = [...practicedParts].sort((a, b) => (a.prog?.accuracy ?? 0) - (b.prog?.accuracy ?? 0))[0]
+        const pct = Math.round((weakest.prog?.accuracy ?? 0) * 100)
+        rec = { href: weakest.href, title: weakest.label, reason: `Dein schwächster Bereich liegt bei ${pct}% Genauigkeit. Gezieltes Training bringt dich am schnellsten voran.`, color: pct < 60 ? '#ef4444' : '#fbbf24', cta: 'Jetzt üben', badge: `${pct}%` }
       }
     }
   }
@@ -154,38 +180,46 @@ export default async function DashboardPage() {
   type MissionStep = { label: string; href: string; count: string; color: string; icon: string }
   const mission: MissionStep[] = []
 
-  const PART_CONFIGS = [
-    { part: 1, label: 'Listening Part 1', href: '/practice/part1', color: '#04FF88', icon: '🎧' },
-    { part: 2, label: 'Listening Part 2', href: '/practice/part2', color: '#04FF88', icon: '🎧' },
-    { part: 3, label: 'Listening Part 3', href: '/practice/part3', color: '#04FF88', icon: '🎧' },
-    { part: 4, label: 'Listening Part 4', href: '/practice/part4', color: '#04FF88', icon: '🎧' },
-    { part: 5, label: 'Reading Part 5',   href: '/practice/part5', color: '#D5FD44', icon: '📖' },
-    { part: 6, label: 'Reading Part 6',   href: '/practice/part6', color: '#D5FD44', icon: '📖' },
-    { part: 7, label: 'Reading Part 7',   href: '/practice/part7', color: '#D5FD44', icon: '📖' },
-  ]
-
   if (!dbUser?.diagnosticDone) {
     mission.push({ label: 'Einstufungstest', href: '/diagnostic', count: '~15 Min', color: '#fb923c', icon: '⚡' })
+  } else if (examType === 'SPEAKING_WRITING') {
+    // Speaking/Writing mission
+    const unpracticedSW = ALL_SW_CONFIGS.filter(c => !c.hasProgress)
+    const practicedSW = ALL_SW_CONFIGS.filter(c => c.hasProgress)
+    if (unpracticedSW.length > 0) {
+      mission.push({ label: unpracticedSW[0].label, href: unpracticedSW[0].href, count: 'Neu · Erste Aufgabe', color: unpracticedSW[0].color, icon: unpracticedSW[0].icon })
+    }
+    if (unpracticedSW.length > 1 && mission.length < 2) {
+      mission.push({ label: unpracticedSW[1].label, href: unpracticedSW[1].href, count: 'Neu · Erste Aufgabe', color: unpracticedSW[1].color, icon: unpracticedSW[1].icon })
+    }
+    if (practicedSW.length > 0 && mission.length < 3) {
+      mission.push({ label: practicedSW[0].label, href: practicedSW[0].href, count: 'Auffrischung · 3 Aufgaben', color: practicedSW[0].color, icon: practicedSW[0].icon })
+    }
+    if (mission.length === 0) {
+      mission.push({ label: 'Speaking — Read Aloud', href: '/practice/speaking/read-aloud', count: '~10 Min', color: '#fb923c', icon: '🎤' })
+      mission.push({ label: 'Writing — E-Mail verfassen', href: '/practice/writing/email', count: '~10 Min', color: '#AE00FF', icon: '✍️' })
+    }
   } else {
-    const practiced = PART_CONFIGS.filter(pc => progByPart[pc.part])
-    const unpracticed = PART_CONFIGS.filter(pc => !progByPart[pc.part])
-    const weak = practiced.filter(pc => (progByPart[pc.part]?.accuracy ?? 1) < 0.65)
-      .sort((a, b) => (progByPart[a.part]?.accuracy ?? 1) - (progByPart[b.part]?.accuracy ?? 1))
+    // Listening/Reading mission (LISTENING_READING or FULL)
+    const practiced = ALL_LR_PARTS.filter(p => p.prog)
+    const unpracticed = ALL_LR_PARTS.filter(p => !p.prog)
+    const weak = practiced.filter(p => (p.prog?.accuracy ?? 1) < 0.65)
+      .sort((a, b) => (a.prog?.accuracy ?? 1) - (b.prog?.accuracy ?? 1))
 
     // Add weakest practiced parts first
-    weak.slice(0, 2).forEach(pc => {
-      const acc = Math.round((progByPart[pc.part]?.accuracy ?? 0) * 100)
-      mission.push({ label: pc.label, href: pc.href, count: `10 Fragen · ${acc}% bisher`, color: pc.color, icon: pc.icon })
+    weak.slice(0, 2).forEach(p => {
+      const acc = Math.round((p.prog?.accuracy ?? 0) * 100)
+      mission.push({ label: p.label.split('·')[0].trim(), href: p.href, count: `10 Fragen · ${acc}% bisher`, color: p.color, icon: p.section === 'LISTENING' ? '🎧' : '📖' })
     })
     // Add one unpracticed part if exists
     if (unpracticed.length > 0 && mission.length < 3) {
       const next = unpracticed[0]
-      mission.push({ label: next.label, href: next.href, count: 'Neu · 6 Fragen', color: next.color, icon: next.icon })
+      mission.push({ label: next.label.split('·')[0].trim(), href: next.href, count: 'Neu · 6 Fragen', color: next.color, icon: next.section === 'LISTENING' ? '🎧' : '📖' })
     }
     // Fallback: strongest part for warm-up
     if (mission.length === 0 && practiced.length > 0) {
-      const best = practiced.sort((a, b) => (progByPart[b.part]?.accuracy ?? 0) - (progByPart[a.part]?.accuracy ?? 0))[0]
-      mission.push({ label: best.label, href: best.href, count: '10 Fragen · Auffrischung', color: best.color, icon: best.icon })
+      const best = practiced.sort((a, b) => (b.prog?.accuracy ?? 0) - (a.prog?.accuracy ?? 0))[0]
+      mission.push({ label: best.label.split('·')[0].trim(), href: best.href, count: '10 Fragen · Auffrischung', color: best.color, icon: best.section === 'LISTENING' ? '🎧' : '📖' })
     }
     if (mission.length < 3) {
       mission.push({ label: 'Vollprüfung', href: '/practice/full-exam', count: '120 Min · L+R Score', color: '#fbbf24', icon: '🏆' })
@@ -212,11 +246,19 @@ export default async function DashboardPage() {
 
       {/* ── Trainingsweg ──────────────────────────────────────────────── */}
       {(() => {
-        const practicedCount = (dbUser?.progress ?? []).length
+        const isSW = examType === 'SPEAKING_WRITING'
+        // For S+W: count speaking + writing practice types; for L+R: count L+R parts (max 7)
+        const practicedCount = isSW
+          ? (spProg.length > 0 ? 1 : 0) + (wrProg.length > 0 ? 1 : 0)
+          : ALL_LR_PARTS.filter(p => p.prog).length
+        const practiceTarget = isSW ? 2 : 7
         const step1Done = !!dbUser?.diagnosticDone
         const step2Active = step1Done
-        const step2Pct = Math.min(100, Math.round(practicedCount / 7 * 100))
+        const step2Pct = Math.min(100, Math.round(practicedCount / practiceTarget * 100))
         const step3Ready = avgAccuracy !== null && avgAccuracy >= 65
+        const step3Href = isSW ? '/speaking' : '/practice/full-exam'
+        const step3Label = isSW ? 'Testen' : 'Prüfen'
+        const step2Label = isSW ? 'Üben' : 'Üben'
 
         const steps = [
           {
@@ -225,13 +267,13 @@ export default async function DashboardPage() {
             color: '#04FF88',
           },
           {
-            num: 2, label: 'Üben', sub: step2Active ? `${practicedCount} / 7 Parts geübt` : 'Nach Einstufungstest',
-            done: step2Active && practicedCount >= 7, active: step2Active && practicedCount < 7, href: '/test-training',
+            num: 2, label: step2Label, sub: step2Active ? `${practicedCount} / ${practiceTarget} ${isSW ? 'Bereiche' : 'Parts'} geübt` : 'Nach Einstufungstest',
+            done: step2Active && practicedCount >= practiceTarget, active: step2Active && practicedCount < practiceTarget, href: '/test-training',
             color: '#D5FD44',
           },
           {
-            num: 3, label: 'Prüfen', sub: step3Ready ? 'Bereit für die Prüfung' : 'Ab ≥65% Genauigkeit',
-            done: false, active: step3Ready, href: '/practice/full-exam',
+            num: 3, label: step3Label, sub: step3Ready ? 'Bereit für die Prüfung' : 'Ab ≥65% Genauigkeit',
+            done: false, active: step3Ready, href: step3Href,
             color: '#fbbf24',
           },
         ]
