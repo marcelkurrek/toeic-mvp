@@ -48,7 +48,7 @@ export default function DrillClient() {
   useEffect(() => {
     if (!pattern) return
     setLoading(true)
-    fetch(`/api/questions?part=5&tag=${encodeURIComponent(pattern)}&limit=10`)
+    fetch(`/api/questions?part=5&section=READING&tag=${encodeURIComponent(pattern)}&limit=10`)
       .then(r => r.json())
       .then(data => { setQuestions(data.questions ?? []); setLoading(false) })
   }, [pattern])
