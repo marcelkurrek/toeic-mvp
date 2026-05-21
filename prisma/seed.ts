@@ -465,11 +465,11 @@ async function main() {
   const part4 = [
     {
       id: 'p4-talk1-71',
-      content: { transcript: talk1, question: 'What does the speaker say about the repair?' },
-      options: ['The ordered part has not yet arrived.', 'It has been completed ahead of schedule.', 'It required a more expensive replacement.', 'It will take longer than originally estimated.'],
-      answer: 'B',
-      explanation: 'The repair is finished early. Trap A is a strong distractor — the original message was that the part would take until next week. Trap D is the opposite of truth. Trap C uses "part" from the transcript.',
-      tags: ['talk', 'announcement'],
+      content: { transcript: talk1, question: 'Where would this message most likely be heard?' },
+      options: ['During a radio advertisement for a car brand', 'At an auto parts store counter', 'On a customer\'s voicemail or phone message', 'At a company staff briefing'],
+      answer: 'C',
+      explanation: '"Hello Mr. Lee, this is Thomas... calling with information" is a classic voicemail/phone message format — direct address to one person, giving an update and a callback offer. Trap A uses "car" and "BKS" (sounds like a brand). Trap D uses "staff" since the shop refers to its team.',
+      tags: ['talk', 'setting', 'context'],
       isDiagnostic: true,
     },
     {
@@ -816,11 +816,11 @@ Woman: Module C runs on Tuesday and Thursday afternoons, but we can arrange a on
   const part4Extra = [
     {
       id: 'p4-talk2-74',
-      content: { transcript: talk2, question: 'What is the main subject of the announcement?' },
-      options: ['A change to employee shift schedules', 'Renovations to the east wing of the building', 'An update to the company parking policy', 'A new visitor registration system'],
+      content: { transcript: talk2, question: 'Where would this announcement most likely be heard?' },
+      options: ['At a public parking facility', 'At a city council meeting', 'At a company workplace', 'On a local radio broadcast'],
       answer: 'C',
-      explanation: 'The speaker says "I\'d like to share an important update to our company\'s parking policy." Trap B uses "east" (east lot is mentioned) — strong keyword trap.',
-      tags: ['talk', 'announcement'],
+      explanation: 'The speaker addresses "all employees" and mentions "our building," "the facilities team," and a "security desk" — all signals of a workplace/company setting. Traps A and D use "parking" and "broadcast" keywords from the context.',
+      tags: ['talk', 'setting', 'context'],
     },
     {
       id: 'p4-talk2-75',
@@ -843,7 +843,7 @@ Woman: Module C runs on Tuesday and Thursday afternoons, but we can arrange a on
       id: 'p4-talk3-77',
       content: {
         transcript: talk3WithGraphic,
-        question: 'What is the purpose of the announcement?',
+        question: 'Where would this talk most likely take place?',
         graphic: {
           type: 'schedule',
           title: 'Afternoon Conference Sessions',
@@ -851,10 +851,10 @@ Woman: Module C runs on Tuesday and Thursday afternoons, but we can arrange a on
           rows: [['1:00 PM', 'Dr. Hartmann', 'Digital Marketing Trends'], ['2:15 PM', 'Ms. Yamamoto', 'Customer Engagement Strategies'], ['3:30 PM', 'Mr. Okafor', 'E-commerce & Global Markets'], ['4:45 PM', 'Panel', 'Q&A: The Future of Business']],
         },
       },
-      options: ['To welcome morning conference attendees', 'To introduce the afternoon session lineup', 'To announce a change to the conference schedule', 'To present an award to a guest speaker'],
+      options: ['In a university lecture hall', 'At a business conference', 'In a company training room', 'At a product launch event'],
       answer: 'B',
-      explanation: 'The speaker introduces the afternoon lineup of presenters and sessions.',
-      tags: ['talk', 'purpose'],
+      explanation: 'Multiple speakers, a session schedule, a panel discussion, and phrases like "our experts" and "afternoon sessions" all point to a professional business conference. Trap A uses "lecture" (presenters give talks). Trap C uses "training" as a plausible office setting. Trap D uses "Digital Marketing" topic as a product-launch trap.',
+      tags: ['talk', 'setting', 'context'],
       isDiagnostic: true,
     },
     {
