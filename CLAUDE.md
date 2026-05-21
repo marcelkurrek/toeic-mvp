@@ -854,6 +854,72 @@ Häufige Kommunikationsformen; IMMER eine "Meaning in Context"-Frage dabei
 - Kenne die verschiedenen Fragetypen im TOEIC (Main Idea / Detail / Vocabulary / Sentence Insertion / Meaning in Context)
 - Nutze die PSRA-Strategie: Predict → Scan → Read → Answer
 
+---
+
+## Practice Test 1 — Strukturelle Insights (Barron's Premium 10th Edition, pp.215–268)
+
+### Test Score Conversion Table (p.256)
+Richtige Antworten werden NICHT linear in Score umgerechnet — Barron's veröffentlicht eine echte Conversion Table:
+- 0 richtig → Listening: 5 Punkte, Reading: 5 Punkte
+- 25 richtig → Listening: 250, Reading: 60
+- 50 richtig → Listening: 250, Reading: 215
+- 75 richtig → Listening: 405, Reading: 365
+- 100 richtig → Listening: 495, Reading: 495
+- Listening und Reading haben unterschiedliche Kurven (Reading bei niedrigen Treffern viel schwächer)
+- Formel: Richtige Antworten zählen → Tabelle nachschlagen → L-Score + R-Score addieren → Total
+→ **Produktimplikation**: Score-Schätzer in App soll asymmetrische Kurve verwenden (nicht linear!)
+
+### Answer Explanation Format (Barron's pp.257–268)
+Barron's erklärt jede Antwort nach exakt diesem Muster:
+- "Choice (A) is a logical response because [Inhalt]."
+- "Choice (B) continues similar-sounding words / repeats the word from the stimulus / is incorrect because..."
+- "Choice (C) is not mentioned / is out of context / confuses similar words..."
+→ **Produktimplikation**: Unser App-Feedback nach jeder Frage soll EXAKT dieses Format verwenden — Distractor-Typ benennen (Sound-alike / Related word / Repeated word / Context swap / Partial truth)
+
+### Part 2 Distractor-Systematik (bestätigt durch Answer Explanations)
+Barron's benennt in JEDEM Part-2-Erklärungstext exakt einen von drei Distractor-Typen:
+1. "continues similar-sounding words" → Sound-alike Trap
+2. "repeats the word found in the stimulus" → Exact-word Trap (rote Flagge: exakte Wiederholung = falsch!)
+3. "is about a topic related to the stimulus" → Related-word Trap
+
+### Practice Test 1 — Part 7 Triple Passage Sets (authentische Dokumentkombinationen)
+Alle 3 Triple-Passage-Sets aus dem echten Practice Test:
+1. **Q186-190**: Parking Violation Ticket (Springfield City Police, $75, Tanaka Kazuya) + Reminder Notice (Zahlung bis May 1) + Form 25 Notice of Appeal (Checkboxen: parking violation did not occur / I am not the owner / vehicle was stolen ✓) → **Typ: Ticket + Notice + Form**
+2. **Q191-195**: Travel Itinerary (Rosalind Wilson, Skyhigh Air, Winchester Hotel, Spring Wells factory, Pittsburgh) + Email Tom Lee (Shuttle empfehlen, Meeting rescheduled) + Airport Shuttle Schedule (To Winchester: 1A=11:20am/12:05pm, 2A=1:30pm/2:15pm, 3A=4:10pm/4:55pm, 4A=6:45pm/7:30pm — first come, first served) → **Typ: Itinerary + Email + Shuttle Table**
+3. **Q196-200**: HBA Business Notice (Stephanie du Bois MBA lecture, Aug 18, 3pm, free admission, RSVP by calling office) + Hanover Bakery Cookie Trays Price (up to 10=$10, up to 25=$20, up to 50=$38, up to 75=$55) + Email Carlos Vasquez → Serena Stanley (40-50 Gäste erwartet, $38 Tray bestellt, Stühle ok, Soundsystem ok) → **Typ: Notice + Price Table + Email**
+
+### Triple Passage — Cross-Reference Prinzip (wichtigstes Lernprinzip)
+Jedes Triple-Passage-Set hat mind. 1 Frage die NUR durch Kombination aus ≥2 Dokumenten beantwortbar ist:
+- Cookie-Frage (Q198): Email sagt "40-50 Gäste" → Price Table sagt "up to 50 = $38" → Antwort: $38
+- Shuttle-Frage (Q194-195): Itinerary sagt Ankunft Winchester 3:40pm → Schedule zeigt Shuttle 3A = 4:10pm departure → Antwort: Shuttle 3A. Email sagt "shuttle is free" → Antwort: Nothing ($0)
+→ **Produktimplikation**: Bei Triple-Passages müssen Nutzer lernen, beide/alle Dokumente zu lesen BEVOR sie antworten
+
+### Practice Test 1 — Part 6 Authentische Passage-Typen (Q131-146)
+Alle 4 Part-6-Passagen aus dem echten Practice Test:
+1. **Q131-134**: International Airport Security Policy Notice (formelle Bekanntmachung über Carry-on/Checked luggage)
+2. **Q135-138**: Magazine Article — Tablet Computer Holiday Sales (Werbung + Konsumenten-Trend)
+3. **Q139-142**: Overdue Payment Email (Marguerite Michelson → Ambar Patel re: Money Due, unpaid invoice)
+4. **Q143-146**: Job Application Email (Andrew Devon → Richard Byron re: Office Manager Position)
+
+### Practice Test 1 — Part 7 Single Passage Typen (Q147-185)
+Authentische Einzeldokument-Typen und ihre Fragen-Charakteristik:
+- **Invoice** (Q147-148): Architekten-Rechnung (Cooper & Allen → Williams Corp). Fragen: Zahlungstermin, was zusätzlich geschuldet wird
+- **Pension Notice** (Q149-150): Betriebliche Altersvorsorge-Ankündigung. Fragen: Thema, Anspruchsberechtigung
+- **Text Message Chain** (Q151-152): Sam Chan + Pat Lopez (Zug verspätet, Kunde wartet, Präsentation ohne mich starten). "You're telling me!" = versteht wie wichtig der Kunde ist
+- **Company Announcement** (Q153-154): Firmenumbenennung (Green California → Green Miles West, Einigung mit California Gardening Association)
+- **Webpage** (Q155-157): Palm Fronds Resort (Strandurlaub, Aktivitäten: Schnorcheln/Tauchen/Surfen/Tennis). Lage: Palm City Festland
+- **Internal Email** (Q158-160): Alan Scheider → All Staff, Büroumzug Paris-Instruktionen
+- **Article** (Q161-163): MEETINGS — effektive Meetings führen. Sentence Insertion "By keeping on schedule..." → Position [4]
+- **Online Chat** (Q164-167): Silvia Prieto + George Croft + Marcella Lu — Professional Development Workshop. "Relax" = die Aufgabe ist nicht sehr schwer
+- **Article** (Q168-171): ABC Foods erhöht Preise 3% (Dürre). Sentence Insertion "This is the second increase..." → Position [4]
+- **Article** (Q172-175): Eco-Tourismus + Hotels (Glas-Shampoo-Spender, Eco-Tours). Hauptthema: Trend in der Reisebranche
+- **Email + Bar Chart** (Q176-180): Temp Power Workshop → Vanessa. Chart: Avg Days/Month: Office Management(~19) > Secretary Skills(~17) > Data Entry(~15) > Bookkeeping(~13)
+- **Contract + Addendum** (Q181-185): Hospitality Consultants → Cracker Barrel Winery (#991YL). Addendum wegen Krankheit des Contractors
+
+### Practice Test 1 — Answer Key (komplett, pp.254–255)
+Listening — Part 1: 1B 2B 3B 4A 5D 6A | Part 2: 7A 8C 9C 10B 11C 12B 13A 14C 15B 16C 17A 18A 19B 20C 21C 22B 23A 24B 25B 26A 27C 28C 29B 30C 31A | Part 3: 32C 33A 34D 35B 36A 37D 38B 39D 40A 41C 42A 43A 44B 45A 46C 47B 48C 49D 50C 51A 52C 53D 54A 55B 56A 57A 58C 59D 60B 61D 62A 63C 64B 65D 66C 67B 68B 69D 70C | Part 4: 71A 72C 73C 74B 75C 76D 77D 78D 79A 80C 81A 82C 83C 84B 85D 86A 87D 88C 89A 90D 91B 92A 93B 94B 95D 96B 97C 98A 99B 100C
+Reading — Part 5: 101B 102D 103C 104B 105A 106C 107B 108D 109C 110B 111A 112A 113C 114A 115D 116B 117C 118B 119A 120D 121B 122C 123C 124D 125C 126D 127B 128A 129D 130C | Part 6: 131A 132B 133C 134D 135A 136D 137B 138B 139B 140C 141C 142B 143A 144D 145A 146C | Part 7: 147D 148D 149B 150A 151C 152A 153D 154B 155A 156C 157C 158C 159A 160B 161A 162D 163D 164D 165A 166A 167D 168A 169A 170B 171D 172C 173D 174C 175B 176B 177D 178A 179C 180B 181B 182A 183B 184A 185C 186A 187B 188B 189D 190C 191B 192B 193D 194C 195A 196B 197A 198C 199A 200D
+
 ## Produkt-Prinzipien
 
 - Der User soll nicht überlegen müssen was er tut — das System führt ihn guided
