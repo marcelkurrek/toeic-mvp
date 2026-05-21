@@ -10,6 +10,7 @@ import {
 import { getServerTranslations } from '@/lib/i18n/server'
 import { computeStreak } from '@/lib/streak'
 import WeeklyHeatmap from '@/components/WeeklyHeatmap'
+import { accuracyToListeningScore, accuracyToReadingScore } from '@/lib/toeicScore'
 
 type Section = 'LISTENING' | 'READING' | 'SPEAKING' | 'WRITING'
 
@@ -75,8 +76,8 @@ export default async function DashboardPage() {
   const readingAccuracy = readingProgress.length
     ? readingProgress.reduce((s, p) => s + p.accuracy, 0) / readingProgress.length
     : null
-  const lScore = listeningAccuracy !== null ? Math.round(5 + listeningAccuracy * 490) : null
-  const rScore = readingAccuracy   !== null ? Math.round(5 + readingAccuracy   * 490) : null
+  const lScore = listeningAccuracy !== null ? accuracyToListeningScore(listeningAccuracy) : null
+  const rScore = readingAccuracy   !== null ? accuracyToReadingScore(readingAccuracy)   : null
   const estimatedScore = lScore !== null && rScore !== null
     ? lScore + rScore
     : lScore ?? rScore ?? null

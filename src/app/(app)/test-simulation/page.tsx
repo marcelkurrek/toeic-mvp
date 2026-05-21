@@ -1,8 +1,17 @@
 'use client'
 import { useRouter } from 'next/navigation'
-import { ClipboardList, Zap, BookOpen, ChevronRight } from 'lucide-react'
+import { ClipboardList, Zap, BookOpen, ChevronRight, Trophy } from 'lucide-react'
 
 const CARDS = [
+  {
+    href: '/practice/full-exam',
+    icon: Trophy,
+    color: '#fbbf24',
+    label: 'TOEIC Vollprüfung',
+    sub: '120 Min · L+R Score',
+    desc: 'Originalgetreue Simulation: 45 Min Listening + 75 Min Reading mit echtem Timer und separatem Score',
+    badge: 'NEU',
+  },
   {
     href: '/practice/mini-exam',
     icon: ClipboardList,
@@ -71,6 +80,11 @@ export default function TestSimulationPage() {
                   <span style={{ fontSize: 11, color: 'var(--muted)', background: 'var(--card-border)', padding: '2px 8px', borderRadius: 99 }}>
                     {card.sub}
                   </span>
+                  {'badge' in card && card.badge && (
+                    <span style={{ fontSize: 9, fontWeight: 800, padding: '2px 6px', borderRadius: 99, background: 'rgba(251,191,36,0.2)', color: '#fbbf24', letterSpacing: '0.06em' }}>
+                      {card.badge}
+                    </span>
+                  )}
                 </div>
                 <p style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.5 }}>{card.desc}</p>
               </div>

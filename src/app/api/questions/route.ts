@@ -36,6 +36,14 @@ export async function GET(request: Request) {
     const limit    = Math.min(50, Math.max(1, Number(url.searchParams.get('limit') ?? 10)))
 
     const tag = url.searchParams.get('tag')
+    const ids = url.searchParams.get('ids')
+
+    // Fetch specific questions by ID (for wrong-question review mode)
+    if (ids) {
+      const idList = ids.split(',').filter(Boolean)
+      const questions = await prisma.question.findMany({ where: { id: { in: idList } } })
+      return NextResponse.json({ questions, adaptive: false })
+    }
 
     const baseWhere: Record<string, unknown> = {}
     if (part)     baseWhere.part = parseInt(part)

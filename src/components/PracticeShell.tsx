@@ -3,8 +3,29 @@ import { useEffect, useState, useCallback } from 'react'
 import { useExamStore } from '@/store/exam'
 import { useRouter } from 'next/navigation'
 import type { Question } from '@/types'
-import { CheckCircle, XCircle, ChevronRight, RotateCcw, Zap, Lightbulb, X, AlertTriangle } from 'lucide-react'
+import { CheckCircle, XCircle, ChevronRight, RotateCcw, Zap, Lightbulb, X, AlertTriangle, RefreshCw } from 'lucide-react'
 import { useLang } from '@/lib/i18n/client'
+
+// Barron's distractor patterns — detect from option text vs question text
+function detectDistractorType(questionText: string, optionText: string): { label: string; color: string } | null {
+  const qWords = new Set(
+    questionText.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/).filter(w => w.length > 3)
+  )
+  const oWords = optionText.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/).filter(w => w.length > 3)
+
+  const repeated = oWords.filter(w => qWords.has(w))
+  if (repeated.length >= 1) {
+    return { label: `Repeated-word Trap — "${repeated[0]}" taucht in der Frage auf, klingt richtig`, color: '#fb923c' }
+  }
+
+  // Partial match: words that are similar (first 4 chars match)
+  const soundAlike = oWords.find(w => [...qWords].some(q => q.slice(0, 4) === w.slice(0, 4) && q !== w))
+  if (soundAlike) {
+    return { label: 'Sound-alike Trap — klingt ähnlich wie das richtige Wort', color: '#f97316' }
+  }
+
+  return null
+}
 
 function ExitDialog({ onConfirm, onCancel }: { onConfirm: () => void; onCancel: () => void }) {
   return (
@@ -95,9 +116,10 @@ function detectPart6DocumentType(passage: string): { docType: string; hint: stri
 
 interface PracticeShellProps {
   part: 5 | 6 | 7
+  wrongIds?: string[]  // pre-selected wrong question IDs for review mode
 }
 
-export default function PracticeShell({ part }: PracticeShellProps) {
+export default function PracticeShell({ part, wrongIds }: PracticeShellProps) {
   const router = useRouter()
   const { t } = useLang()
   const { questions, currentIndex, answers, isFinished, skippedIds, setQuestions, submitAnswer, nextQuestion, skipQuestion, reset } = useExamStore()
@@ -110,6 +132,7 @@ export default function PracticeShell({ part }: PracticeShellProps) {
   const [strategyDismissed, setStrategyDismissed] = useState(false)
   const [showExitDialog, setShowExitDialog] = useState(false)
   const [exitTarget, setExitTarget] = useState<string | null>(null)
+  const isReviewMode = !!(wrongIds && wrongIds.length > 0)
 
   const sessionActive = !loading && !isFinished && answers.length > 0
 
@@ -131,7 +154,10 @@ export default function PracticeShell({ part }: PracticeShellProps) {
   const loadQuestions = useCallback(async () => {
     setLoading(true)
     reset()
-    const res = await fetch(`/api/questions?part=${part}&adaptive=true&limit=10`)
+    let url = wrongIds && wrongIds.length > 0
+      ? `/api/questions?ids=${wrongIds.join(',')}`
+      : `/api/questions?part=${part}&adaptive=true&limit=10`
+    const res = await fetch(url)
     const data = await res.json()
     setQuestions(data.questions)
     if (data.adaptive && data.difficulty) {
@@ -146,7 +172,7 @@ export default function PracticeShell({ part }: PracticeShellProps) {
     const sessionData = await sessionRes.json()
     setSessionId(sessionData.id)
     setLoading(false)
-  }, [part, reset, setQuestions])
+  }, [part, wrongIds, reset, setQuestions])
 
   useEffect(() => { loadQuestions() }, [loadQuestions])
 
@@ -315,6 +341,28 @@ export default function PracticeShell({ part }: PracticeShellProps) {
                       </div>
                     )
                   })}
+                  {/* Distractor analysis for wrong options */}
+                  {!ans.isCorrect && (() => {
+                    const qText = (q.content as { question: string }).question
+                    const distractors = opts?.map((opt, j) => {
+                      const letter = letters[j]
+                      if (letter === q.answer) return null
+                      const detected = detectDistractorType(qText, opt)
+                      if (!detected) return null
+                      return { letter, opt, ...detected }
+                    }).filter(Boolean)
+                    if (!distractors || distractors.length === 0) return null
+                    return (
+                      <div className="mt-2 p-3 rounded-lg" style={{ background: 'rgba(251,146,60,0.07)', border: '1px solid rgba(251,146,60,0.25)' }}>
+                        <p style={{ fontSize: 10, fontWeight: 700, color: '#fb923c', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Distractor-Analyse</p>
+                        {distractors.map((d) => d && (
+                          <p key={d.letter} style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 3, lineHeight: 1.5 }}>
+                            <span style={{ fontWeight: 700, color: d.color }}>({d.letter})</span> {d.label}
+                          </p>
+                        ))}
+                      </div>
+                    )
+                  })()}
                   {q.explanation && (
                     <p className="mt-2 text-xs p-3 rounded-lg" style={{ background: 'var(--accent-subtle)', color: 'var(--foreground)' }}>
                       <span className="font-medium" style={{ color: 'var(--accent)' }}>{t.practice.explanation}: </span>
@@ -326,6 +374,36 @@ export default function PracticeShell({ part }: PracticeShellProps) {
             )
           })}
         </div>
+
+        {/* Fehler-Review Button */}
+        {(() => {
+          const wrongQIds = questions.map((q, i) => answers[i]?.isCorrect === false ? q.id : null).filter(Boolean) as string[]
+          if (wrongQIds.length === 0 || isReviewMode) return null
+          return (
+            <div style={{ padding: '16px 20px', borderRadius: 12, background: 'rgba(239,68,68,0.07)', border: '1px solid rgba(239,68,68,0.25)', marginBottom: 20 }}>
+              <p style={{ fontSize: 13, fontWeight: 600, color: '#ef4444', marginBottom: 4 }}>
+                {wrongQIds.length} Frage{wrongQIds.length !== 1 ? 'n' : ''} falsch beantwortet
+              </p>
+              <p style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 12, lineHeight: 1.5 }}>
+                Übe diese Fragen sofort erneut — gezieltes Wiederholen ist der schnellste Weg zur Verbesserung.
+              </p>
+              <button
+                onClick={() => {
+                  const params = new URLSearchParams({ wrongIds: wrongQIds.join(',') })
+                  router.push(`/practice/part${part}?${params.toString()}`)
+                }}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 8,
+                  padding: '10px 18px', borderRadius: 10, border: '1px solid rgba(239,68,68,0.4)',
+                  background: 'rgba(239,68,68,0.15)', color: '#ef4444',
+                  cursor: 'pointer', fontSize: 13, fontWeight: 600,
+                }}
+              >
+                <RefreshCw size={14} /> {wrongQIds.length} falsche Fragen nochmal üben
+              </button>
+            </div>
+          )
+        })()}
 
         <div style={{ display: 'flex', gap: 12 }}>
           <button onClick={loadQuestions} className="btn-primary flex items-center gap-2">
@@ -560,6 +638,26 @@ function QuestionCard({ question, opts, letters, selected, submitted, correctLet
         })}
       </div>
 
+      {submitted && !currentAnswer?.isCorrect && (() => {
+        const distractors = opts?.map((opt, i) => {
+          const letter = letters[i]
+          if (letter === correctLetter) return null
+          const detected = detectDistractorType(content.question, opt)
+          if (!detected) return null
+          return { letter, ...detected }
+        }).filter(Boolean)
+        if (!distractors || distractors.length === 0) return null
+        return (
+          <div className="rounded-lg" style={{ background: 'rgba(251,146,60,0.07)', border: '1px solid rgba(251,146,60,0.25)', padding: '12px 14px', marginBottom: 12 }}>
+            <p style={{ fontSize: 10, fontWeight: 700, color: '#fb923c', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>Distractor-Analyse</p>
+            {distractors.map(d => d && (
+              <p key={d.letter} style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 2, lineHeight: 1.5 }}>
+                <span style={{ fontWeight: 700, color: d.color }}>({d.letter})</span> {d.label}
+              </p>
+            ))}
+          </div>
+        )
+      })()}
       {submitted && question.explanation && (
         <div className="rounded-lg text-sm"
           style={{ background: 'var(--accent-subtle)', borderLeft: '3px solid var(--accent)', padding: '14px 16px', marginBottom: 12 }}>
