@@ -14,10 +14,10 @@ import WeeklyHeatmap from '@/components/WeeklyHeatmap'
 type Section = 'LISTENING' | 'READING' | 'SPEAKING' | 'WRITING'
 
 const SECTION_COLORS: Record<Section, string> = {
-  LISTENING: '#22d3ee',
-  READING:   '#4ade80',
+  LISTENING: '#04FF88',
+  READING:   '#D5FD44',
   SPEAKING:  '#fb923c',
-  WRITING:   '#a78bfa',
+  WRITING:   '#AE00FF',
 }
 
 const CEFR_COLORS: Record<string, string> = {
