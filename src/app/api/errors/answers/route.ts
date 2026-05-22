@@ -13,18 +13,20 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url)
     const limit = Math.min(parseInt(searchParams.get('limit') || '50'), 100)
-    const distractorType = searchParams.get('type')
+    const typeParam = searchParams.get('type')
+    const validTypes = ['SOUND_ALIKE', 'HOMONYM', 'RELATED_WORD', 'OMIT_NECESSARY', 'ALTER_WORD_ORDER'] as const
+    const distractorType = typeParam && validTypes.includes(typeParam as any) ? (typeParam as typeof validTypes[number]) : undefined
 
     // Get wrong answers for this user
     const answers = await prisma.answer.findMany({
       where: {
         session: { userId: dbUser.id },
         isCorrect: false,
-        distractorType: distractorType ? distractorType : undefined,
+        ...(distractorType && { distractorType }),
       },
       include: {
         question: {
-          select: { part: true },
+          select: { part: true, answer: true },
         },
       },
       orderBy: { createdAt: 'desc' },

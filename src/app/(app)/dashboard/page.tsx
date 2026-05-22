@@ -61,32 +61,7 @@ export default async function DashboardPage() {
   const bestPartEntry  = allProgress.length > 0 ? allProgress[0] : null
   const bestPart       = bestPartEntry ? { part: bestPartEntry.part, section: bestPartEntry.section, pct: Math.round(bestPartEntry.accuracy * 100) } : null
 
-  const scoreTarget    = (dbUser as { scoreTarget?: number | null } | null)?.scoreTarget ?? null
   const levels         = dbUser?.levels ?? []
-
-  // L+R score estimation from accuracy per section (5–495 each, total 10–990)
-  // Must filter by section to avoid collision with SPEAKING parts 1-4
-  const listeningProgress = (dbUser?.progress ?? []).filter(p => p.section === 'LISTENING')
-  const readingProgress   = (dbUser?.progress ?? []).filter(p => p.section === 'READING')
-  const L_WEIGHTS: Record<number, number> = { 1: 6, 2: 25, 3: 39, 4: 30 }
-  const R_WEIGHTS: Record<number, number> = { 5: 30, 6: 16, 7: 54 }
-  const lWeightedAcc = listeningProgress.length
-    ? listeningProgress.reduce((s, p) => s + p.accuracy * (L_WEIGHTS[p.part] ?? 1), 0)
-      / listeningProgress.reduce((s, p) => s + (L_WEIGHTS[p.part] ?? 1), 0)
-    : null
-  const rWeightedAcc = readingProgress.length
-    ? readingProgress.reduce((s, p) => s + p.accuracy * (R_WEIGHTS[p.part] ?? 1), 0)
-      / readingProgress.reduce((s, p) => s + (R_WEIGHTS[p.part] ?? 1), 0)
-    : null
-  const lScore = lWeightedAcc !== null ? accuracyToListeningScore(lWeightedAcc) : null
-  const rScore = rWeightedAcc !== null ? accuracyToReadingScore(rWeightedAcc)   : null
-  const estimatedScore = lScore !== null && rScore !== null
-    ? lScore + rScore
-    : lScore ?? rScore ?? null
-
-  const goalPct = scoreTarget && estimatedScore !== null
-    ? Math.min(100, Math.round(estimatedScore / scoreTarget * 100))
-    : null
 
   const examType       = dbUser?.examType ?? null
   const examGoal       = dbUser?.examGoal ?? null
