@@ -269,10 +269,9 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      {/* ── Trainingsweg ──────────────────────────────────────────────── */}
+      {/* ── Trainingsweg (3-Schritte mit Beschreibungen) ─────────────────── */}
       {(() => {
         const isSW = examType === 'SPEAKING_WRITING'
-        // For S+W: count speaking + writing practice types; for L+R: count L+R parts (max 7)
         const practicedCount = isSW
           ? (spProg.length > 0 ? 1 : 0) + (wrProg.length > 0 ? 1 : 0)
           : ALL_LR_PARTS.filter(p => p.prog).length
@@ -281,54 +280,86 @@ export default async function DashboardPage() {
         const step2Active = step1Done
         const step2Pct = Math.min(100, Math.round(practicedCount / practiceTarget * 100))
         const step3Ready = avgAccuracy !== null && avgAccuracy >= 65
-        const step3Href = isSW ? '/speaking' : '/practice/full-exam'
-        const step3Label = isSW ? 'Testen' : 'Prüfen'
-        const step2Label = isSW ? 'Üben' : 'Üben'
 
         const steps = [
           {
-            num: 1, label: 'Einstufungstest', sub: step1Done ? 'Abgeschlossen' : 'Ausstehend',
-            done: step1Done, active: !step1Done, href: '/diagnostic',
+            num: 1,
+            label: 'Einstufungstest',
+            desc: 'Dein Sprachniveau ist noch unbekannt. Der 10-minütige Test legt den Grundstein für deinen personalisierten Lernplan.',
+            status: step1Done ? '✓ Abgeschlossen' : 'Ausstehend',
+            done: step1Done,
+            active: !step1Done,
+            href: '/diagnostic',
             color: '#04FF88',
           },
           {
-            num: 2, label: step2Label, sub: step2Active ? `${practicedCount} / ${practiceTarget} ${isSW ? 'Bereiche' : 'Parts'} geübt` : 'Nach Einstufungstest',
-            done: step2Active && practicedCount >= practiceTarget, active: step2Active && practicedCount < practiceTarget, href: '/test-training',
+            num: 2,
+            label: 'Üben',
+            desc: 'Gezieltes Training nach deinem Level. Trainiere die Bereiche, in denen du am meisten Fortschritt brauchst.',
+            status: step2Active ? `${practicedCount} / ${practiceTarget} ${isSW ? 'Bereiche' : 'Parts'} geübt` : 'Nach Einstufungstest',
+            done: step2Active && practicedCount >= practiceTarget,
+            active: step2Active && practicedCount < practiceTarget,
+            href: '/test-training',
             color: '#D5FD44',
           },
           {
-            num: 3, label: step3Label, sub: step3Ready ? 'Bereit für die Prüfung' : 'Ab ≥65% Genauigkeit',
-            done: false, active: step3Ready, href: step3Href,
+            num: 3,
+            label: 'Prüfen',
+            desc: 'Vollprüfungs-Simulation unter echten Bedingungen. Teste dein Wissen unter Druck und bekommen deinen finalen Score.',
+            status: step3Ready ? '✓ Bereit' : 'Ab ≥65% Genauigkeit',
+            done: false,
+            active: step3Ready,
+            href: isSW ? '/speaking' : '/practice/full-exam',
             color: '#fbbf24',
           },
         ]
 
         return (
-          <div className="card" style={{ padding: '16px 20px', marginBottom: 24 }}>
-            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 14 }}>Dein Trainingsweg</p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 0 }}>
-              {steps.map((step, i) => (
-                <div key={step.num} style={{ display: 'flex', alignItems: 'center', flex: 1 }}>
-                  <a href={step.active || step.done ? step.href : undefined}
-                    style={{ flex: 1, textDecoration: 'none', padding: '10px 14px', borderRadius: 10, background: step.done ? `${step.color}12` : step.active ? `${step.color}10` : 'transparent', border: `1px solid ${step.done || step.active ? step.color + '40' : 'var(--card-border)'}`, opacity: !step.done && !step.active ? 0.45 : 1, transition: 'opacity 0.15s' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                      <span style={{ width: 20, height: 20, borderRadius: '50%', background: step.done ? step.color : step.active ? `${step.color}30` : 'var(--card-border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 800, color: step.done ? '#0d1b2a' : step.color, flexShrink: 0 }}>
+          <div style={{ marginBottom: 28 }}>
+            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 16 }}>Dein Trainingsweg</p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
+              {steps.map((step) => (
+                <a key={step.num} href={step.active || step.done ? step.href : undefined}
+                  style={{
+                    textDecoration: 'none',
+                    cursor: step.active || step.done ? 'pointer' : 'default',
+                    opacity: !step.done && !step.active ? 0.5 : 1,
+                    transition: 'opacity 0.15s',
+                  }}>
+                  <div className="card" style={{
+                    padding: '18px 16px',
+                    border: `1.5px solid ${step.done || step.active ? step.color + '40' : 'var(--card-border)'}`,
+                    background: step.done ? `${step.color}08` : step.active ? `${step.color}06` : 'transparent',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 12,
+                  }}>
+                    {/* Step Number + Status */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div style={{
+                        width: 32,
+                        height: 32,
+                        borderRadius: '50%',
+                        background: step.done ? step.color : step.active ? `${step.color}30` : 'var(--card-border)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: 14,
+                        fontWeight: 800,
+                        color: step.done ? '#0d1b2a' : step.color,
+                        flexShrink: 0,
+                      }}>
                         {step.done ? '✓' : step.num}
-                      </span>
-                      <span style={{ fontSize: 13, fontWeight: 600, color: step.done || step.active ? 'var(--fg)' : 'var(--muted)' }}>{step.label}</span>
-                      {step.num === 2 && step2Active && (
-                        <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 99, background: `${step.color}20`, color: step.color }}>{step2Pct}%</span>
-                      )}
-                      {step.num === 3 && step3Ready && (
-                        <span style={{ fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 99, background: `${step.color}20`, color: step.color }}>Bereit</span>
-                      )}
+                      </div>
+                      <div>
+                        <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--fg)', marginBottom: 2 }}>{step.label}</p>
+                        <p style={{ fontSize: 10, color: step.color, fontWeight: 600 }}>{step.status}</p>
+                      </div>
                     </div>
-                    <p style={{ fontSize: 11, color: 'var(--muted)', paddingLeft: 28 }}>{step.sub}</p>
-                  </a>
-                  {i < steps.length - 1 && (
-                    <div style={{ width: 24, height: 1, background: 'var(--card-border)', flexShrink: 0, margin: '0 2px' }} />
-                  )}
-                </div>
+                    {/* Description */}
+                    <p style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.5, margin: 0 }}>{step.desc}</p>
+                  </div>
+                </a>
               ))}
             </div>
           </div>
