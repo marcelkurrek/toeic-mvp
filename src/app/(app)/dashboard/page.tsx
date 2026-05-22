@@ -447,96 +447,35 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      {/* ── Stat Cards ────────────────────────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
-        {[
-          {
-            icon: <Flame size={15} style={{ color: '#fb923c' }} />,
-            bg: 'rgba(251,146,60,0.12)',
-            label: 'Streak',
-            value: streak.current > 0 ? `${streak.current}🔥` : '0',
-            sub: streak.current > 0 ? `Längste: ${streak.longest}d` : 'Heute starten',
-          },
-          {
-            icon: <TrendingUp size={15} style={{ color: 'var(--success)' }} />,
-            bg: 'rgba(74,222,128,0.12)',
-            label: 'Ø Genauigkeit',
-            value: avgAccuracy !== null ? `${avgAccuracy}%` : '—',
-            sub: avgAccuracy !== null ? (avgAccuracy >= 75 ? 'Sehr gut!' : avgAccuracy >= 60 ? 'Gut' : 'Weiter üben') : 'Noch keine Daten',
-          },
-          {
-            icon: <HelpCircle size={15} style={{ color: 'var(--accent)' }} />,
-            bg: 'var(--accent-subtle)',
-            label: 'Fragen beantwortet',
-            value: totalQuestionsAnswered > 0 ? String(totalQuestionsAnswered) : '0',
-            sub: totalQuestionsAnswered === 1 ? '1 Frage' : `${totalQuestionsAnswered} Fragen`,
-          },
-          {
-            icon: <Star size={15} style={{ color: '#fbbf24' }} />,
-            bg: 'rgba(251,191,36,0.12)',
-            label: 'Bester Part',
-            value: bestPart
-              ? bestPart.section === 'LISTENING' ? `L · Part ${bestPart.part}`
-              : bestPart.section === 'READING'   ? `R · Part ${bestPart.part}`
-              : bestPart.section === 'SPEAKING'  ? `SP · Part ${bestPart.part}`
-              : `WR · Part ${bestPart.part}`
-              : '—',
-            sub: bestPart ? `${bestPart.pct}% Genauigkeit` : 'Noch keine Daten',
-          },
-        ].map(({ icon, bg, label, value, sub }) => (
-          <div key={label} className="card" style={{ padding: '14px 16px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-              <div style={{ width: 28, height: 28, borderRadius: 7, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                {icon}
-              </div>
-              <span className="text-xs font-medium" style={{ color: 'var(--muted)' }}>{label}</span>
-            </div>
-            <p className="text-2xl font-bold" style={{ marginBottom: 2 }}>{value}</p>
-            <p className="text-xs" style={{ color: 'var(--muted)' }}>{sub}</p>
+      {/* ── Sprachniveau (nur nach Einstufungstest) ─────────────────────── */}
+      {dbUser?.diagnosticDone && (
+        <div className="card" style={{ padding: '16px 20px', marginBottom: 20 }}>
+          <p className="text-sm font-semibold" style={{ marginBottom: 12 }}>Aktuelles Sprachniveau</p>
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            {relevantSections.map(sec => {
+              const level = levelMap[sec]
+              const color = SECTION_COLORS[sec]
+              const Icon  = SectionIcon(sec)
+              const cefrColor = level ? (CEFR_COLORS[level.cefr] ?? color) : undefined
+              return (
+                <div key={sec} style={{
+                  display: 'flex', alignItems: 'center', gap: 8,
+                  padding: '8px 14px', borderRadius: 10,
+                  background: level ? `${cefrColor}12` : 'var(--card-border)',
+                  border: `1px solid ${level ? `${cefrColor}30` : 'transparent'}`,
+                  flex: '1 1 auto', minWidth: 120,
+                }}>
+                  <Icon size={13} style={{ color: level ? cefrColor : 'var(--muted)', flexShrink: 0 }} />
+                  <span className="text-xs font-medium" style={{ color: 'var(--muted)' }}>{t.dashboard.sections[sec]}</span>
+                  <span className="font-bold text-sm" style={{ marginLeft: 'auto', color: level ? cefrColor : 'var(--muted)' }}>
+                    {level ? level.cefr : '?'}
+                  </span>
+                </div>
+              )
+            })}
           </div>
-        ))}
-      </div>
-
-      {/* ── Aktivität (Kalender) ───────────────────────────────────────── */}
-      <div className="card" style={{ padding: '16px 20px', marginBottom: 20 }}>
-        <p className="text-sm font-semibold" style={{ marginBottom: 14 }}>Aktivität</p>
-        <WeeklyHeatmap sessionDates={allSessions.map(s => s.createdAt.toISOString())} />
-      </div>
-
-      {/* ── Sprachniveau (kompakt) ─────────────────────────────────────── */}
-      <div className="card" style={{ padding: '16px 20px', marginBottom: 20 }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-          <p className="text-sm font-semibold">Aktuelles Sprachniveau</p>
-          {!dbUser?.diagnosticDone && (
-            <Link href="/diagnostic" style={{ fontSize: 12, color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: 4 }}>
-              <Zap size={11} /> Einstufen
-            </Link>
-          )}
         </div>
-        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-          {relevantSections.map(sec => {
-            const level = levelMap[sec]
-            const color = SECTION_COLORS[sec]
-            const Icon  = SectionIcon(sec)
-            const cefrColor = level ? (CEFR_COLORS[level.cefr] ?? color) : undefined
-            return (
-              <div key={sec} style={{
-                display: 'flex', alignItems: 'center', gap: 8,
-                padding: '8px 14px', borderRadius: 10,
-                background: level ? `${cefrColor}12` : 'var(--card-border)',
-                border: `1px solid ${level ? `${cefrColor}30` : 'transparent'}`,
-                flex: '1 1 auto', minWidth: 120,
-              }}>
-                <Icon size={13} style={{ color: level ? cefrColor : 'var(--muted)', flexShrink: 0 }} />
-                <span className="text-xs font-medium" style={{ color: 'var(--muted)' }}>{t.dashboard.sections[sec]}</span>
-                <span className="font-bold text-sm" style={{ marginLeft: 'auto', color: level ? cefrColor : 'var(--muted)' }}>
-                  {level ? level.cefr : '?'}
-                </span>
-              </div>
-            )
-          })}
-        </div>
-      </div>
+      )}
 
       {/* ── Geschätzter TOEIC-Score L+R ───────────────────────────────── */}
       {(lScore !== null || rScore !== null || scoreTarget) && (
@@ -618,70 +557,6 @@ export default async function DashboardPage() {
               <p style={{ fontSize: 10, color: 'var(--muted)', marginTop: 6, fontStyle: 'italic' }}>Näherungswerte — offizieller Score variiert je nach Tagesform und Fragenset.</p>
             </div>
           </details>
-        </div>
-      )}
-
-      {/* ── Letzte Sitzungen ───────────────────────────────────────────── */}
-      {dbUser && dbUser.sessions.length > 0 && (
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <p className="text-sm font-semibold">Letzte Sitzungen</p>
-            <Link href="/progress" style={{ fontSize: 12, color: 'var(--accent)', display: 'flex', alignItems: 'center', gap: 4 }}>
-              Alle ansehen <ChevronRight size={12} />
-            </Link>
-          </div>
-          {sessionDelta !== null && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', borderRadius: 10, marginBottom: 12,
-              background: sessionDelta >= 0 ? 'rgba(74,222,128,0.08)' : 'rgba(239,68,68,0.06)',
-              border: `1px solid ${sessionDelta >= 0 ? 'rgba(74,222,128,0.25)' : 'rgba(239,68,68,0.2)'}`,
-            }}>
-              <span style={{ fontSize: 18 }}>{sessionDelta >= 0 ? '📈' : '📉'}</span>
-              <div>
-                <span style={{ fontSize: 13, fontWeight: 700, color: sessionDelta >= 0 ? 'var(--success)' : '#ef4444' }}>
-                  {sessionDelta >= 0 ? `+${sessionDelta}%` : `${sessionDelta}%`}
-                </span>
-                <span style={{ fontSize: 12, color: 'var(--muted)', marginLeft: 6 }}>
-                  {sessionDelta >= 0
-                    ? 'besser als letzte Session'
-                    : 'schlechter als letzte Session'}
-                </span>
-                {sessionDelta >= 5 && <span style={{ fontSize: 11, color: 'var(--success)', marginLeft: 8, fontWeight: 600 }}>Auf Kurs! 🎯</span>}
-              </div>
-            </div>
-          )}
-          <div className="card" style={{ overflow: 'hidden' }}>
-            {dbUser.sessions.map((s, i) => {
-              const pct = s.score != null && s.maxScore ? Math.round(s.score / s.maxScore * 100) : null
-              const partLabel = s.parts.length > 0
-                ? s.parts.map(p => {
-                    const info = t.dashboard.parts[p as 5 | 6 | 7]
-                    return info ? (info.shortLabel ?? info.label) : `Part ${p}`
-                  }).join(', ')
-                : s.mode
-              return (
-                <div key={s.id} style={{
-                  display: 'flex', alignItems: 'center', gap: 14, padding: '12px 18px',
-                  borderBottom: i < dbUser.sessions.length - 1 ? '1px solid var(--card-border)' : 'none',
-                }}>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p className="text-sm font-medium">{partLabel}</p>
-                    <p className="text-xs" style={{ color: 'var(--muted)', marginTop: 1 }}>
-                      {new Date(s.createdAt).toLocaleDateString()}
-                      {s.durationSec ? ` · ${Math.floor(s.durationSec / 60)}m` : ''}
-                    </p>
-                  </div>
-                  {pct !== null && (
-                    <span style={{
-                      fontSize: 13, fontWeight: 700,
-                      color: pct >= 80 ? 'var(--success)' : pct >= 60 ? '#fbbf24' : 'var(--error)',
-                    }}>
-                      {pct}%
-                    </span>
-                  )}
-                </div>
-              )
-            })}
-          </div>
         </div>
       )}
 
