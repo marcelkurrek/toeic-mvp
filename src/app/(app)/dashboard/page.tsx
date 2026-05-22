@@ -291,6 +291,7 @@ export default async function DashboardPage() {
           : ALL_LR_PARTS.filter(p => p.prog).length
         const practiceTarget = isSW ? 2 : 7
         const step1Done = !!dbUser?.diagnosticDone
+        const step1CanStart = !step1Done && !!examType && !!dbUser?.examDate
         const step2Active = step1Done
         const step2Pct = Math.min(100, Math.round(practicedCount / practiceTarget * 100))
         const step3Ready = avgAccuracy !== null && avgAccuracy >= 65
@@ -300,9 +301,9 @@ export default async function DashboardPage() {
             num: 1,
             label: 'Einstufungstest',
             desc: 'Dein Sprachniveau ist noch unbekannt. Der 10-minütige Test legt den Grundstein für deinen personalisierten Lernplan.',
-            status: step1Done ? '✓ Abgeschlossen' : 'Ausstehend',
+            status: step1Done ? '✓ Abgeschlossen' : !examType || !dbUser?.examDate ? 'Einstellungen erforderlich' : 'Bereit zum Starten',
             done: step1Done,
-            active: !step1Done,
+            active: step1CanStart,
             href: '/diagnostic',
             color: '#04FF88',
           },
@@ -332,21 +333,36 @@ export default async function DashboardPage() {
           <div style={{ marginBottom: 28 }}>
             <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 16 }}>Dein Trainingsweg</p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
-              {steps.map((step) => (
-                <a key={step.num} href={step.active || step.done ? step.href : undefined}
+              {steps.map((step) => {
+                const isClickable = step.active || step.done
+                return (
+                <a key={step.num} href={isClickable ? step.href : undefined}
                   style={{
                     textDecoration: 'none',
-                    cursor: step.active || step.done ? 'pointer' : 'default',
-                    opacity: !step.done && !step.active ? 0.5 : 1,
-                    transition: 'opacity 0.15s',
+                    cursor: isClickable ? 'pointer' : 'not-allowed',
+                    opacity: !step.done && !step.active ? 0.6 : 1,
+                    transition: 'all 0.2s ease',
+                    display: 'block',
+                  }}
+                  onMouseEnter={(e) => {
+                    if (isClickable) {
+                      e.currentTarget.style.transform = 'translateY(-2px)'
+                      e.currentTarget.style.opacity = '1'
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)'
+                    e.currentTarget.style.opacity = !step.done && !step.active ? '0.6' : '1'
                   }}>
                   <div className="card" style={{
                     padding: '18px 16px',
-                    border: `1.5px solid ${step.done || step.active ? step.color + '40' : 'var(--card-border)'}`,
-                    background: step.done ? `${step.color}08` : step.active ? `${step.color}06` : 'transparent',
+                    border: `1.5px solid ${step.done || step.active ? step.color + '50' : 'var(--card-border)'}`,
+                    background: step.done ? `${step.color}12` : step.active ? `${step.color}10` : 'transparent',
                     display: 'flex',
                     flexDirection: 'column',
                     gap: 12,
+                    transition: 'all 0.2s ease',
+                    boxShadow: step.active && !step.done ? `0 4px 12px ${step.color}20` : 'none',
                   }}>
                     {/* Step Number + Status */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -374,7 +390,9 @@ export default async function DashboardPage() {
                     <p style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.5, margin: 0 }}>{step.desc}</p>
                   </div>
                 </a>
-              ))}
+              )
+              })}
+
             </div>
           </div>
         )
