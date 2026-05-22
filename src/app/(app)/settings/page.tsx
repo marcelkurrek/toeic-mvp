@@ -8,7 +8,12 @@ const EXAM_TYPES = [
   { value: 'FULL_CERTIFICATE',  label: 'TOEIC Full Certificate',     desc: 'Alle 4 Bereiche' },
 ]
 
-const SCORE_PRESETS = [600, 700, 730, 800, 860, 900, 990]
+const SCORE_PRESETS = [
+  { score: 550, label: 'Anfänger', desc: 'Einfache englische Gespräche verstehen' },
+  { score: 700, label: 'Mittelstufe', desc: 'Geschäftsenglisch beherrschen' },
+  { score: 800, label: 'Fortgeschritten', desc: 'Komplexe Diskussionen führen' },
+  { score: 900, label: 'Sehr Fortgeschritten', desc: 'Nahezu muttersprachliches Niveau' },
+]
 
 export default function SettingsPage() {
   const [name, setName]               = useState('')
@@ -193,22 +198,28 @@ export default function SettingsPage() {
             <p className="font-semibold text-sm">Ziel-Score</p>
           </div>
           <p className="text-xs" style={{ color: 'var(--muted)', marginBottom: 12 }}>
-            Welchen TOEIC-Score möchtest du erreichen? (Max: 990 für L&R)
+            Welches Ziel passt zu dir?
           </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 10, marginBottom: 12 }}>
             {SCORE_PRESETS.map(p => (
               <button
-                key={p} type="button"
-                onClick={() => setScoreTarget(String(p))}
+                key={p.score} type="button"
+                onClick={() => setScoreTarget(String(p.score))}
                 style={{
-                  padding: '6px 14px', borderRadius: 99, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                  border: `1.5px solid ${scoreTarget === String(p) ? '#fbbf24' : 'var(--card-border)'}`,
-                  background: scoreTarget === String(p) ? 'rgba(251,191,36,0.15)' : 'transparent',
-                  color: scoreTarget === String(p) ? '#fbbf24' : 'var(--muted)',
+                  padding: '12px 14px', borderRadius: 10, fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                  border: `1.5px solid ${scoreTarget === String(p.score) ? '#fbbf24' : 'var(--card-border)'}`,
+                  background: scoreTarget === String(p.score) ? 'rgba(251,191,36,0.15)' : 'transparent',
+                  color: 'var(--fg)',
                   transition: 'all 0.15s',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'flex-start',
+                  gap: 4,
                 }}
               >
-                {p}
+                <strong style={{ color: scoreTarget === String(p.score) ? '#fbbf24' : 'var(--accent)' }}>{p.score} Punkte</strong>
+                <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--muted)' }}>{p.label}</span>
+                <span style={{ fontSize: 10, color: 'var(--muted)', lineHeight: 1.3 }}>{p.desc}</span>
               </button>
             ))}
           </div>
