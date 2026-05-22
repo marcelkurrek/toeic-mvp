@@ -17,8 +17,8 @@ const USE_CASES: UseCaseOption[] = [
     title: 'Karriere & Job',
     subtitle: 'Besser im Job oder bessere Bewerbungschancen',
     description:
-      'Du möchtest entweder bessere Performance in deinem aktuellen Job erreichen oder bessere Chancen bei Bewerbungen haben. Du willst Meetings verstehen, mit Kollegen kommunizieren, englische Dokumente lesen, oder dich für einen besseren Job qualifizieren. Ein TOEIC-Zertifikat zeigt Arbeitgebern, dass du professionelles Englisch kannst.',
-    scoreFocused: true,
+      'Du möchtest entweder bessere Performance in deinem aktuellen Job erreichen oder bessere Chancen bei Bewerbungen haben. Du willst Meetings verstehen, mit Kollegen kommunizieren, englische Dokumente lesen, oder dich für einen besseren Job qualifizieren. Dein Fokus: Skill-Verbesserung in Listening & Reading für Business-Kontext.',
+    scoreFocused: false,
   },
   {
     id: 'ABROAD',
@@ -26,8 +26,8 @@ const USE_CASES: UseCaseOption[] = [
     title: 'Im Ausland arbeiten',
     subtitle: 'Arbeiten im Ausland, Umzug, neue Chancen',
     description:
-      'Du möchtest im Ausland arbeiten — sei es in Australien, Kanada, den USA oder anderen Ländern. Du brauchst starkes Englisch für Work Visa, internationale Jobsuche und um mit deinen neuen Kollegen zu kommunizieren. TOEIC ist oft eine Voraussetzung für Arbeitserlaubnis und wird von Arbeitgebern weltweit anerkannt.',
-    scoreFocused: true,
+      'Du möchtest im Ausland arbeiten — sei es in Australien, Kanada, den USA oder anderen Ländern. Du brauchst starkes Englisch für Work Visa, internationale Jobsuche und um mit deinen neuen Kollegen zu kommunizieren. Dein Fokus: Alle Skills trainieren (Listening, Reading, Speaking, Writing).',
+    scoreFocused: false,
   },
   {
     id: 'ACADEMICS',
@@ -35,8 +35,8 @@ const USE_CASES: UseCaseOption[] = [
     title: 'Universität/Studium',
     subtitle: 'Master, Austausch, Hochschul-Zertifikat',
     description:
-      'Du möchtest einen Master machen (im In- oder Ausland), an einem Austauschprogramm teilnehmen, oder an einer englischsprachigen Universität studieren. TOEIC ist oft eine offizielle Zulassungsvoraussetzung und zeigt Universitäten deine Englischkenntnisse. Dein Zertifikat eröffnet dir internationale Möglichkeiten.',
-    scoreFocused: true,
+      'Du möchtest einen Master machen (im In- oder Ausland), an einem Austauschprogramm teilnehmen, oder an einer englischsprachigen Universität studieren. TOEIC zeigt Universitäten deine Englischkenntnisse und eröffnet dir internationale Möglichkeiten. Dein Fokus: Balanced Training in allen Bereichen.',
+    scoreFocused: false,
   },
   {
     id: 'SELF_IMPROVEMENT',
@@ -44,7 +44,7 @@ const USE_CASES: UseCaseOption[] = [
     title: 'Englisch allgemein',
     subtitle: 'Persönlich besser werden, mehr Sicherheit',
     description:
-      'Du möchtest einfach besser Englisch verstehen und sprechen — ohne konkretes Zertifikat-Ziel. Du willst Netflix ohne Untertitel schauen, selbstbewusster mit internationalen Freunden sprechen, oder dich im Alltag sicherer fühlen. TOEIC ist für dich ein Werkzeug zur persönlichen Verbesserung und ein Erfolgserlebnis.',
+      'Du möchtest einfach besser Englisch verstehen und sprechen — ohne konkretes Zertifikat-Ziel. Du willst Netflix ohne Untertitel schauen, selbstbewusster mit internationalen Freunden sprechen, oder dich im Alltag sicherer fühlen. Dein Fokus: Was immer du verbessern willst — völlig flexibel.',
     scoreFocused: false,
   },
 ]

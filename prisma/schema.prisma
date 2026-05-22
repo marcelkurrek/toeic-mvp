@@ -16,9 +16,8 @@ model User {
   name           String?
   examType       ExamType?
   examDate       DateTime?
-  diagnosticDone Boolean     @default(false)
-  examGoal       ExamGoal?      // user motivation: applications | career | global-teams | academics | self-improvement
-  scoreTarget    Int?           // desired TOEIC total score (e.g. 700, 860, 990) — only relevant for some goals
+  examGoal       ExamGoal?      // user motivation: CAREER | ABROAD | ACADEMICS | SELF_IMPROVEMENT
+  diagnosticDone Boolean        @default(false)
   sessions       Session[]
   progress       Progress[]
   levels         UserLevel[]
@@ -147,11 +146,10 @@ enum DistractorType {
 }
 
 enum ExamGoal {
-  APPLICATIONS       // Better chances in job applications
-  CAREER             // Job promotion or new position
-  GLOBAL_TEAMS       // Communicate with international colleagues
-  ACADEMICS          // University certificate requirement
-  SELF_IMPROVEMENT   // General English skill improvement
+  CAREER             // Bessere Performance im aktuellen Job ODER bessere Chancen bei Bewerbungen
+  ABROAD             // Arbeiten im Ausland, Umzug, internationale Transfers
+  ACADEMICS          // Universität, Master, Austauschprogramm
+  SELF_IMPROVEMENT   // Persönliche Verbesserung, Englisch allgemein
 }
 
 enum QuestionType {

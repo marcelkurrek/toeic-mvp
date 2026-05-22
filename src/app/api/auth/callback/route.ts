@@ -5,14 +5,13 @@ import { prisma } from '@/lib/prisma'
 export async function GET(request: Request) {
   const url  = new URL(request.url)
   const code = url.searchParams.get('code')
-  const next = url.searchParams.get('next') ?? '/dashboard'
 
   if (code) {
     const supabase = await createClient()
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error && data.user) {
-      await prisma.user.upsert({
+      const dbUser = await prisma.user.upsert({
         where: { supabaseId: data.user.id },
         update: {},
         create: {
@@ -22,7 +21,9 @@ export async function GET(request: Request) {
         },
       })
 
-      return NextResponse.redirect(new URL(next, request.url))
+      // If user hasn't completed onboarding (no examGoal), redirect to onboarding
+      const redirectUrl = !dbUser.examGoal ? '/onboarding' : '/dashboard'
+      return NextResponse.redirect(new URL(redirectUrl, request.url))
     }
   }
 
