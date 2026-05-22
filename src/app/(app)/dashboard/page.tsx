@@ -187,49 +187,50 @@ export default async function DashboardPage() {
   type MissionStep = { label: string; href: string; count: string; color: string; icon: string }
   const mission: MissionStep[] = []
 
-  if (!dbUser?.diagnosticDone) {
-    mission.push({ label: 'Einstufungstest', href: '/diagnostic', count: '~15 Min', color: '#fb923c', icon: '⚡' })
-  } else if (examType === 'SPEAKING_WRITING') {
-    // Speaking/Writing mission
-    const unpracticedSW = ALL_SW_CONFIGS.filter(c => !c.hasProgress)
-    const practicedSW = ALL_SW_CONFIGS.filter(c => c.hasProgress)
-    if (unpracticedSW.length > 0) {
-      mission.push({ label: unpracticedSW[0].label, href: unpracticedSW[0].href, count: 'Neu · Erste Aufgabe', color: unpracticedSW[0].color, icon: unpracticedSW[0].icon })
-    }
-    if (unpracticedSW.length > 1 && mission.length < 2) {
-      mission.push({ label: unpracticedSW[1].label, href: unpracticedSW[1].href, count: 'Neu · Erste Aufgabe', color: unpracticedSW[1].color, icon: unpracticedSW[1].icon })
-    }
-    if (practicedSW.length > 0 && mission.length < 3) {
-      mission.push({ label: practicedSW[0].label, href: practicedSW[0].href, count: 'Auffrischung · 3 Aufgaben', color: practicedSW[0].color, icon: practicedSW[0].icon })
-    }
-    if (mission.length === 0) {
-      mission.push({ label: 'Speaking — Read Aloud', href: '/practice/speaking/read-aloud', count: '~10 Min', color: '#fb923c', icon: '🎤' })
-      mission.push({ label: 'Writing — E-Mail verfassen', href: '/practice/writing/email', count: '~10 Min', color: '#AE00FF', icon: '✍️' })
-    }
-  } else {
-    // Listening/Reading mission (LISTENING_READING or FULL)
-    const practiced = ALL_LR_PARTS.filter(p => p.prog)
-    const unpracticed = ALL_LR_PARTS.filter(p => !p.prog)
-    const weak = practiced.filter(p => (p.prog?.accuracy ?? 1) < 0.65)
-      .sort((a, b) => (a.prog?.accuracy ?? 1) - (b.prog?.accuracy ?? 1))
+  // Only show missions if diagnostic is done (Step 2 is active/ongoing)
+  if (dbUser?.diagnosticDone) {
+    if (examType === 'SPEAKING_WRITING') {
+      // Speaking/Writing mission
+      const unpracticedSW = ALL_SW_CONFIGS.filter(c => !c.hasProgress)
+      const practicedSW = ALL_SW_CONFIGS.filter(c => c.hasProgress)
+      if (unpracticedSW.length > 0) {
+        mission.push({ label: unpracticedSW[0].label, href: unpracticedSW[0].href, count: 'Neu · Erste Aufgabe', color: unpracticedSW[0].color, icon: unpracticedSW[0].icon })
+      }
+      if (unpracticedSW.length > 1 && mission.length < 2) {
+        mission.push({ label: unpracticedSW[1].label, href: unpracticedSW[1].href, count: 'Neu · Erste Aufgabe', color: unpracticedSW[1].color, icon: unpracticedSW[1].icon })
+      }
+      if (practicedSW.length > 0 && mission.length < 3) {
+        mission.push({ label: practicedSW[0].label, href: practicedSW[0].href, count: 'Auffrischung · 3 Aufgaben', color: practicedSW[0].color, icon: practicedSW[0].icon })
+      }
+      if (mission.length === 0) {
+        mission.push({ label: 'Speaking — Read Aloud', href: '/practice/speaking/read-aloud', count: '~10 Min', color: '#fb923c', icon: '🎤' })
+        mission.push({ label: 'Writing — E-Mail verfassen', href: '/practice/writing/email', count: '~10 Min', color: '#AE00FF', icon: '✍️' })
+      }
+    } else {
+      // Listening/Reading mission (LISTENING_READING or FULL)
+      const practiced = ALL_LR_PARTS.filter(p => p.prog)
+      const unpracticed = ALL_LR_PARTS.filter(p => !p.prog)
+      const weak = practiced.filter(p => (p.prog?.accuracy ?? 1) < 0.65)
+        .sort((a, b) => (a.prog?.accuracy ?? 1) - (b.prog?.accuracy ?? 1))
 
-    // Add weakest practiced parts first
-    weak.slice(0, 2).forEach(p => {
-      const acc = Math.round((p.prog?.accuracy ?? 0) * 100)
-      mission.push({ label: p.label.split('·')[0].trim(), href: p.href, count: `10 Fragen · ${acc}% bisher`, color: p.color, icon: p.section === 'LISTENING' ? '🎧' : '📖' })
-    })
-    // Add one unpracticed part if exists
-    if (unpracticed.length > 0 && mission.length < 3) {
-      const next = unpracticed[0]
-      mission.push({ label: next.label.split('·')[0].trim(), href: next.href, count: 'Neu · 6 Fragen', color: next.color, icon: next.section === 'LISTENING' ? '🎧' : '📖' })
-    }
-    // Fallback: strongest part for warm-up
-    if (mission.length === 0 && practiced.length > 0) {
-      const best = practiced.sort((a, b) => (b.prog?.accuracy ?? 0) - (a.prog?.accuracy ?? 0))[0]
-      mission.push({ label: best.label.split('·')[0].trim(), href: best.href, count: '10 Fragen · Auffrischung', color: best.color, icon: best.section === 'LISTENING' ? '🎧' : '📖' })
-    }
-    if (mission.length < 3) {
-      mission.push({ label: 'Vollprüfung', href: '/practice/full-exam', count: '120 Min · L+R Score', color: '#fbbf24', icon: '🏆' })
+      // Add weakest practiced parts first
+      weak.slice(0, 2).forEach(p => {
+        const acc = Math.round((p.prog?.accuracy ?? 0) * 100)
+        mission.push({ label: p.label.split('·')[0].trim(), href: p.href, count: `10 Fragen · ${acc}% bisher`, color: p.color, icon: p.section === 'LISTENING' ? '🎧' : '📖' })
+      })
+      // Add one unpracticed part if exists
+      if (unpracticed.length > 0 && mission.length < 3) {
+        const next = unpracticed[0]
+        mission.push({ label: next.label.split('·')[0].trim(), href: next.href, count: 'Neu · 6 Fragen', color: next.color, icon: next.section === 'LISTENING' ? '🎧' : '📖' })
+      }
+      // Fallback: strongest part for warm-up
+      if (mission.length === 0 && practiced.length > 0) {
+        const best = practiced.sort((a, b) => (b.prog?.accuracy ?? 0) - (a.prog?.accuracy ?? 0))[0]
+        mission.push({ label: best.label.split('·')[0].trim(), href: best.href, count: '10 Fragen · Auffrischung', color: best.color, icon: best.section === 'LISTENING' ? '🎧' : '📖' })
+      }
+      if (mission.length < 3) {
+        mission.push({ label: 'Vollprüfung', href: '/practice/full-exam', count: '120 Min · L+R Score', color: '#fbbf24', icon: '🏆' })
+      }
     }
   }
 
