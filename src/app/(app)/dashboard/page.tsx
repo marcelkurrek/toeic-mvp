@@ -343,16 +343,6 @@ export default async function DashboardPage() {
                     opacity: !step.done && !step.active ? 0.6 : 1,
                     transition: 'all 0.2s ease',
                     display: 'block',
-                  }}
-                  onMouseEnter={(e) => {
-                    if (isClickable) {
-                      e.currentTarget.style.transform = 'translateY(-2px)'
-                      e.currentTarget.style.opacity = '1'
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)'
-                    e.currentTarget.style.opacity = !step.done && !step.active ? '0.6' : '1'
                   }}>
                   <div className="card" style={{
                     padding: '18px 16px',
