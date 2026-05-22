@@ -269,6 +269,20 @@ export default async function DashboardPage() {
         </div>
       )}
 
+      {/* ── Header ─────────────────────────────────────────────────────── */}
+      <div style={{ marginBottom: 28 }}>
+        <h1 className="text-3xl font-bold" style={{ marginBottom: 4 }}>
+          Hallo, {firstName} 👋
+        </h1>
+        <p style={{ color: 'var(--muted)', fontSize: 14 }}>
+          {daysUntilExam !== null && daysUntilExam > 0
+            ? `Noch ${daysUntilExam} Tage bis zur Prüfung`
+            : daysUntilExam === 0
+              ? '🎓 Prüfungstag!'
+              : 'Kein Prüfungsdatum gesetzt — in den Einstellungen ändern'}
+        </p>
+      </div>
+
       {/* ── Trainingsweg (3-Schritte mit Beschreibungen) ─────────────────── */}
       {(() => {
         const isSW = examType === 'SPEAKING_WRITING'
@@ -365,20 +379,6 @@ export default async function DashboardPage() {
           </div>
         )
       })()}
-
-      {/* ── Header ─────────────────────────────────────────────────────── */}
-      <div style={{ marginBottom: 28 }}>
-        <h1 className="text-3xl font-bold" style={{ marginBottom: 4 }}>
-          Hallo, {firstName} 👋
-        </h1>
-        <p style={{ color: 'var(--muted)', fontSize: 14 }}>
-          {daysUntilExam !== null && daysUntilExam > 0
-            ? `Noch ${daysUntilExam} Tage bis zur Prüfung`
-            : daysUntilExam === 0
-              ? '🎓 Prüfungstag!'
-              : 'Kein Prüfungsdatum gesetzt — in den Einstellungen ändern'}
-        </p>
-      </div>
 
       {/* ── REMOVED: "Nächster Schritt" functionality now integrated in Trainingsweg ──── */}
 
