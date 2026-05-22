@@ -349,36 +349,7 @@ export default async function DashboardPage() {
         </p>
       </div>
 
-      {/* ── Nächster Schritt (Hero) ─────────────────────────────────────── */}
-      <Link href={rec.href} style={{ textDecoration: 'none', display: 'block', marginBottom: 24 }}>
-        <div style={{
-          padding: '24px 28px', borderRadius: 16,
-          background: `linear-gradient(135deg, ${rec.color}18 0%, ${rec.color}06 100%)`,
-          border: `1.5px solid ${rec.color}40`,
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20,
-        }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: rec.color, marginBottom: 6 }}>
-              Nächster Schritt
-            </p>
-            <p className="font-bold" style={{ fontSize: 18, marginBottom: 6, lineHeight: 1.3 }}>{rec.title}</p>
-            <p className="text-sm" style={{ color: 'var(--muted)', lineHeight: 1.6, maxWidth: 520 }}>{rec.reason}</p>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexShrink: 0 }}>
-            {rec.badge && (
-              <span style={{
-                fontSize: 15, fontWeight: 800, padding: '6px 14px', borderRadius: 10,
-                background: `${rec.color}20`, color: rec.color,
-              }}>
-                {rec.badge}
-              </span>
-            )}
-            <div className="btn-primary" style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, padding: '10px 20px' }}>
-              {rec.cta} <ArrowRight size={14} />
-            </div>
-          </div>
-        </div>
-      </Link>
+      {/* ── REMOVED: "Nächster Schritt" functionality now integrated in Trainingsweg ──── */}
 
       {/* ── Daily Mission ─────────────────────────────────────────────── */}
       {mission.length > 0 && (
