@@ -4,13 +4,12 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import {
   BookOpen, TrendingUp, Headphones, PenLine, Mic,
-  Zap, ChevronRight, Target, Flame, ArrowRight, Star,
+  Zap, ChevronRight, Flame, ArrowRight, Star,
   HelpCircle, PlayCircle,
 } from 'lucide-react'
 import { getServerTranslations } from '@/lib/i18n/server'
 import { computeStreak } from '@/lib/streak'
 import WeeklyHeatmap from '@/components/WeeklyHeatmap'
-import { accuracyToListeningScore, accuracyToReadingScore } from '@/lib/toeicScore'
 
 type Section = 'LISTENING' | 'READING' | 'SPEAKING' | 'WRITING'
 
@@ -90,6 +89,7 @@ export default async function DashboardPage() {
     : null
 
   const examType       = dbUser?.examType ?? null
+  const examGoal       = dbUser?.examGoal ?? null
   const relevantSections: Section[] = examType === 'LISTENING_READING'
     ? ['LISTENING', 'READING']
     : examType === 'SPEAKING_WRITING'
@@ -477,88 +477,6 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      {/* ── Geschätzter TOEIC-Score L+R ───────────────────────────────── */}
-      {(lScore !== null || rScore !== null || scoreTarget) && (
-        <div className="card" style={{ padding: '16px 20px', marginBottom: 20 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Target size={14} style={{ color: '#fbbf24' }} />
-              <p className="text-sm font-semibold">Geschätzter TOEIC-Score</p>
-            </div>
-            <Link href="/settings" style={{ fontSize: 11, color: 'var(--muted)' }}>Ziel ändern</Link>
-          </div>
-
-          {/* L + R score tiles */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 12 }}>
-            {[
-              { label: 'Listening (L)', score: lScore, color: '#04FF88', max: 495 },
-              { label: 'Reading (R)',   score: rScore, color: '#D5FD44', max: 495 },
-              { label: 'Gesamt',        score: estimatedScore, color: '#fbbf24', max: 990, bold: true },
-            ].map(({ label, score, color, max, bold }) => (
-              <div key={label} style={{
-                padding: '12px 14px', borderRadius: 12,
-                background: score !== null ? `${color}12` : 'var(--card-border)',
-                border: `1px solid ${score !== null ? `${color}30` : 'transparent'}`,
-                textAlign: 'center',
-              }}>
-                <p style={{ fontSize: 10, fontWeight: 600, color: 'var(--muted)', marginBottom: 4, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</p>
-                <p style={{ fontSize: bold ? 22 : 20, fontWeight: 800, color: score !== null ? color : 'var(--muted)' }}>
-                  {score !== null ? score : '—'}
-                </p>
-                <p style={{ fontSize: 10, color: 'var(--muted)' }}>/ {max}</p>
-              </div>
-            ))}
-          </div>
-
-          {scoreTarget && (
-            <>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                <p style={{ fontSize: 12, color: 'var(--muted)' }}>Ziel: {scoreTarget} Punkte</p>
-                {goalPct !== null && (
-                  <span style={{ fontSize: 12, fontWeight: 700, color: goalPct >= 100 ? 'var(--success)' : '#fbbf24' }}>
-                    {goalPct}%
-                  </span>
-                )}
-              </div>
-              <div style={{ height: 6, borderRadius: 99, background: 'var(--card-border)', overflow: 'hidden' }}>
-                <div style={{
-                  height: '100%', borderRadius: 99,
-                  background: goalPct !== null && goalPct >= 100 ? 'var(--success)' : 'linear-gradient(90deg,#fbbf24,#f59e0b)',
-                  width: `${goalPct ?? 0}%`, transition: 'width 0.5s',
-                }} />
-              </div>
-              {estimatedScore !== null && scoreTarget > estimatedScore && (
-                <p className="text-xs" style={{ color: 'var(--muted)', marginTop: 6 }}>
-                  Noch {scoreTarget - estimatedScore} Punkte bis zum Ziel
-                </p>
-              )}
-            </>
-          )}
-          <p style={{ fontSize: 10, color: 'var(--muted)', marginTop: 8, fontStyle: 'italic' }}>
-            Schätzung basiert auf deiner Übungsgenauigkeit. Echter TOEIC-Score erfordert offizielle Prüfung.
-          </p>
-          <details style={{ marginTop: 10 }}>
-            <summary style={{ fontSize: 11, color: 'var(--accent)', cursor: 'pointer', fontWeight: 600 }}>
-              📊 Genauigkeit → TOEIC Punkte (Orientierungstabelle)
-            </summary>
-            <div style={{ marginTop: 8, padding: '10px 14px', borderRadius: 8, background: 'var(--background)', border: '1px solid var(--card-border)' }}>
-              {[
-                { range: '≥ 90%', score: '800 – 990', color: '#04FF88' },
-                { range: '80 – 89%', score: '650 – 800', color: '#D5FD44' },
-                { range: '70 – 79%', score: '550 – 650', color: '#fbbf24' },
-                { range: '60 – 69%', score: '450 – 550', color: '#fb923c' },
-                { range: '< 60%', score: '< 450', color: '#ef4444' },
-              ].map(({ range, score, color }) => (
-                <div key={range} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0', borderBottom: '1px solid var(--card-border)' }}>
-                  <span style={{ fontSize: 11, color: 'var(--muted)' }}>{range} Genauigkeit</span>
-                  <span style={{ fontSize: 11, fontWeight: 700, color }}>≈ {score} Punkte</span>
-                </div>
-              ))}
-              <p style={{ fontSize: 10, color: 'var(--muted)', marginTop: 6, fontStyle: 'italic' }}>Näherungswerte — offizieller Score variiert je nach Tagesform und Fragenset.</p>
-            </div>
-          </details>
-        </div>
-      )}
 
       {/* ── Empty state ────────────────────────────────────────────────── */}
       {(!dbUser || dbUser.sessions.length === 0) && dbUser?.diagnosticDone && (

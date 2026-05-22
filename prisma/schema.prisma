@@ -10,19 +10,20 @@ datasource db {
 }
 
 model User {
-  id             String      @id @default(cuid())
-  supabaseId     String      @unique
-  email          String      @unique
+  id             String         @id @default(cuid())
+  supabaseId     String         @unique
+  email          String         @unique
   name           String?
   examType       ExamType?
   examDate       DateTime?
-  diagnosticDone Boolean     @default(false)
-  scoreTarget    Int?        // desired TOEIC total score (e.g. 700, 860, 990)
+  examGoal       ExamGoal?      // user motivation: CAREER | ABROAD | ACADEMICS | SELF_IMPROVEMENT
+  diagnosticDone Boolean        @default(false)
   sessions       Session[]
   progress       Progress[]
   levels         UserLevel[]
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
+  errorPatterns  ErrorPattern[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 }
 
 // Stores per-section CEFR level after diagnostic and ongoing practice
@@ -55,33 +56,36 @@ model Question {
 }
 
 model Session {
-  id             String      @id @default(cuid())
-  userId         String
-  user           User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  mode           SessionMode
-  section        Section?
-  parts          Int[]
-  totalQuestions Int
-  score          Int?
-  maxScore       Int?
-  durationSec    Int?
-  completedAt    DateTime?
-  answers        Answer[]
-  createdAt      DateTime    @default(now())
+  id               String      @id @default(cuid())
+  userId           String
+  user             User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mode             SessionMode
+  section          Section?
+  parts            Int[]
+  totalQuestions   Int
+  score            Int?
+  maxScore         Int?
+  durationSec      Int?
+  completedAt      DateTime?
+  answers          Answer[]
+  sessionSummary   Json?       // { accuracy: 73, errorsByType: { sound_alike: 2, related_word: 1, ... }, topErrors: [...], avgTimeSec: 58, speedFeedback: "13s slower" }
+  createdAt        DateTime    @default(now())
 }
 
 model Answer {
-  id           String   @id @default(cuid())
-  sessionId    String
-  session      Session  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  questionId   String
-  question     Question @relation(fields: [questionId], references: [id])
-  userAnswer   String   // MC key, typed text, or audio transcript
-  isCorrect    Boolean
-  cefrLevel    String?  // CEFR level for this specific answer (AI-evaluated)
-  aiFeedback   String?  // structured JSON with what_was_good, what_to_improve, tip
-  timeSpentSec Int?
-  createdAt    DateTime @default(now())
+  id               String               @id @default(cuid())
+  sessionId        String
+  session          Session              @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  questionId       String
+  question         Question             @relation(fields: [questionId], references: [id])
+  userAnswer       String               // MC key, typed text, or audio transcript
+  isCorrect        Boolean
+  cefrLevel        String?              // CEFR level for this specific answer (AI-evaluated)
+  aiFeedback       String?              // structured JSON with what_was_good, what_to_improve, tip
+  timeSpentSec     Int?
+  distractorType   DistractorType?      // TOEIC trap type if answer is wrong
+  errorReviewedAt  DateTime?            // when user reviewed this error
+  createdAt        DateTime             @default(now())
 }
 
 model Progress {
@@ -97,6 +101,20 @@ model Progress {
   updatedAt  DateTime @updatedAt
 
   @@unique([userId, section, part, type])
+}
+
+// Tracks recurring error patterns per user per distractor type
+model ErrorPattern {
+  id               String         @id @default(cuid())
+  userId           String
+  user             User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  distractorType   DistractorType
+  frequency        Int            @default(0)      // how many times this error occurred
+  lastOccurredAt   DateTime       @updatedAt
+  firstOccurredAt  DateTime       @default(now())
+  urgencyScore     Float          @default(0)      // calculated: frequency × recency × severity
+
+  @@unique([userId, distractorType])
 }
 
 enum ExamType {
@@ -117,6 +135,21 @@ enum SessionMode {
   FULL_EXAM
   PART_PRACTICE
   ADAPTIVE
+}
+
+enum DistractorType {
+  SOUND_ALIKE        // Similar sounding words (hired vs. tired, bass vs. base)
+  HOMONYM            // Same pronunciation, different meaning (hear vs. here, to vs. too)
+  RELATED_WORD       // Semantically related but incorrect (conference vs. meeting)
+  OMIT_NECESSARY     // Partially correct but missing key word
+  ALTER_WORD_ORDER   // Right words, wrong grammar/order
+}
+
+enum ExamGoal {
+  CAREER             // Bessere Performance im aktuellen Job ODER bessere Chancen bei Bewerbungen
+  ABROAD             // Arbeiten im Ausland, Umzug, internationale Transfers
+  ACADEMICS          // Universität, Master, Austauschprogramm
+  SELF_IMPROVEMENT   // Persönliche Verbesserung, Englisch allgemein
 }
 
 enum QuestionType {
