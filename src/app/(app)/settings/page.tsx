@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { Save, User, Calendar, BookOpen, Trash2, AlertTriangle, Target } from 'lucide-react'
+import { Save, User, Calendar, BookOpen, Trash2, AlertTriangle, Lightbulb } from 'lucide-react'
+import { OnboardingUseCaseSelector } from '@/components/OnboardingUseCaseSelector'
 
 const EXAM_TYPES = [
   { value: 'LISTENING_READING', label: 'TOEIC Listening & Reading', desc: 'Parts 1–7, Multiple Choice' },
@@ -8,13 +9,18 @@ const EXAM_TYPES = [
   { value: 'FULL_CERTIFICATE',  label: 'TOEIC Full Certificate',     desc: 'Alle 4 Bereiche' },
 ]
 
-const SCORE_PRESETS = [600, 700, 730, 800, 860, 900, 990]
+const EXAM_GOALS = [
+  { id: 'CAREER', label: 'Karriere & Job' },
+  { id: 'ABROAD', label: 'Im Ausland arbeiten' },
+  { id: 'ACADEMICS', label: 'Universität/Studium' },
+  { id: 'SELF_IMPROVEMENT', label: 'Englisch allgemein' },
+]
 
 export default function SettingsPage() {
   const [name, setName]               = useState('')
   const [examType, setExamType]       = useState('')
+  const [examGoal, setExamGoal]       = useState('')
   const [examDate, setExamDate]       = useState('')
-  const [scoreTarget, setScoreTarget] = useState('')
   const [loading, setLoading]         = useState(true)
   const [saving, setSaving]           = useState(false)
   const [saved, setSaved]             = useState(false)
@@ -30,8 +36,8 @@ export default function SettingsPage() {
       .then(data => {
         setName(data.name ?? '')
         setExamType(data.examType ?? '')
+        setExamGoal(data.examGoal ?? '')
         setExamDate(data.examDate ? data.examDate.slice(0, 10) : '')
-        setScoreTarget(data.scoreTarget ? String(data.scoreTarget) : '')
         setLoading(false)
       })
       .catch(() => setLoading(false))
@@ -48,8 +54,8 @@ export default function SettingsPage() {
         body: JSON.stringify({
           name: name || null,
           examType: examType || null,
+          examGoal: examGoal || null,
           examDate: examDate || null,
-          scoreTarget: scoreTarget ? parseInt(scoreTarget) : null,
         }),
       })
       if (!res.ok) throw new Error('Fehler beim Speichern')
@@ -184,52 +190,37 @@ export default function SettingsPage() {
           )}
         </div>
 
-        {/* Score target */}
+        {/* Exam goal */}
         <div className="card" style={{ padding: '22px 24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-            <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(251,191,36,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Target size={15} style={{ color: '#fbbf24' }} />
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(34,212,102,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Lightbulb size={15} style={{ color: 'var(--success)' }} />
             </div>
-            <p className="font-semibold text-sm">Ziel-Score</p>
+            <p className="font-semibold text-sm">Prüfungsziel</p>
           </div>
           <p className="text-xs" style={{ color: 'var(--muted)', marginBottom: 12 }}>
-            Welchen TOEIC-Score möchtest du erreichen? (Max: 990 für L&R)
+            Was ist deine Motivation für TOEIC? Das bestimmt deine Trainings-Prioritäten.
           </p>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
-            {SCORE_PRESETS.map(p => (
-              <button
-                key={p} type="button"
-                onClick={() => setScoreTarget(String(p))}
-                style={{
-                  padding: '6px 14px', borderRadius: 99, fontSize: 12, fontWeight: 600, cursor: 'pointer',
-                  border: `1.5px solid ${scoreTarget === String(p) ? '#fbbf24' : 'var(--card-border)'}`,
-                  background: scoreTarget === String(p) ? 'rgba(251,191,36,0.15)' : 'transparent',
-                  color: scoreTarget === String(p) ? '#fbbf24' : 'var(--muted)',
-                  transition: 'all 0.15s',
-                }}
-              >
-                {p}
-              </button>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {EXAM_GOALS.map(goal => (
+              <label key={goal.id} style={{
+                display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 8,
+                border: `1.5px solid ${examGoal === goal.id ? 'var(--accent)' : 'var(--card-border)'}`,
+                background: examGoal === goal.id ? 'rgba(79,70,229,0.08)' : 'transparent',
+                cursor: 'pointer', transition: 'all 0.15s',
+              }}>
+                <input type="radio" name="examGoal" value={goal.id} checked={examGoal === goal.id}
+                  onChange={() => setExamGoal(goal.id)} style={{ accentColor: 'var(--accent)' }} />
+                <span className="text-sm">{goal.label}</span>
+              </label>
             ))}
+            {examGoal && (
+              <button type="button" onClick={() => setExamGoal('')}
+                className="text-xs" style={{ color: 'var(--muted)', background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left', padding: '4px 0', marginTop: 4 }}>
+                Auswahl zurücksetzen
+              </button>
+            )}
           </div>
-          <input
-            type="number"
-            value={scoreTarget}
-            onChange={e => setScoreTarget(e.target.value)}
-            placeholder="Eigenen Score eingeben, z.B. 750"
-            min={10} max={990}
-            style={{
-              background: 'var(--card)', border: '1px solid var(--card-border)',
-              borderRadius: 8, padding: '10px 14px', fontSize: 14,
-              color: 'var(--fg)', outline: 'none', width: '100%', boxSizing: 'border-box',
-            }}
-          />
-          {scoreTarget && (
-            <p className="text-xs" style={{ color: 'var(--muted)', marginTop: 8 }}>
-              Ziel: <strong style={{ color: '#fbbf24' }}>{scoreTarget} Punkte</strong>
-              {examDate && ` · ${Math.ceil((new Date(examDate).getTime() - Date.now()) / 86400000)} Tage Zeit`}
-            </p>
-          )}
         </div>
 
         {error && <p className="text-sm" style={{ color: 'var(--error)' }}>{error}</p>}
