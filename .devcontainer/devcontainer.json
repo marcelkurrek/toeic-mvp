@@ -1,4 +1,4 @@
 {
   "image": "mcr.microsoft.com/devcontainers/universal:2",
-  "postStartCommand": "cd /workspaces/toeic-mvp && npm install -g pm2 --silent && pm2 start ecosystem.config.js || pm2 restart toeic-mvp && pm2 save"
+  "postStartCommand": "cd /workspaces/toeic-mvp && npm install -g pm2 --silent && pm2 start ecosystem.config.js || pm2 restart toeic-mvp && pm2 save && chmod +x .devcontainer/auto-sync.sh && nohup .devcontainer/auto-sync.sh > /tmp/auto-sync.log 2>&1 &"
 }
