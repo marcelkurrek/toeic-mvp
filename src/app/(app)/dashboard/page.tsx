@@ -390,7 +390,7 @@ export default async function DashboardPage() {
                     <p style={{ fontSize: 12, color: 'var(--muted)', lineHeight: 1.5, margin: 0 }}>{step.desc}</p>
                   </div>
                 </a>
-              )
+                )
               })}
 
             </div>
