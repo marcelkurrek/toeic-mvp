@@ -331,6 +331,29 @@ export default async function DashboardPage() {
 
         return (
           <div style={{ marginBottom: 28 }}>
+            {!step1Done && (!examType || !dbUser?.examDate) && (
+              <Link href="/settings" style={{ textDecoration: 'none', display: 'block', marginBottom: 16 }}>
+                <div style={{
+                  padding: '14px 18px',
+                  borderRadius: 10,
+                  background: 'rgba(251,146,60,0.12)',
+                  border: '1.5px solid rgba(251,146,60,0.35)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 12,
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                    <span style={{ fontSize: 16 }}>⚙️</span>
+                    <div>
+                      <p style={{ fontSize: 12, fontWeight: 600, color: 'var(--fg)', margin: 0 }}>Einstellungen erforderlich</p>
+                      <p style={{ fontSize: 11, color: 'var(--muted)', margin: '2px 0 0 0' }}>Prüfungstyp und -datum festlegen, um zu starten</p>
+                    </div>
+                  </div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: '#fb923c' }}>Jetzt einrichten →</div>
+                </div>
+              </Link>
+            )}
             <p style={{ fontSize: 10, fontWeight: 700, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: 16 }}>Dein Trainingsweg</p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
               {steps.map((step) => {
